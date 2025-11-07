@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivilTrack Pro - Esquemas Rápidos con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eef2ff; /* Fondo limpio y profesional */
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .output-card {
+            min-height: 300px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .loading-animation {
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex justify-center items-start">
+
+    <div class="w-full max-w-4xl">
+        <!-- Encabezado CivilTrack Pro -->
+        <header class="text-center mb-10 p-6 bg-white rounded-xl shadow-lg border-t-4 border-indigo-600">
+            <h1 class="text-3xl font-extrabold text-indigo-700">CivilTrack PRO: Esquemas Instantáneos IA</h1>
+            <p class="text-gray-600 mt-2">Introduce un artículo del Código Civil (o un tema) y obtén un esquema de memorización de élite.</p>
+        </header>
+
+        <!-- Formulario de Consulta -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">🔍 Búsqueda y Generación de Esquema</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="article-query" placeholder="Ej: Artículo 74, o: Deberes conyugales"
+                       class="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500 transition duration-150"
+                       aria-label="Artículo o tema a consultar">
+                <button id="btn-generate-schema" 
+                        class="bg-green-600 text-white font-bold p-3 rounded-lg hover:bg-green-700 transition duration-150 shadow-md flex items-center justify-center disabled:opacity-50"
+                        aria-live="polite">
+                    Generar Esquema PRO
+                </button>
+            </div>
+        </div>
+
+        <!-- Área de Resultados -->
+        <div id="results-area" class="output-card bg-white p-8 rounded-xl shadow-2xl relative">
+            <div id="loading-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-xl z-20">
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 border-4 border-indigo-500 border-solid rounded-full loading-animation mb-3"></div>
+                    <p class="text-indigo-600 font-semibold">Cargando inteligencia... ¡Preparando tu esquema de élite!</p>
+                </div>
+            </div>
+            
+            <div id="output-content" class="text-gray-800">
+                <h3 class="text-2xl font-bold text-indigo-700 mb-4" id="schema-title">Esquema generado por IA:</h3>
+                <div id="schema-text" class="prose max-w-none text-base">
+                    <p class="text-gray-500 italic">Introduce un artículo o tema arriba y presiona "Generar Esquema PRO" para empezar.</p>
+                </div>
+            </div>
+
+            <div id="error-message" class="hidden mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded" role="alert">
+                <!-- Mensajes de error aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = ""; 
+        const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
+        const MODEL = 'gemini-2.5-flash-preview-09-2025';
+        
+        const btnGenerate = document.getElementById('btn-generate-schema');
+        const queryInput = document.getElementById('article-query');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const schemaTitle = document.getElementById('schema-title');
+        const schemaText = document.getElementById('schema-text');
+        const errorMessage = document.getElementById('error-message');
+
+        const SYSTEM_INSTRUCTION = `
+            Eres el 'Arquitecto de la Mente' de CivilTrack Pro, un experto en organización mental, mnemotecnia y maquetación de temarios legales para oposiciones de Guardia Civil. Tu objetivo es hacer que estudiar Derecho sea fácil, posible y divertido.
+            
+            **Instrucciones de Respuesta:**
+            1.  **Lenguaje:** Usa un tono motivador, claro y cercano. Explica como si se lo enseñaras a alguien distraído o a un niño, con ejemplos y emojis.
+            2.  **Formato de Salida:** Debes generar un único bloque de texto que contenga:
+                * **Título:** TÍTULO PRO: [El Título del artículo].
+                * **Resumen:** Un resumen en lenguaje simple (estilo 'para tontos').
+                * **Clave:** Una mnemotecnia (si aplica) o frase clave de memorización.
+                * **Esquema:** Un esquema de puntos clave o una tabla estructurada en Markdown que organice el contenido del artículo.
+                * **Ejemplo:** Un ejemplo práctico con emojis.
+            3.  **Contenido:** El contenido debe basarse en el Código Civil español o en temas de Derecho Civil general relacionados con la query del usuario. Si la query es vaga o no se relaciona con la ley, pide aclaración.
+            
+            **Tu respuesta debe ser estrictamente el contenido del esquema, sin introducciones ni despedidas adicionales.**
+        `;
+
+        function showLoading(show) {
+            loadingSpinner.classList.toggle('hidden', !show);
+            btnGenerate.disabled = show;
+            errorMessage.classList.add('hidden');
+        }
+
+        function displayError(message) {
+            errorMessage.textContent = `❌ Error en la consulta: ${message}`;
+            errorMessage.classList.remove('hidden');
+            schemaText.innerHTML = '<p class="text-gray-500 italic">Inténtalo de nuevo con otra consulta.</p>';
+        }
+
+        async function exponentialBackoffFetch(url, options, maxRetries = 5, delay = 1000) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return response;
+                    }
+                    if (response.status === 429) { 
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; 
+                        continue;
+                    }
+                    throw new Error(`API respondió con estado ${response.status}: ${response.statusText}`);
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+            throw new Error('Máximo de reintentos alcanzado.');
+        }
+
+        async function generateSchema() {
+            const query = queryInput.value.trim();
+            if (!query) {
+                displayError("Por favor, introduce el número de un artículo o un tema a consultar.");
+                return;
+            }
+
+            const userQuery = `Genera un esquema de memorización para: ${query} del Código Civil español.`;
+            
+            showLoading(true);
+            schemaTitle.textContent = `Esquema generado para: ${query}`;
+            schemaText.innerHTML = '';
+            
+            const apiUrl = `${BASE_URL}${MODEL}:generateContent?key=${API_KEY}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] }
+            };
+            
+            try {
+                const response = await exponentialBackoffFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) {
+                    throw new Error('Respuesta de la IA vacía o incompleta.');
+                }
+
+                // Convertir la respuesta Markdown a HTML simple para la visualización.
+                // Esta es una implementación simple de Markdown to HTML.
+                let html = text
+                    .replace(/^###\s*(.*)$/gm, '<h3 class="text-xl font-bold mt-4 text-green-700">$1</h3>') // Títulos de sección
+                    .replace(/^#\s*(.*)$/gm, '<h2 class="text-2xl font-extrabold text-indigo-600 mb-3">$1</h2>') // Título PRO
+                    .replace(/^- (.*)$/gm, '<li class="list-disc ml-6">$1</li>') // Listas no ordenadas
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Negritas
+
+                schemaText.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error al llamar a Gemini API:", error);
+                displayError(error.message || "Fallo en la comunicación con la IA.");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        btnGenerate.addEventListener('click', generateSchema);
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                generateSchema();
+            }
+        });
+
+        // Simular el inicio de la app
+        window.onload = () => {
+            console.log("Aplicación CivilTrack Pro lista. ¡A estudiar!");
+        };
+    </script>
+</body>
+</html>
