@@ -1,0 +1,1859 @@
+<title>Expediente UCO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070C09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* ── TERMINAL SIGMA · simulación de investigación ────────────── */
+:root{
+  --bg:#070C09; --panel:#0D1712; --panel2:#13211A; --panel3:#1A2E23;
+  --line:#1E3527; --line2:#2F5541;
+  --txt:#DBE7E0; --dim:#8AA396; --dim2:#5B7568;
+  --green:#3FBF6F; --green-hi:#86EFAE; --green-dk:#1D6B3C;
+  --amber:#E8B04B; --red:#E4615A; --blue:#6BAFD8; --violet:#A98BD8;
+  --paper:#EAE4D4; --paper2:#DDD5C0; --ink:#1B1810; --ink2:#4A4436;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --f-cond:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-doc:"IBM Plex Sans",system-ui,sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:var(--f-mono);font-size:14px;line-height:1.45;
+  overscroll-behavior:none;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit}
+::-webkit-scrollbar{width:0;height:0}
+
+#term{
+  position:relative;width:100%;max-width:520px;margin:0 auto;
+  height:100vh;height:100dvh;max-height:100dvh;
+  display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;
+  background:
+    radial-gradient(120% 55% at 50% 0%, #10201800 60%, #0A130E 100%),
+    linear-gradient(180deg,#08110C,#070C09);
+  box-shadow:0 0 0 1px var(--line);overflow:hidden;
+}
+#term::after{ /* barrido CRT muy sutil */
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:40;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.016) 0 1px,transparent 1px 3px);
+}
+/* ── barra de clasificación ── */
+#clas{
+  grid-row:1;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:5px 10px;background:#0F2A1B;border-bottom:1px solid var(--line2);
+  font-family:var(--f-cond);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green-hi)
+}
+#clas .sim{color:var(--amber);border:1px solid var(--amber);border-radius:3px;padding:1px 6px;font-size:9.5px;letter-spacing:.12em}
+#clas .fs{
+  background:transparent;border:1px solid var(--line2);color:var(--green-hi);border-radius:3px;
+  padding:1px 7px;font-size:12px;line-height:1.5;cursor:pointer;margin-left:2px
+}
+#clas .fs:active{filter:brightness(1.4)}
+:fullscreen #term, :-webkit-full-screen #term{max-width:none;width:100%;height:100vh;height:100dvh}
+@media (min-width:560px){ :fullscreen #term{max-width:520px;margin:0 auto} }
+/* ── cabecera de sesión ── */
+#head{grid-row:2;padding:8px 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0E1B14,#0A140F)}
+#head.hide,#clas.hide{display:none}
+#view{grid-row:3;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#bar{
+  grid-row:4;padding:8px 10px calc(10px + var(--safe-b));border-top:1px solid var(--line);background:#0A140F;
+  display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;flex:0 0 auto
+}
+#bar:empty{display:none}
+
+/* ── tipografía ── */
+h1,h2,h3{margin:0;font-family:var(--f-cond);font-weight:700;letter-spacing:.02em;text-wrap:balance}
+h1{font-size:27px;line-height:1.06;text-transform:uppercase}
+h2{font-size:21px;line-height:1.12;text-transform:uppercase}
+h3{font-size:16px;text-transform:uppercase;letter-spacing:.06em}
+.k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2);font-family:var(--f-cond);font-weight:600}
+.k.g{color:var(--green)}.k.a{color:var(--amber)}.k.r{color:var(--red)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.dim{color:var(--dim)}.dim2{color:var(--dim2)}
+.g{color:var(--green-hi)}.a{color:var(--amber)}.r{color:var(--red)}.b{color:var(--blue)}
+.sm{font-size:12.5px}.xs{font-size:11px;line-height:1.4;color:var(--dim)}
+.cap{font-family:var(--f-cond);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── bloques ── */
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:11px}
+.box.hi{border-color:var(--line2);background:var(--panel2)}
+.box.al{border-color:#5A3A20;background:#1B140B}
+.box.cr{border-color:#5E2B28;background:#1C100F}
+.col{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px}
+.row.sb{justify-content:space-between}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rule{height:1px;background:var(--line);margin:2px 0}
+.dots{flex:1;border-bottom:1px dotted var(--line2);margin:0 6px;transform:translateY(-4px)}
+
+/* ── campos de ficha ── */
+.f{display:flex;gap:8px;padding:3px 0;border-bottom:1px solid rgba(30,53,39,.6);font-size:13px}
+.f b{color:var(--dim2);font-family:var(--f-cond);text-transform:uppercase;letter-spacing:.08em;font-weight:600;flex:0 0 40%;font-size:11.5px;padding-top:2px}
+.f span{flex:1;word-break:break-word}
+
+/* ── botones ── */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  min-height:50px;padding:10px 12px;border-radius:5px;border:1px solid var(--line2);
+  background:linear-gradient(180deg,var(--panel3),var(--panel));color:var(--txt);
+  font-family:var(--f-cond);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:transform .08s,filter .15s,opacity .15s;text-align:center;
+}
+.btn:active{transform:scale(.98);filter:brightness(1.25)}
+.btn:disabled{opacity:.32;pointer-events:none}
+.btn:focus-visible{outline:2px solid var(--green-hi);outline-offset:2px}
+.btn.pri{background:linear-gradient(180deg,#2E9D5A,#1D6B3C);border-color:var(--green-hi);color:#04170C}
+.btn.dgr{background:linear-gradient(180deg,#7E2E29,#4E1A17);border-color:#B24A43;color:#FFE7E5}
+.btn.gh{background:transparent;border-color:var(--line);color:var(--dim);min-height:42px;font-size:13px}
+.btn.sm{min-height:40px;font-size:12.5px;padding:6px 8px;letter-spacing:.05em}
+.btn .s{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;opacity:.7;text-transform:none;font-weight:500}
+.bc{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15}
+.btn.on{border-color:var(--green-hi);box-shadow:inset 0 0 0 1px rgba(134,239,174,.25)}
+
+/* ── entradas ── */
+.inp{
+  width:100%;padding:11px 12px;border-radius:5px;border:1px solid var(--line2);
+  background:#08100C;color:var(--green-hi);font-size:16px;letter-spacing:.06em;
+}
+.inp::placeholder{color:var(--dim2);letter-spacing:.02em}
+.inp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(63,191,111,.15)}
+
+/* ── etiquetas ── */
+.tag{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:3px;
+  border:1px solid var(--line2);background:rgba(255,255,255,.03);
+  font-family:var(--f-cond);font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap
+}
+.tag.g{border-color:var(--green-dk);color:var(--green-hi);background:rgba(63,191,111,.10)}
+.tag.a{border-color:#6B4A18;color:var(--amber);background:rgba(232,176,75,.10)}
+.tag.r{border-color:#6B2B27;color:var(--red);background:rgba(228,97,90,.10)}
+.tag.b{border-color:#2A4A5E;color:var(--blue);background:rgba(107,175,216,.10)}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+
+/* ── listados ── */
+.hit{
+  display:flex;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);
+  border-radius:5px;background:var(--panel);cursor:pointer;text-align:left;width:100%
+}
+.hit:active{background:var(--panel2)}
+.hit .av{
+  flex:0 0 38px;height:38px;border-radius:4px;border:1px solid var(--line2);
+  display:grid;place-items:center;font-size:19px;background:#0A130E
+}
+.hit .nm{font-family:var(--f-cond);font-size:15px;font-weight:600;letter-spacing:.04em;line-height:1.15}
+.hit .sub{font-size:11px;color:var(--dim2);letter-spacing:.02em}
+.hit.on{border-color:var(--green);box-shadow:inset 0 0 0 1px rgba(63,191,111,.2)}
+
+/* ── tabla de datos ── */
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{
+  font-family:var(--f-cond);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim2);text-align:left;padding:5px 6px;border-bottom:1px solid var(--line2);font-weight:600
+}
+.tbl td{padding:6px;border-bottom:1px solid rgba(30,53,39,.55);vertical-align:top}
+.tbl tr.hot td{background:rgba(232,176,75,.07)}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── documento en papel ── */
+.doc{
+  background:linear-gradient(175deg,var(--paper),var(--paper2));color:var(--ink);
+  border-radius:4px;padding:16px 14px;font-family:var(--f-doc);font-size:13.5px;line-height:1.5;
+  box-shadow:0 10px 24px -14px #000;position:relative;overflow:hidden
+}
+.doc h3{font-family:var(--f-cond);color:var(--ink);letter-spacing:.06em}
+.doc .k{color:var(--ink2)}
+.doc .sep{height:1px;background:rgba(27,24,16,.25);margin:9px 0}
+.doc .stamp{
+  position:absolute;right:-12px;bottom:14px;transform:rotate(-11deg);
+  border:2px solid rgba(160,40,35,.6);color:rgba(160,40,35,.75);
+  font-family:var(--f-cond);font-size:15px;letter-spacing:.14em;padding:3px 22px;border-radius:3px
+}
+.doc b{color:#000}
+
+/* ── barras y relojes ── */
+.meter{height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--green-dk),var(--green-hi))}
+.meter.a i{background:linear-gradient(90deg,#8A6A20,var(--amber))}
+.meter.r i{background:linear-gradient(90deg,#6E2A26,var(--red))}
+
+/* ── consola de arranque ── */
+.boot{font-size:12.5px;line-height:1.65;color:var(--green);white-space:pre-wrap}
+.cur::after{content:"█";animation:blink 1s steps(1) infinite;color:var(--green-hi)}
+@keyframes blink{50%{opacity:0}}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(3px)}50%{transform:translateX(-4px)}}
+.fade{animation:fade .22s ease}
+.pop{animation:pop .3s cubic-bezier(.2,1.5,.4,1)}
+.shake{animation:shake .35s}
+
+/* ── superposiciones ── */
+#lock{
+  position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;padding:26px;text-align:center;background:#050806
+}
+#lock.on{display:flex;animation:fade .3s}
+#msg{position:absolute;left:50%;top:78px;transform:translateX(-50%);z-index:70;width:92%;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.msg{
+  padding:9px 14px;border-radius:4px;border:1px solid var(--line2);background:rgba(13,23,18,.97);
+  font-size:12.5px;text-align:center;animation:fade .2s;box-shadow:0 10px 30px -12px #000
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  #term::after{display:none}}
+@media (max-height:700px){h1{font-size:23px}.btn{min-height:44px}}
+</style>
+
+<div id="term">
+  <div id="clas"></div>
+  <div id="head"></div>
+  <div id="view"></div>
+  <div id="bar"></div>
+  <div id="lock"></div>
+  <div id="msg"></div>
+</div>
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════════════
+   SIGMA · núcleo de datos (todo generado, nada real)
+   ══════════════════════════════════════════════════════════════ */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+let RND = mulberry32(1);
+const rr = (a,b) => a + RND()*(b-a);
+const ri = (a,b) => Math.floor(rr(a,b+1));
+const pk = a => a[Math.floor(RND()*a.length)];
+const pkn = (a,n) => { const c=a.slice(), o=[]; while(o.length<n && c.length) o.push(c.splice(Math.floor(RND()*c.length),1)[0]); return o; };
+const chance = p => RND() < p;
+const pad = (n,l) => String(n).padStart(l||2,'0');
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur = n => '€' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+
+const NOM_M = ['Antonio','Manuel','José','Francisco','David','Juan','Javier','Daniel','Carlos','Miguel','Rafael','Pedro','Alejandro','Ángel','Fernando','Sergio','Pablo','Jorge','Luis','Alberto','Álvaro','Adrián','Diego','Raúl','Iván','Rubén','Óscar','Enrique','Ramón','Andrés','Joaquín','Víctor','Emilio','Marcos','Hugo','Gonzalo','Ignacio','Samuel','Aitor','Cristian','Mohamed','Nicolae','Bogdan','Youssef','Darío'];
+const NOM_F = ['María','Carmen','Ana','Laura','Isabel','Cristina','Marta','Lucía','Elena','Sara','Patricia','Raquel','Beatriz','Silvia','Rocío','Paula','Andrea','Nuria','Alba','Irene','Sonia','Natalia','Mónica','Eva','Julia','Noelia','Clara','Inés','Susana','Verónica','Yolanda','Miriam','Lorena','Vanesa','Aurora','Pilar','Teresa','Fátima','Ioana','Daniela','Valeria','Amina','Sandra','Nerea','Alicia'];
+const APE = ['García','Martínez','López','Sánchez','González','Rodríguez','Fernández','Gómez','Ruiz','Díaz','Hernández','Álvarez','Moreno','Muñoz','Romero','Alonso','Gutiérrez','Navarro','Torres','Domínguez','Vázquez','Ramos','Gil','Ramírez','Serrano','Blanco','Molina','Morales','Suárez','Ortega','Delgado','Castro','Ortiz','Marín','Rubio','Núñez','Medina','Sanz','Iglesias','Cortés','Castillo','Santos','Guerrero','Lozano','Cano','Prieto','Méndez','Cruz','Calvo','Gallego','Herrera','Peña','Márquez','León','Vidal','Pascual','Herrero','Montero','Lorenzo','Hidalgo','Ibáñez','Vega','Ferrer','Carrasco','Caballero','Nieto','Reyes','Aguilar','Pardo','Santiago','Benítez','Mora','Rojas','Vicente','Crespo','Soto','Velasco','Esteban','Bravo','Gallardo','Rivas','Sáez','Otero','Camacho','Cabrera','Duarte','Popescu','El Amrani','Dumitru','Silva','Fonseca'];
+const MUN = [
+  ['Madrid','MADRID','280'],['Alcalá de Henares','MADRID','288'],['Getafe','MADRID','289'],['Torrejón de Ardoz','MADRID','285'],
+  ['Barcelona','BARCELONA','080'],['Hospitalet de Llobregat','BARCELONA','089'],['Badalona','BARCELONA','089'],
+  ['Valencia','VALENCIA','460'],['Torrent','VALENCIA','469'],['Gandía','VALENCIA','467'],
+  ['Sevilla','SEVILLA','410'],['Dos Hermanas','SEVILLA','417'],['Alcalá de Guadaíra','SEVILLA','415'],
+  ['Zaragoza','ZARAGOZA','500'],['Málaga','MÁLAGA','290'],['Marbella','MÁLAGA','296'],['Estepona','MÁLAGA','296'],
+  ['Murcia','MURCIA','300'],['Cartagena','MURCIA','302'],['Alicante','ALICANTE','030'],['Elche','ALICANTE','032'],
+  ['Torrevieja','ALICANTE','037'],['Bilbao','BIZKAIA','480'],['Vitoria','ÁLAVA','010'],['Valladolid','VALLADOLID','470'],
+  ['Vigo','PONTEVEDRA','362'],['A Coruña','A CORUÑA','150'],['Gijón','ASTURIAS','332'],['Santander','CANTABRIA','390'],
+  ['Pamplona','NAVARRA','310'],['Logroño','LA RIOJA','260'],['Albacete','ALBACETE','020'],['Toledo','TOLEDO','450'],
+  ['Talavera de la Reina','TOLEDO','456'],['Badajoz','BADAJOZ','060'],['Cáceres','CÁCERES','100'],['Granada','GRANADA','180'],
+  ['Motril','GRANADA','186'],['Almería','ALMERÍA','040'],['El Ejido','ALMERÍA','047'],['Cádiz','CÁDIZ','110'],
+  ['Algeciras','CÁDIZ','112'],['La Línea de la Concepción','CÁDIZ','113'],['Jerez de la Frontera','CÁDIZ','114'],
+  ['Huelva','HUELVA','210'],['Córdoba','CÓRDOBA','140'],['Jaén','JAÉN','230'],['Palma','ILLES BALEARS','070'],
+  ['Ibiza','ILLES BALEARS','078'],['Las Palmas','LAS PALMAS','350'],['Salamanca','SALAMANCA','370'],['León','LEÓN','240'],
+  ['Burgos','BURGOS','090'],['Ourense','OURENSE','320'],['Lugo','LUGO','270'],['Girona','GIRONA','170'],['Tarragona','TARRAGONA','430'],
+  ['Lleida','LLEIDA','250'],['Castellón','CASTELLÓN','120'],['Huesca','HUESCA','220']
+];
+const VIA = ['Calle','Avenida','Plaza','Camino','Travesía','Paseo','Carretera','Ronda'];
+const VIA_N = ['Mayor','Real','del Pilar','de la Estación','Nueva','del Carmen','San Juan','de la Constitución','de Andalucía','del Sol','Numancia','de los Olivos','Cervantes','Goya','Velázquez','de la Paz','del Río','San Antonio','Doctor Fleming','Colón','de Levante','del Puerto','La Fuente','Alcalá','de Aragón','Extremadura','Isaac Peral','Los Rosales','del Molino','de la Vega','Independencia','Blas de Otero','La Marina','del Consejo','Antonio Machado','Rosalía de Castro','Serrano','Toledo','San Bernardo','del Prado'];
+const MARCA = [['Seat','León'],['Seat','Ibiza'],['Volkswagen','Golf'],['Volkswagen','Passat'],['Renault','Mégane'],['Renault','Clio'],['Peugeot','308'],['Peugeot','3008'],['Citroën','C4'],['Opel','Astra'],['Ford','Focus'],['Ford','Transit'],['BMW','Serie 3'],['BMW','X5'],['Mercedes','Clase C'],['Mercedes','Vito'],['Audi','A4'],['Audi','Q7'],['Toyota','Corolla'],['Nissan','Qashqai'],['Kia','Sportage'],['Hyundai','Tucson'],['Dacia','Sandero'],['Fiat','Ducato'],['Iveco','Daily'],['Land Rover','Discovery'],['Porsche','Cayenne'],['Volvo','XC60']];
+const COLOR = ['blanco','negro','gris','gris plata','azul marino','azul','rojo','verde oscuro','beige','burdeos'];
+const PROF = ['Albañil','Camarero','Transportista','Administrativo','Mecánico','Comercial','Autónomo','Sin actividad declarada','Hostelería','Peón agrícola','Vigilante de seguridad','Repartidor','Electricista','Fontanero','Dependiente','Taxista','Cocinero','Auxiliar de almacén','Empresario','Gestor administrativo','Estudiante','Jubilado','Limpieza','Enfermería','Conductor de autobús','Soldador','Carpintero','Pintor','Agente inmobiliario','Contable'];
+const DELITOS = [
+  ['Art. 234 CP','Hurto'],['Art. 237 CP','Robo con fuerza en las cosas'],['Art. 242 CP','Robo con violencia o intimidación'],
+  ['Art. 244 CP','Robo de uso de vehículo'],['Art. 248 CP','Estafa'],['Art. 263 CP','Daños'],['Art. 147 CP','Lesiones'],
+  ['Art. 169 CP','Amenazas'],['Art. 368 CP','Tráfico de drogas'],['Art. 301 CP','Blanqueo de capitales'],
+  ['Art. 390 CP','Falsedad documental'],['Art. 379 CP','Delito contra la seguridad vial'],['Art. 570 bis CP','Organización criminal'],
+  ['Art. 163 CP','Detención ilegal'],['Art. 252 CP','Administración desleal'],['Art. 419 CP','Cohecho'],['Art. 197 CP','Descubrimiento de secretos']
+];
+const RESOL = ['Sentencia firme','Pendiente de juicio oral','Sobreseimiento provisional','Diligencias archivadas','Condena · suspendida'];
+const SENAS = ['1,68 m · complexión delgada','1,75 m · complexión media','1,82 m · complexión fuerte','1,71 m · complexión media','1,90 m · complexión atlética','1,63 m · complexión menuda','1,78 m · complexión robusta'];
+const RASGOS = ['tatuaje en antebrazo derecho','cicatriz en ceja izquierda','barba cerrada','calvicie pronunciada','gafas de vista','pendiente en oreja izquierda','tatuaje en el cuello','cojera leve','pelo teñido','sin señas particulares'];
+const BANCOS = ['BANCO PENINSULAR','CAJA DEL LEVANTE','BANCO ATLÁNTICO SUR','UNICAJA DEL NORTE','BANCA MERIDIONAL','CAJA RURAL DEL EBRO'];
+const EMPRESA_A = ['TRANSPORTES','LOGÍSTICA','CONSTRUCCIONES','IMPORT-EXPORT','REFORMAS','SERVICIOS','DISTRIBUCIONES','HOSTELERÍA','PROMOCIONES','GESTIÓN'];
+const EMPRESA_B = ['DEL SUR','LEVANTE','ATLÁNTICA','IBÉRICA','MERIDIANO','NOROESTE','GADITANA','DEL EBRO','COSTA AZUL','TRAMONTANA'];
+
+/* ── generadores de identificadores ── */
+function dniDe(num){ return num + '' + 'TRWAGMYFPDXBNJZSQVHLCKE'[num % 23]; }
+function nuevoDni(){ return dniDe(ri(11000000, 79999999)); }
+function nuevaMat(){
+  const L = 'BCDFGHJKLMNPRSTVWXYZ';
+  return pad(ri(0,9999),4) + ' ' + L[ri(0,19)] + L[ri(0,19)] + L[ri(0,19)];
+}
+function nuevoTel(){ return (chance(.85)?'6':'7') + pad(ri(0,99999999),8); }
+function nuevoIban(){
+  let n = '';
+  for(let i=0;i<20;i++) n += ri(0,9);
+  return 'ES' + pad(ri(10,99),2) + ' ' + n.slice(0,4) + ' ' + n.slice(4,8) + ' ' + n.slice(8,12) + ' ' + n.slice(12,16) + ' ' + n.slice(16,20);
+}
+function fechaNac(minEdad, maxEdad){
+  const hoy = new Date();
+  const edad = ri(minEdad||19, maxEdad||72);
+  return {d:ri(1,28), m:ri(1,12), y:hoy.getFullYear()-edad, edad};
+}
+const fmtF = f => `${pad(f.d)}/${pad(f.m)}/${f.y}`;
+function sumaDias(f, n){
+  const base = f.ts ? new Date(f.ts) : new Date(f.y, f.m-1, f.d);
+  const d = new Date(base.getTime() + n*86400000);
+  return {d:d.getDate(), m:d.getMonth()+1, y:d.getFullYear(), ts:d.getTime()};
+}
+const fmtH = m => `${pad(Math.floor(m/60)%24)}:${pad(m%60)}`;
+const DIAS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+
+/* ── base de datos ── */
+const DB = {per:[], veh:[], emp:[], byDni:{}, byTel:{}, byMat:{}, byId:{}};
+function nuevaPersona(i){
+  const sexo = chance(.52) ? 'H' : 'M';
+  const nombre = sexo==='H' ? pk(NOM_M) : pk(NOM_F);
+  const f = fechaNac(19, 74);
+  const mun = pk(MUN);
+  const p = {
+    id:'P'+pad(i,4), sexo, nombre, ape1:pk(APE), ape2:pk(APE), fnac:f,
+    dni:nuevoDni(), nac: chance(.86)?'Española':pk(['Marroquí','Rumana','Colombiana','Italiana','Portuguesa','Ecuatoriana','Búlgara','Británica']),
+    dom:{via:pk(VIA), nom:pk(VIA_N), num:ri(1,180), piso: chance(.7)? `${ri(1,8)}º ${pk('ABCD')}` : '—',
+         mun:mun[0], prov:mun[1], cp: mun[2] + pad(ri(1,60),2)},
+    tel:[nuevoTel()].concat(chance(.35)?[nuevoTel()]:[]),
+    prof:pk(PROF), senas: pk(SENAS) + ' · ' + pk(RASGOS),
+    ant:[], veh:[], vinc:[], req:null, notas:[], riesgo:0,
+    cuenta:{iban:nuevoIban(), banco:pk(BANCOS), saldo: Math.round(rr(120, 24000))},
+    foto: f.edad > 62
+      ? (sexo==='H' ? pk(['👴','👨‍🦲']) : pk(['👵','👩‍🦳']))
+      : (sexo==='H' ? pk(['👨','🧔','👨‍🦲','👨‍🦱','🧑']) : pk(['👩','👩‍🦰','🧑‍🦱','👱‍♀️','🧕']))
+  };
+  const nAnt = chance(.34) ? ri(1,4) : 0;
+  for(let k=0;k<nAnt;k++){
+    const d = pk(DELITOS);
+    p.ant.push({art:d[0], del:d[1], fecha:{d:ri(1,28), m:ri(1,12), y:ri(2011, 2025)}, res:pk(RESOL),
+                jz:`Juzgado de Instrucción nº ${ri(1,12)} de ${p.dom.mun}`});
+  }
+  p.ant.sort((a,b)=>b.fecha.y-a.fecha.y);
+  p.riesgo = clampi(p.ant.length + (p.ant.some(a=>['Art. 242 CP','Art. 570 bis CP','Art. 368 CP'].includes(a.art))?2:0), 0, 5);
+  if(p.ant.length && chance(.10)) p.req = {org:`Juzgado de Instrucción nº ${ri(1,10)} de ${pk(MUN)[0]}`, mot:pk(['Comparecencia','Orden de detención','Busca y personación']), fecha:{d:ri(1,28),m:ri(1,12),y:ri(2024,2026)}};
+  if(chance(.16)) p.alias = pk(['El Rubio','El Chino','Tito','Nano','El Flaco','Kiko','El Zurdo','Curro','El Largo','Pitu','El Moro','Cheo','El Pelón','Manu','El Gordo']);
+  if(chance(.22)) p.notas.push(pk([
+    'Identificado en control preventivo de madrugada sin justificar su presencia.',
+    'Figura como titular de un local de hostelería con expediente de sanción abierto.',
+    'Ha cambiado tres veces de domicilio en los últimos dos años.',
+    'Se le relaciona con ambientes de compraventa de vehículos de segunda mano.',
+    'Consta comunicación de operación sospechosa remitida por su entidad bancaria.',
+    'Colabora ocasionalmente como informador con unidades territoriales.'
+  ]));
+  return p;
+}
+function clampi(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function nuevoVehiculo(i, titular){
+  const m = pk(MARCA);
+  return {
+    id:'V'+pad(i,4), mat:nuevaMat(), marca:m[0], modelo:m[1], color:pk(COLOR),
+    año: ri(2004, 2025), titular: titular.id,
+    seguro: chance(.88) ? pk(['MUTUA IBÉRICA','SEGUROS DEL SUR','ATLAS SEGUROS','PENÍNSULA SEGUROS']) : null,
+    itv: chance(.82) ? 'Favorable · caduca ' + pad(ri(1,28)) + '/' + pad(ri(1,12)) + '/' + ri(2026,2028) : 'DESFAVORABLE · caducada',
+    inc: []
+  };
+}
+function nombreCompleto(p){ return `${p.nombre} ${p.ape1} ${p.ape2}`; }
+function edadDe(p){ return p.fnac.edad; }
+function domTexto(p){ return `${p.dom.via} ${p.dom.nom}, ${p.dom.num}${p.dom.piso!=='—'?', '+p.dom.piso:''} · ${p.dom.cp} ${p.dom.mun} (${p.dom.prov})`; }
+
+function generarMundo(seed){
+  RND = mulberry32(seed);
+  DB.per = []; DB.veh = []; DB.emp = []; DB.byDni = {}; DB.byTel = {}; DB.byMat = {}; DB.byId = {};
+  for(let i=1;i<=340;i++) DB.per.push(nuevaPersona(i));
+  let vi = 1;
+  DB.per.forEach(p=>{
+    const n = chance(.62) ? (chance(.22) ? 2 : 1) : 0;
+    for(let k=0;k<n;k++){
+      const v = nuevoVehiculo(vi++, p);
+      if(chance(.14)) v.inc.push(pk(['Denuncia de tráfico pendiente de pago','Vehículo inmovilizado en 2024 por falta de seguro','Figura en base de datos de aparcamiento indebido reiterado']));
+      DB.veh.push(v); p.veh.push(v.id);
+    }
+  });
+  for(let i=0;i<40;i++){
+    const t = pk(DB.per);
+    DB.emp.push({id:'E'+pad(i+1,3), nom:`${pk(EMPRESA_A)} ${pk(EMPRESA_B)} S.L.`, cif:'B'+ri(10000000,99999999),
+      admin:t.id, alta:{d:ri(1,28),m:ri(1,12),y:ri(2012,2025)}, mun:t.dom.mun, act:pk(['Transporte de mercancías','Construcción','Comercio al por mayor','Hostelería','Servicios inmobiliarios','Importación'])});
+  }
+  DB.per.forEach(p=>{
+    const n = ri(0,3);
+    for(let k=0;k<n;k++){
+      const o = pk(DB.per);
+      if(o.id===p.id) continue;
+      const tipo = pk(['Familiar','Pareja/expareja','Conocido','Vecino','Socio mercantil','Antiguo compañero de trabajo']);
+      p.vinc.push({id:o.id, tipo});
+      if(!o.vinc.some(v=>v.id===p.id)) o.vinc.push({id:p.id, tipo});
+    }
+  });
+  DB.per.forEach(p=>{ DB.byId[p.id]=p; DB.byDni[p.dni]=p; p.tel.forEach(t=>{ DB.byTel[t] = DB.byTel[t] || p; }); });
+  DB.veh.forEach(v=>{ DB.byMat[v.mat] = v; DB.byId[v.id] = v; });
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   GENERADOR DE CASOS
+   ══════════════════════════════════════════════════════════════ */
+const PUNTOS = ['A-4 pk 18 · dirección sur','N-340 pk 122','Ronda exterior · salida 7','Acceso al polígono industrial','Peaje AP-7 · barrera 3','Avenida de la Estación · cruce con Mayor','Túnel de la Ronda Norte','Rotonda del Puerto','Carretera comarcal CM-42 · pk 6','Entrada al centro comercial'];
+const CASOS = [
+ {tipo:'ROBO CON FUERZA', cod:'237',
+  tit:'Robo en establecimiento de joyería',
+  res:(c)=>`Sobre las ${c.horaTxt} horas del ${c.fechaTxt}, dos individuos acceden a la joyería situada en ${c.lugar}, en ${c.mun}, tras fracturar la persiana metálica con un útil tipo palanca. Sustraen piezas de oro y relojes valorados en ${eur(c.botin)}. Huyen en un turismo que aguardaba con el motor en marcha.`,
+  botin:()=>Math.round(rr(38000,190000)),
+  testigo:'Un vecino observa la huida desde un balcón. Describe a uno de los autores y aporta una matrícula parcial.'},
+ {tipo:'ROBO CON VIOLENCIA', cod:'242',
+  tit:'Atraco a furgón de recaudación',
+  res:(c)=>`A las ${c.horaTxt} del ${c.fechaTxt}, dos encapuchados interceptan a un vigilante durante la recogida de recaudación en ${c.lugar} (${c.mun}). Le intimidan con un arma corta y sustraen ${eur(c.botin)} en efectivo. Abandonan el lugar en un vehículo que les esperaba en doble fila.`,
+  botin:()=>Math.round(rr(60000,240000)),
+  testigo:'El vigilante y un empleado del centro coinciden en la descripción de uno de los autores. Una cámara privada capta parcialmente la matrícula.'},
+ {tipo:'SECUESTRO EXPRÉS', cod:'163',
+  tit:'Detención ilegal con exigencia económica',
+  res:(c)=>`El ${c.fechaTxt} a las ${c.horaTxt}, un empresario es introducido a la fuerza en un vehículo a la salida de su domicilio en ${c.lugar} (${c.mun}). Es liberado seis horas después tras una transferencia de ${eur(c.botin)}. Declara haber oído a los autores hablar entre ellos por teléfono.`,
+  botin:()=>Math.round(rr(20000,90000)),
+  testigo:'La víctima recuerda parte de la matrícula del vehículo y describe a quien conducía.'},
+ {tipo:'TRÁFICO DE DROGAS', cod:'368',
+  tit:'Distribución de sustancia estupefaciente',
+  res:(c)=>`Una inspección en ${c.lugar} (${c.mun}) el ${c.fechaTxt} localiza ${ri(12,90)} kg de hachís ocultos en un doble fondo. El conductor huye a pie. El vehículo nodriza que le escoltaba es grabado por un lector de matrículas a las ${c.horaTxt}. Valor estimado de la sustancia: ${eur(c.botin)}.`,
+  botin:()=>Math.round(rr(90000,400000)),
+  testigo:'Un agente del dispositivo anota parcialmente la matrícula del vehículo lanzadera.'},
+ {tipo:'ESTAFA AGRAVADA', cod:'248',
+  tit:'Estafa mediante suplantación bancaria',
+  res:(c)=>`Entre el ${c.fechaTxt} y el día siguiente, varias víctimas transfieren ${eur(c.botin)} a cuentas abiertas con documentación falsa tras recibir llamadas suplantando a su entidad. Un vehículo alquilado es captado en los cajeros donde se extrae el efectivo a las ${c.horaTxt}.`,
+  botin:()=>Math.round(rr(40000,160000)),
+  testigo:'Las cámaras del cajero graban a quien retira el dinero. Se obtiene una matrícula incompleta del vehículo utilizado.'}
+];
+const OBJETOS = {
+ '237':['tres relojes de alta gama con los números de serie limados','una bolsa con piezas de oro sin punzonar','un útil tipo palanca con restos de pintura de la persiana'],
+ '242':['fajos de billetes con precintos de la empresa de seguridad','dos pasamontañas y guantes de látex','un arma corta simulada'],
+ '163':['bridas de plástico idénticas a las empleadas','un teléfono con tarjeta prepago activada ese mismo día','una capucha con restos biológicos'],
+ '368':['una prensa hidráulica con restos de resina','útiles de vacío y logotipos de marcado','40.000 € en efectivo en el falso techo'],
+ '248':['catorce tarjetas bancarias a nombre de terceros','un ordenador con plantillas de correo suplantando a la entidad','documentación de identidad falsificada']
+};
+function generarCaso(seed){
+  RND = mulberry32(seed ^ 0x5f3a);
+  const T = pk(CASOS);
+  const mun = pk(MUN);
+  const hoy = new Date();
+  const c = {
+    num: `${pad(ri(100,999),3)}/${hoy.getFullYear()}`,
+    seed, tipo:T.tipo, cod:T.cod, tit:T.tit,
+    mun: mun[0], prov: mun[1],
+    lugar: `${pk(VIA)} ${pk(VIA_N)}, ${ri(2,90)}`,
+    fecha: (()=>{ const dd = new Date(hoy.getTime() - ri(1,20)*86400000);
+      return {d:dd.getDate(), m:dd.getMonth()+1, y:dd.getFullYear(), ts:dd.getTime()}; })(),
+    horaMin: ri(1,6)*60 + ri(0,59)
+  };
+  c.fechaTxt = fmtF(c.fecha);
+  c.horaTxt = fmtH(c.horaMin);
+  c.botin = T.botin();
+  c.testigo = T.testigo;
+  /* ── reparto ── */
+  const enEdad = p => p.fnac.edad >= 21 && p.fnac.edad <= 56;
+  const candidatos = DB.per.filter(p=>p.ant.length>=1 && p.veh.length>=1 && enEdad(p));
+  const conductor = pk(candidatos.length?candidatos:DB.per.filter(enEdad));
+  let autor = null;
+  const pool = conductor.vinc.map(v=>DB.byId[v.id]).filter(Boolean).filter(enEdad);
+  autor = pool.find(p=>p.ant.length>=2) || pk(DB.per.filter(p=>p.ant.length>=2 && p.id!==conductor.id && enEdad(p)));
+  if(!conductor.vinc.some(v=>v.id===autor.id)){
+    conductor.vinc.push({id:autor.id, tipo:pk(['Conocido','Socio mercantil','Antiguo compañero de trabajo'])});
+    autor.vinc.push({id:conductor.id, tipo:'Conocido'});
+  }
+  c.conductor = conductor.id;
+  c.autor = autor.id;
+  /* ── vehículo de la huida y matrícula parcial ── */
+  const veh = DB.byId[conductor.veh[0]] || pk(DB.veh);
+  c.veh = veh.id; c.mat = veh.mat;
+  const m = veh.mat.replace(' ','');
+  c.matParcial = `${m[0]}${m[1]}?? ${m[4]}?${m[6]}`;
+  c.matRegex = new RegExp(`^${m[0]}${m[1]}..${m[4]}.${m[6]}$`);
+  /* ── descripción del testigo: apunta al AUTOR, no al conductor ── */
+  if(autor.senas.includes('sin señas particulares')){
+    const pp = autor.senas.split(' · ');
+    autor.senas = `${pp[0]} · ${pp[1]} · ${pk(RASGOS.filter(r=>r!=='sin señas particulares'))}`;
+  }
+  const SE = autor.senas.split(' · ');
+  c.altura = SE[0]; c.compl = SE[1]; c.rasgo = SE[2];
+  const e0 = autor.fnac.edad;
+  c.descripcion = `${autor.sexo==='H'?'Varón':'Mujer'}, entre ${Math.max(18,e0-3)} y ${e0+3} años. ${SE[1].charAt(0).toUpperCase()+SE[1].slice(1)}, en torno a ${SE[0]}. Rasgo observado: ${SE[2]}.`;
+  const cerca = DB.per.filter(x=>x.id!==autor.id && x.id!==conductor.id && Math.abs(x.fnac.edad-e0)<=6);
+  pkn(cerca, 2).forEach(d=>{
+    d.senas = `${SE[0]} · ${SE[1]} · ${pk(RASGOS.filter(r=>r!==SE[2] && r!=='sin señas particulares'))}`;
+    if(!conductor.vinc.some(v=>v.id===d.id)){
+      conductor.vinc.push({id:d.id, tipo:pk(['Conocido','Vecino','Antiguo compañero de trabajo'])});
+      d.vinc.push({id:conductor.id, tipo:'Conocido'});
+    }
+  });
+  /* ── lecturas del lector de matrículas ── */
+  c.punto = pk(PUNTOS);
+  c.lecturas = [];
+  const base = c.horaMin;
+  for(let i=0;i<26;i++){
+    const v = pk(DB.veh);
+    c.lecturas.push({mat:v.mat, min: base + ri(-140, 140), punto: pk(PUNTOS), vel: ri(38,128)});
+  }
+  c.lecturas.push({mat:veh.mat, min: base + ri(3, 16), punto: c.punto, vel: ri(96,151), clave:true});
+  c.lecturas.push({mat:veh.mat, min: base - ri(24, 70), punto: c.punto, vel: ri(42,70), clave:true});
+  c.lecturas.sort((a,b)=>a.min-b.min);
+  /* ── telefonía ── */
+  c.telAutor = autor.tel[0];
+  c.telConductor = conductor.tel[0];
+  c.llamadas = [];
+  const cell = ()=>`Celda ${pad(ri(1,90),2)}${pk('ABC')} · ${pk([c.mun, pk(MUN)[0]])}`;
+  for(let i=0;i<16;i++){
+    const otro = pk(DB.per);
+    c.llamadas.push({a:c.telConductor, b:otro.tel[0], min: base + ri(-900, 900), dur: ri(12, 420), celda: cell()});
+  }
+  [-38, -12, 9, 41].forEach(off=>{
+    c.llamadas.push({a:c.telConductor, b:c.telAutor, min: base + off, dur: ri(18, 96),
+      celda:`Celda ${pad(ri(1,90),2)}${pk('ABC')} · ${c.mun} · sector ${pk('NSEO')}`, clave:true});
+  });
+  c.llamadas.sort((a,b)=>a.min-b.min);
+  /* ── rastro económico ── */
+  c.iban = autor.cuenta.iban;
+  c.movs = [];
+  for(let i=0;i<9;i++){
+    c.movs.push({fecha:sumaDias(c.fecha, -ri(1,20)),
+      con:pk(['Nómina','Recibo suministro eléctrico','Compra TPV supermercado','Cuota préstamo','Transferencia recibida particular','Bizum emitido','Retirada cajero','Recibo seguro']),
+      imp: Math.round(rr(-900, 2100))});
+  }
+  const dImp = Math.round(c.botin * rr(.18, .38));
+  c.movs.push({fecha:sumaDias(c.fecha, 1),
+    con:`Ingreso en efectivo en ventanilla · oficina de ${c.mun}`, imp: dImp, clave:true});
+  c.movs.push({fecha:sumaDias(c.fecha, 2),
+    con:`Transferencia emitida a ${nombreCompleto(DB.byId[c.conductor])}`, imp: -Math.round(dImp*rr(.3,.5)), clave:true});
+  c.movs.sort((a,b)=>(a.fecha.ts||0)-(b.fecha.ts||0));
+  /* ── distractores: mismo patrón de matrícula ── */
+  c.senuelos = DB.veh.filter(v=>v.mat!==veh.mat && c.matRegex.test(v.mat.replace(' ',''))).slice(0,5).map(v=>v.id);
+  while(c.senuelos.length < 3){
+    const v = pk(DB.veh);
+    if(v.id!==veh.id && !c.senuelos.includes(v.id)){
+      const mm = v.mat.replace(' ','');
+      v.mat = `${m[0]}${m[1]}${mm[2]}${mm[3]} ${m[4]}${mm[5]}${m[6]}`;
+      DB.byMat[v.mat] = v;
+      c.senuelos.push(v.id);
+    }
+  }
+  /* los señuelos también pasan por el punto: obligan a mirar la hora */
+  c.senuelos.forEach(id=>{
+    const sv = DB.byId[id];
+    if(!sv) return;
+    c.lecturas.push({mat:sv.mat, min: base + (chance(.5) ? -ri(45,135) : ri(55,140)), punto:c.punto, vel:ri(40,95)});
+    if(chance(.5)) c.lecturas.push({mat:sv.mat, min: base + ri(-160,160), punto: pk(PUNTOS), vel:ri(40,110)});
+  });
+  c.lecturas.sort((a,b)=>a.min-b.min);
+  c.objetos = OBJETOS[c.cod];
+  return c;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ESTADO DE LA PARTIDA
+   ══════════════════════════════════════════════════════════════ */
+const COSTE = {persona:45, vehiculo:30, lector:120, telefonia:240, banco:200, registro:480, vigilancia:600, pista:120, busqueda:30, detencion:120, empresa:60, auto:150};
+const PLAZO = 48*60;
+let G = null;
+function nuevaPartida(seed, agentes, modo){
+  generarMundo(seed);
+  const caso = generarCaso(seed);
+  G = {
+    seed, caso, modo, agentes,
+    reloj: 0, plazo: PLAZO,
+    pruebas: {}, hallazgos: [], log: [],
+    aut: {tel:false, banco:false, registro:false},
+    vistos: {}, marcados: {}, fin: null, pistasUsadas: 0,
+    acusacion: [null, null], turno: 0
+  };
+  hallazgo('Atestado inicial recibido. Se asume la investigación.', 'doc');
+  return G;
+}
+function hallazgo(txt, tipo){
+  if(G.hallazgos.some(h=>h.txt===txt)) return;
+  G.hallazgos.unshift({txt, tipo:tipo||'nota', min:G.reloj});
+}
+function gastar(min, etiqueta){
+  G.reloj += min;
+  G.log.push({min, etiqueta, t:G.reloj});
+  if(G.reloj >= G.plazo && !G.fin) finPorPlazo();
+  return G.reloj < G.plazo;
+}
+function prueba(id, txt){
+  if(G.pruebas[id]) return false;
+  G.pruebas[id] = {txt, min:G.reloj};
+  hallazgo('PRUEBA OBTENIDA · ' + txt, 'prueba');
+  return true;
+}
+function nPruebas(){ return Object.keys(G.pruebas).length; }
+function restante(){ return Math.max(0, G.plazo - G.reloj); }
+function relojTxt(){
+  const h = Math.floor(G.reloj/60), m = G.reloj%60;
+  return `${pad(h)}:${pad(m)}`;
+}
+function restanteTxt(){
+  const r = restante(), h = Math.floor(r/60), m = r%60;
+  return `${pad(h)} h ${pad(m)} min`;
+}
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   INTERFAZ · núcleo
+   ══════════════════════════════════════════════════════════════ */
+const $ = s => document.querySelector(s);
+const term = $('#term'), clas = $('#clas'), head = $('#head'), view = $('#view'), bar = $('#bar'), lockEl = $('#lock');
+const ACT = {};
+let TM = [];
+function clearTM(){ TM.forEach(t=>{clearTimeout(t);clearInterval(t);}); TM = []; }
+function later(fn, ms){ const t = setTimeout(fn, ms); TM.push(t); return t; }
+function paint(o){
+  clearTM();
+  if(o.chrome === false){ clas.classList.add('hide'); head.classList.add('hide'); }
+  else {
+    clas.classList.remove('hide'); head.classList.remove('hide');
+    clas.innerHTML = o.clas || clasHTML();
+    head.innerHTML = o.head !== undefined ? o.head : headHTML();
+  }
+  view.innerHTML = o.view || '';
+  bar.innerHTML = o.bar || '';
+  view.scrollTop = 0;
+}
+function clasHTML(){
+  return `<span>UCO · UNIDAD CENTRAL OPERATIVA</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <span class="sim">SIMULACIÓN</span>
+      <button class="fs" data-a="fs" data-q="1" title="Pantalla completa" aria-label="Pantalla completa">${FS.activo()?'⤡':'⛶'}</button>
+    </span>`;
+}
+function headHTML(){
+  if(!G) return '';
+  const r = restante(), pctT = r/G.plazo*100;
+  const cls = pctT<20?'r':pctT<45?'a':'';
+  return `<div class="row sb" style="margin-bottom:6px">
+      <div><div class="k g">AGENTE INSTRUCTOR</div>
+        <div class="cap" style="font-size:14px">${esc(G.agentes[0])}${G.modo==='duelo'?' · '+esc(G.agentes[1]):''}</div></div>
+      <div style="text-align:right"><div class="k">DILIGENCIAS</div>
+        <div class="mono" style="font-size:13px">${G.caso.num}</div></div>
+    </div>
+    <div class="row" style="gap:10px">
+      <div style="flex:1">
+        <div class="row sb"><span class="k ${cls}">PLAZO RESTANTE</span><span class="mono ${cls}" style="font-size:12px">${restanteTxt()}</span></div>
+        <div class="meter ${cls}" style="margin-top:3px"><i style="width:${pctT}%"></i></div>
+      </div>
+      <div style="text-align:right">
+        <div class="k">PRUEBAS</div>
+        <div class="mono ${nPruebas()>=3?'g':''}" style="font-size:15px">${nPruebas()}<span class="dim2">/3</span></div>
+      </div>
+    </div>`;
+}
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-a]');
+  if(!t) return;
+  AU.init();
+  const f = ACT[t.dataset.a];
+  if(f){ if(!t.dataset.q) SFX.key(); f(t); }
+});
+function msg(txt, ms){
+  const d = document.createElement('div');
+  d.className = 'msg'; d.innerHTML = txt; $('#msg').appendChild(d);
+  setTimeout(()=>{ d.style.opacity='0'; d.style.transition='opacity .35s'; setTimeout(()=>d.remove(),380); }, ms||2400);
+}
+/* ── pantalla completa ── */
+const FS = {
+  wl:null,
+  activo(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); },
+  posible(){ const e = document.documentElement; return !!(e.requestFullscreen || e.webkitRequestFullscreen); },
+  async wake(){
+    try{ if('wakeLock' in navigator && !this.wl) this.wl = await navigator.wakeLock.request('screen'); }catch(e){}
+  },
+  async toggle(){
+    const e = document.documentElement;
+    try{
+      if(this.activo()){
+        const salir = document.exitFullscreen || document.webkitExitFullscreen;
+        if(salir) await salir.call(document);
+        if(this.wl){ try{ this.wl.release(); }catch(x){} this.wl = null; }
+        return true;
+      }
+      const pedir = e.requestFullscreen || e.webkitRequestFullscreen;
+      if(!pedir) return false;
+      await pedir.call(e, {navigationUI:'hide'});
+      this.wake();
+      return true;
+    }catch(err){ return false; }
+  }
+};
+ACT.fs = async () => {
+  const ok = await FS.toggle();
+  if(!ok){
+    msg('Este navegador no permite pantalla completa aquí.<br><span class="dim">Abre el juego en una pestaña del navegador, o añádelo a la pantalla de inicio para que salga sin bordes.</span>', 5200);
+  }
+  if(!clas.classList.contains('hide')) clas.innerHTML = clasHTML();
+};
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>
+  document.addEventListener(ev, ()=>{ if(!clas.classList.contains('hide')) clas.innerHTML = clasHTML(); }));
+
+/* ── audio ── */
+const AU = {ctx:null, on:true, vib:true,
+  init(){ if(!this.ctx){ try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+          if(this.ctx && this.ctx.state==='suspended') this.ctx.resume(); },
+  t(f,d,ty,v,sl,de){ if(!this.on||!this.ctx) return;
+    const tt = this.ctx.currentTime + (de||0);
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = ty||'square'; o.frequency.setValueAtTime(f,tt);
+    if(sl) o.frequency.exponentialRampToValueAtTime(Math.max(40,f*sl), tt+d);
+    g.gain.setValueAtTime(0,tt); g.gain.linearRampToValueAtTime(v||.08, tt+.008);
+    g.gain.exponentialRampToValueAtTime(.0001, tt+d);
+    o.connect(g); g.connect(this.ctx.destination); o.start(tt); o.stop(tt+d+.04);
+  },
+  vibrate(p){ if(this.vib && navigator.vibrate) try{navigator.vibrate(p);}catch(e){} }
+};
+const SFX = {
+  key(){ AU.t(1650,.03,'square',.045); },
+  ok(){ AU.t(880,.07,'square',.07); AU.t(1320,.09,'square',.06,1,.06); AU.vibrate(12); },
+  hit(){ AU.t(660,.06,'square',.07); AU.t(990,.08,'triangle',.07,1,.05); AU.t(1480,.12,'triangle',.06,1,.11); AU.vibrate([14,30,14]); },
+  err(){ AU.t(180,.22,'sawtooth',.09,.6); AU.vibrate([40,50,40]); },
+  print(){ for(let i=0;i<7;i++) AU.t(420+ i*40,.03,'square',.035,1,i*.045); },
+  alarm(){ [660,520,660,520].forEach((f,i)=>AU.t(f,.16,'square',.09,1,i*.18)); AU.vibrate([60,40,60,40,60]); },
+  win(){ [523,659,784,1047].forEach((f,i)=>AU.t(f,.28,'triangle',.10,1,i*.11)); AU.vibrate([60,40,120]); },
+  lose(){ [392,311,247].forEach((f,i)=>AU.t(f,.4,'sine',.10,1,i*.16)); AU.vibrate([100,60,160]); }
+};
+/* ── traspaso del terminal (modo dúo) ── */
+let lockNext = null;
+function traspaso(nombre, nota, next){
+  clearTM();
+  lockNext = next;
+  lockEl.innerHTML = `<div style="font-size:52px">🔒</div>
+    <div class="k a">SESIÓN PRIVADA</div>
+    <h1 style="font-size:24px">ENTREGA EL TERMINAL A<br><span class="g">${esc(nombre)}</span></h1>
+    <p class="sm dim" style="max-width:300px">${nota||'El otro agente no debe ver esta pantalla.'}</p>
+    <button class="btn pri" style="max-width:300px" data-a="lockGo">CONTINUAR</button>`;
+  lockEl.classList.add('on');
+  AU.vibrate(24);
+}
+ACT.lockGo = () => { lockEl.classList.remove('on'); lockEl.innerHTML=''; const n = lockNext; lockNext = null; if(n) n(); };
+
+/* ══════════════════════════════════════════════════════════════
+   ARRANQUE Y MENÚ
+   ══════════════════════════════════════════════════════════════ */
+const LINEAS_BOOT = [
+ 'SIGMA/7 · TERMINAL DE CONSULTA OPERATIVA',
+ 'Cargando núcleo del sistema .......... OK',
+ 'Verificando certificado de terminal ... OK',
+ 'Base de datos de personas ............ 340 registros',
+ 'Base de datos de vehículos ........... sincronizada',
+ 'Lectores de matrícula ................ 10 puntos activos',
+ 'Enlace con telefonía ................. requiere autorización',
+ 'Enlace con entidades financieras ..... requiere autorización',
+ 'Registro de accesos .................. ACTIVADO',
+ '',
+ 'ATENCIÓN: entorno de SIMULACIÓN. Todos los datos son',
+ 'ficticios y generados por el programa. Cualquier parecido',
+ 'con personas reales es imposible por diseño.',
+ '',
+ 'Sesión iniciada.'
+];
+function scrBoot(){
+  paint({chrome:false, view:`<div class="boot" id="boot"></div>`, bar:''});
+  const el = $('#boot');
+  let i = 0;
+  const step = () => {
+    if(i < LINEAS_BOOT.length){
+      el.innerHTML += (i?'\n':'') + esc(LINEAS_BOOT[i]);
+      if(LINEAS_BOOT[i]) SFX.key();
+      i++;
+      later(step, i<3 ? 220 : 130);
+    } else {
+      el.innerHTML += '\n<span class="cur"></span>';
+      later(scrMenu, 700);
+    }
+  };
+  el.innerHTML = '';
+  step();
+}
+function metaGet(){ try{ return JSON.parse(localStorage.getItem('uco_meta_v1')) || {}; }catch(e){ return {}; } }
+function metaSet(m){ try{ localStorage.setItem('uco_meta_v1', JSON.stringify(m)); }catch(e){} }
+function scrMenu(){
+  const m = metaGet();
+  paint({chrome:false, view:`<div class="col fade" style="padding-top:14px">
+    <div style="text-align:center">
+      <div class="k g">UNIDAD CENTRAL OPERATIVA · SIMULACIÓN</div>
+      <h1 style="font-size:38px;margin-top:4px">EXPEDIENTE<br><span class="g">UCO</span></h1>
+      <div class="sm dim" style="margin-top:6px">Terminal SIGMA/7 · consulta operativa</div>
+    </div>
+    <div class="box hi">
+      <div class="k g">QUÉ VAS A HACER</div>
+      <p class="sm" style="margin:8px 0 0">Recibes un atestado. Tienes <b class="g">48 horas</b> y un ordenador con
+      la base de datos: personas, vehículos, lectores de matrícula, telefonía y cuentas.</p>
+      <p class="sm" style="margin:8px 0 0">Tu trabajo: <b class="g">identificar al autor</b> y reunir <b class="g">tres pruebas</b>
+      antes de pedir la detención. Cada consulta consume horas del plazo. Si se agota, se fuga.</p>
+      <p class="xs" style="margin:8px 0 0">Si te atascas, el terminal tiene un botón de <b>siguiente paso</b>. No hay forma de perderse.</p>
+    </div>
+    ${m.casos?`<div class="box">
+      <div class="g3" style="text-align:center">
+        <div><div class="k">CASOS</div><div class="mono g" style="font-size:18px">${m.casos}</div></div>
+        <div><div class="k">RESUELTOS</div><div class="mono g" style="font-size:18px">${m.res||0}</div></div>
+        <div><div class="k">MEJOR TIEMPO</div><div class="mono g" style="font-size:16px">${m.mejor?Math.floor(m.mejor/60)+' h':'—'}</div></div>
+      </div></div>`:''}
+  </div>`,
+  bar:`<button class="btn pri" data-a="setup">INICIAR INVESTIGACIÓN</button>
+    <div class="g3"><button class="btn gh" data-a="ayuda">CÓMO SE JUEGA</button>
+    <button class="btn gh" data-a="fs">⛶ PANTALLA</button>
+    <button class="btn gh" data-a="ajustes">AJUSTES</button></div>`});
+}
+ACT.menu = () => scrMenu();
+ACT.ayuda = () => {
+  paint({chrome:false, view:`<div class="col">
+    <h2 class="g">CÓMO SE JUEGA</h2>
+    <div class="box"><div class="k g">1 · EL ATESTADO</div>
+      <p class="sm">Todo empieza con el parte del delito: dónde, cuándo, qué se llevaron y las dos pistas
+      que dejó el autor — normalmente <b>una matrícula incompleta</b> y <b>la descripción de un testigo</b>.</p></div>
+    <div class="box"><div class="k g">2 · EL CRUCE</div>
+      <p class="sm">En <b>LECTORES</b> ves qué matrículas pasaron por cada punto y a qué hora. Cruza esa lista con la
+      matrícula incompleta y tendrás el coche. En <b>VEHÍCULOS</b> sacas al titular.</p></div>
+    <div class="box"><div class="k g">3 · EL SALTO</div>
+      <p class="sm">El titular casi nunca es el autor: es quien conducía. Mira sus <b>vínculos conocidos</b> y compara
+      cada ficha con la descripción del testigo. Ahí está tu hombre.</p></div>
+    <div class="box"><div class="k g">4 · LAS PRUEBAS</div>
+      <p class="sm">Con un indicio sólido puedes pedir <b>autorización judicial</b>. Eso abre la telefonía (llamadas entre
+      los dos a la hora del delito) y las cuentas (el dinero apareciendo después). Necesitas <b>tres pruebas</b>.</p></div>
+    <div class="box"><div class="k g">5 · LA DETENCIÓN</div>
+      <p class="sm">Con tres pruebas, solicitas la detención y el registro. Si te equivocas de persona, el caso se
+      cae y el autor se va de rositas.</p></div>
+    <div class="box al"><div class="k a">EL RELOJ</div>
+      <p class="sm">Cada consulta gasta horas: una ficha 45 min, un volcado de lector 2 h, la telefonía 4 h. Tienes 48 horas
+      No puedes mirarlo todo: hay que elegir.</p></div>
+  </div>`, bar:`<button class="btn pri" data-a="menu">VOLVER</button>`});
+};
+ACT.ajustes = () => {
+  paint({chrome:false, view:`<div class="col">
+    <h2 class="g">AJUSTES</h2>
+    <div class="box">
+      <div class="row sb" style="margin-bottom:10px"><span>Sonido del terminal</span>
+        <button class="btn sm" style="width:auto;min-width:80px" data-a="tgS">${AU.on?'ON':'OFF'}</button></div>
+      <div class="row sb" style="margin-bottom:10px"><span>Vibración</span>
+        <button class="btn sm" style="width:auto;min-width:80px" data-a="tgV">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb"><span>Pantalla completa</span>
+        <button class="btn sm" style="width:auto;min-width:110px" data-a="fs">${FS.activo()?'SALIR':'ACTIVAR'}</button></div>
+      <p class="xs" style="margin-top:8px">También tienes el botón ⛶ arriba a la derecha. En iPhone, si el navegador no
+      lo permite, añade la página a la pantalla de inicio: se abre sin barras.</p>
+    </div>
+    <div class="box"><div class="k g">DATOS GUARDADOS</div>
+      <p class="xs" style="margin-top:6px">Solo se guardan tus estadísticas de casos en este dispositivo.</p>
+      <button class="btn dgr sm" style="margin-top:8px" data-a="wipe">BORRAR ESTADÍSTICAS</button></div>
+    <div class="box"><div class="k a">AVISO</div>
+      <p class="xs" style="margin-top:6px">Simulación de ficción. Personas, DNI, matrículas, teléfonos, cuentas y
+      antecedentes están generados aleatoriamente por el programa. No representa a la Guardia Civil ni a ningún
+      sistema real, ni reproduce procedimientos oficiales.</p></div>
+  </div>`, bar:`<button class="btn pri" data-a="menu">VOLVER</button>`});
+};
+ACT.tgS = () => { AU.on = !AU.on; ACT.ajustes(); };
+ACT.tgV = () => { AU.vib = !AU.vib; AU.vibrate(30); ACT.ajustes(); };
+ACT.wipe = () => { try{ localStorage.removeItem('uco_meta_v1'); }catch(e){} msg('Estadísticas borradas'); ACT.ajustes(); };
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   ALTA DE PARTIDA · ATESTADO
+   ══════════════════════════════════════════════════════════════ */
+let setupA = ['',''], setupModo = 'duo';
+function scrSetup(){
+  paint({chrome:false, view:`<div class="col">
+    <h2 class="g">ALTA DE INVESTIGADORES</h2>
+    <div class="box">
+      <div class="k g">AGENTE 1</div>
+      <input class="inp" id="a1" maxlength="14" placeholder="APELLIDO" value="${esc(setupA[0])}" style="margin-top:6px">
+    </div>
+    <div class="box">
+      <div class="k b">AGENTE 2 <span class="dim2">· déjalo vacío para investigar solo</span></div>
+      <input class="inp" id="a2" maxlength="14" placeholder="APELLIDO" value="${esc(setupA[1])}" style="margin-top:6px;color:var(--blue)">
+    </div>
+    <div class="box hi">
+      <div class="k g">SI SOIS DOS</div>
+      <p class="sm" style="margin:6px 0 0">Investigáis <b>juntos</b> en el mismo terminal: los dos veis las consultas y discutís
+      a qué dedicar las horas. Pero cada uno recibe <b>un dato reservado distinto</b> al empezar, y al final cada uno
+      firma <b>su propia acusación en secreto</b>. Solo uno de los dos va a tener razón.</p>
+    </div>
+  </div>`,
+  bar:`<button class="btn pri" data-a="empezar">ABRIR DILIGENCIAS</button>
+    <button class="btn gh" data-a="menu">VOLVER</button>`});
+}
+ACT.setup = () => scrSetup();
+ACT.empezar = () => {
+  const a1 = ($('#a1').value||'').trim().toUpperCase().slice(0,14) || 'AGENTE 1';
+  const a2 = ($('#a2').value||'').trim().toUpperCase().slice(0,14);
+  setupA = [a1, a2];
+  const seed = Math.floor(Math.random()*2000000000);
+  nuevaPartida(seed, [a1, a2 || null], a2 ? 'duelo' : 'solo');
+  SFX.print();
+  scrBrief();
+};
+function scrBrief(){
+  const c = G.caso;
+  const T = CASOS.find(x=>x.tit===c.tit) || CASOS[0];
+  paint({view:`<div class="col fade">
+    <div class="doc">
+      <div class="stamp">DILIGENCIAS</div>
+      <div class="k">UNIDAD CENTRAL OPERATIVA · GRUPO DE INVESTIGACIÓN</div>
+      <h3 style="margin-top:4px;font-size:19px">ATESTADO ${c.num}</h3>
+      <div class="k" style="margin-top:2px">${esc(c.tipo)} · ART. ${esc(c.cod)} DEL CÓDIGO PENAL</div>
+      <div class="sep"></div>
+      <p style="margin:0"><b>HECHOS.</b> ${T.res(c)}</p>
+      <div class="sep"></div>
+      <p style="margin:0"><b>TESTIGOS.</b> ${esc(c.testigo)}</p>
+      <p style="margin:8px 0 0"><b>DESCRIPCIÓN FACILITADA.</b> ${esc(c.descripcion)}</p>
+      <div class="sep"></div>
+      <p style="margin:0"><b>VEHÍCULO.</b> Matrícula incompleta: <b style="font-family:var(--f-mono);letter-spacing:.08em">${c.matParcial}</b>
+      (los interrogantes son dígitos o letras no vistos).</p>
+      <p style="margin:8px 0 0"><b>PUNTO DE PASO.</b> El vehículo huye en dirección a <b>${esc(c.punto)}</b>.</p>
+      <div class="sep"></div>
+      <p style="margin:0;font-size:12px"><b>PLAZO.</b> El instructor concede <b>48 horas</b> antes de que el operativo decaiga.</p>
+    </div>
+    <div class="box hi">
+      <div class="k g">TU OBJETIVO</div>
+      <ul class="sm" style="margin:8px 0 0;padding-left:18px;line-height:1.6">
+        <li>Identificar al <b class="g">autor material</b> de los hechos.</li>
+        <li>Reunir <b class="g">tres pruebas</b> que lo sostengan ante el juez.</li>
+        <li>Solicitar su detención antes de que se agoten las 48 horas.</li>
+      </ul>
+    </div>
+  </div>`,
+  bar:`<button class="btn pri" data-a="entrarTerminal">ACCEDER AL TERMINAL SIGMA</button>`});
+}
+ACT.entrarTerminal = () => {
+  if(G.modo === 'duelo' && !G.datoDado){ G.datoDado = 1; return datoReservado(0); }
+  scrHome();
+};
+function datoReservado(i){
+  const c = G.caso;
+  const conductor = DB.byId[c.conductor], autor = DB.byId[c.autor];
+  if(!G.datos){
+    const bueno = [
+      `Una fuente reservada sitúa el vehículo de la huida saliendo de ${conductor.dom.mun} esa misma noche.`,
+      `Un confidente asegura que el conductor no era el que entró: solo esperaba al volante.`,
+      `Un informador apunta a alguien con antecedentes por ${autor.ant[0]?autor.ant[0].del.toLowerCase():'delitos contra el patrimonio'} como cerebro del golpe.`
+    ];
+    const malo = [
+      `Un confidente señala a un grupo de ${pk(MUN)[0]} que opera con furgonetas robadas. Puede que no tenga nada que ver.`,
+      `Corre el rumor de que el golpe lo dio gente venida de fuera y ya no está en la provincia.`,
+      `Una fuente dice que el arma procede de un alijo intervenido hace dos años. Sin confirmar.`
+    ];
+    const b = pk(bueno), m = pk(malo);
+    G.datos = chance(.5) ? [b, m] : [m, b];
+    G.datoFiable = G.datos[0] === b ? 0 : 1;
+  }
+  traspaso(G.agentes[i], 'Vas a leer un dato reservado que solo conoces tú.', ()=>{
+    paint({view:`<div class="col fade">
+      <div class="box hi" style="border-color:var(--amber)">
+        <div class="k a">DATO RESERVADO · ${esc(G.agentes[i])}</div>
+        <p style="margin:10px 0 0;font-size:15px">“${esc(G.datos[i])}”</p>
+        <p class="xs" style="margin-top:10px">Tu compañero ha recibido otro distinto. Uno de los dos datos es sólido y el otro
+        no lleva a ninguna parte. Nadie te va a decir cuál es cuál.</p>
+      </div>
+      <div class="box"><div class="k">RECUERDA</div>
+        <p class="sm" style="margin-top:6px">Investigáis juntos, pero al final cada uno firma su propia acusación.
+        Puedes contarle a tu compañero lo que has leído… o contarle otra cosa.</p></div>
+    </div>`, bar:`<button class="btn pri" data-a="datoNext" data-i="${i}">ENTENDIDO</button>`});
+    SFX.hit();
+  });
+}
+ACT.datoNext = t => {
+  const i = +t.dataset.i;
+  if(i === 0) datoReservado(1); else scrHome();
+};
+
+/* ══════════════════════════════════════════════════════════════
+   TERMINAL · PANTALLA PRINCIPAL
+   ══════════════════════════════════════════════════════════════ */
+const MODULOS = [
+  {id:'personas', e:'🔎', n:'PERSONAS', d:'nombre · DNI · alias · teléfono'},
+  {id:'vehiculos', e:'🚗', n:'VEHÍCULOS', d:'matrícula · titular'},
+  {id:'lector', e:'📷', n:'LECTORES', d:'pasos de matrícula'},
+  {id:'empresas', e:'🏢', n:'MERCANTIL', d:'sociedades y administradores'},
+  {id:'telefonia', e:'📞', n:'TELEFONÍA', d:'listado de llamadas', aut:'tel'},
+  {id:'banco', e:'🏦', n:'ECONÓMICO', d:'cuentas y movimientos', aut:'banco'},
+  {id:'autoriz', e:'⚖️', n:'AUTORIZACIONES', d:'solicitudes al juzgado'},
+  {id:'exped', e:'📁', n:'EXPEDIENTE', d:'hallazgos y pruebas'}
+];
+function scrHome(){
+  if(G.fin) return scrFinal();
+  const c = G.caso;
+  paint({view:`<div class="col fade">
+    <div class="box hi">
+      <div class="row sb"><div class="k g">CASO EN CURSO</div><span class="tag ${nPruebas()>=3?'g':'a'}">${nPruebas()>=3?'LISTO PARA DETENER':'FALTAN '+(3-nPruebas())+' PRUEBAS'}</span></div>
+      <div class="cap" style="font-size:17px;margin-top:2px">${esc(c.tit)}</div>
+      <div class="xs">${esc(c.mun)} (${esc(c.prov)}) · ${c.fechaTxt} · ${c.horaTxt} h</div>
+      <div class="rule" style="margin:9px 0"></div>
+      <div class="g2 sm">
+        <div><span class="k">MATRÍCULA</span><br><span class="mono g">${c.matParcial}</span></div>
+        <div><span class="k">SOSPECHOSOS MARCADOS</span><br><span class="mono">${Object.keys(G.marcados).length}</span></div>
+      </div>
+      <div class="xs" style="margin-top:8px"><b class="dim">TESTIGO:</b> ${esc(c.descripcion)}</div>
+    </div>
+    <div class="g2">
+      ${MODULOS.map(m=>{
+        const bloq = m.aut && !G.aut[m.aut];
+        return `<button class="btn ${bloq?'':'on'}" style="min-height:66px" data-a="mod" data-m="${m.id}">
+          <span class="bc"><span style="font-size:18px">${bloq?'🔒':m.e}</span><span>${m.n}</span>
+          <span class="s">${bloq?'requiere autorización':m.d}</span></span></button>`;
+      }).join('')}
+    </div>
+    ${G.hallazgos.length?`<div class="box">
+      <div class="k g">ÚLTIMO EN EL EXPEDIENTE</div>
+      <div class="sm" style="margin-top:6px">${esc(G.hallazgos[0].txt)}</div>
+    </div>`:''}
+  </div>`,
+  bar:`<div class="g2">
+      <button class="btn" data-a="pista">💡 SIGUIENTE PASO <span class="s">2 h</span></button>
+      <button class="btn dgr" data-a="actuaciones">🚨 ACTUACIONES</button>
+    </div>`});
+}
+ACT.home = () => scrHome();
+ACT.mod = t => {
+  const id = t.dataset.m;
+  const m = MODULOS.find(x=>x.id===id);
+  if(m.aut && !G.aut[m.aut]){
+    SFX.err();
+    msg('🔒 Necesitas autorización judicial. Ve a AUTORIZACIONES.', 3000);
+    return;
+  }
+  ({personas:scrPersonas, vehiculos:scrVehiculos, lector:scrLector, empresas:scrEmpresas,
+    telefonia:scrTelefonia, banco:scrBanco, autoriz:scrAutoriz, exped:scrExpediente})[id]();
+};
+
+/* ── PERSONAS ── */
+let qPer = '';
+function scrPersonas(res){
+  paint({view:`<div class="col fade">
+    <div class="row sb"><h2 class="g">CONSULTA DE PERSONAS</h2><span class="tag">${DB.per.length} REG.</span></div>
+    <input class="inp" id="qp" placeholder="APELLIDO, NOMBRE, DNI, ALIAS O TELÉFONO" value="${esc(qPer)}">
+    <button class="btn pri" data-a="buscarPer">BUSCAR <span class="s">30 min</span></button>
+    ${res ? (res.length ? `<div class="k g">${res.length} COINCIDENCIA${res.length>1?'S':''}</div>
+      <div class="col" style="gap:6px">${res.slice(0,40).map(p=>hitPersona(p)).join('')}</div>
+      ${res.length>40?`<div class="xs">Mostrando 40 de ${res.length}. Afina la búsqueda.</div>`:''}`
+      : `<div class="box cr"><div class="k r">SIN RESULTADOS</div>
+         <p class="sm" style="margin-top:6px">Ningún registro coincide. Prueba solo con el apellido.</p></div>`) : `
+      <div class="box"><div class="k">CÓMO BUSCAR</div>
+        <p class="xs" style="margin-top:6px">Escribe un apellido (GARCÍA), un DNI completo, un alias o un número de teléfono.
+        La búsqueda por apellido devuelve todos los que lo lleven.</p></div>`}
+  </div>`,
+  bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+function hitPersona(p){
+  const marc = G.marcados[p.id];
+  return `<button class="hit ${marc?'on':''}" data-a="ficha" data-i="${p.id}">
+    <span class="av">${p.foto}</span>
+    <span style="flex:1">
+      <span class="nm">${esc(p.ape1)} ${esc(p.ape2)}, ${esc(p.nombre)}</span>
+      <span class="sub">${p.dni} · ${p.fnac.edad} años · ${esc(p.dom.mun)}</span>
+    </span>
+    ${p.ant.length?`<span class="tag ${p.riesgo>=3?'r':'a'}">${p.ant.length} ANT.</span>`:''}
+    ${marc?'<span class="tag g">MARCADO</span>':''}
+  </button>`;
+}
+ACT.buscarPer = () => {
+  const q = ($('#qp').value||'').trim();
+  qPer = q;
+  if(q.length < 2){ msg('Escribe al menos dos caracteres'); return; }
+  if(!gastar(COSTE.busqueda, 'Búsqueda de personas: ' + q)) return scrFinal();
+  const t = q.toUpperCase().replace(/\s+/g,' ');
+  const res = DB.per.filter(p=>{
+    const full = `${p.nombre} ${p.ape1} ${p.ape2}`.toUpperCase();
+    return full.includes(t) || p.dni.toUpperCase() === t.replace(/[\s-]/g,'') ||
+      (p.alias && p.alias.toUpperCase().includes(t)) || p.tel.some(x=>x.includes(t.replace(/\s/g,'')));
+  });
+  SFX.ok();
+  scrPersonas(res);
+};
+</script>
+<script>
+/* ── FICHA DE PERSONA ── */
+ACT.ficha = t => abrirFicha(t.dataset.i);
+function abrirFicha(id, sinCoste){
+  const p = DB.byId[id];
+  if(!p) return;
+  if(!sinCoste && !G.vistos[id]){
+    if(!gastar(COSTE.persona, 'Consulta de ficha: ' + nombreCompleto(p))) return scrFinal();
+  }
+  G.vistos[id] = true;
+  const c = G.caso;
+  if(id === c.autor) hallazgo(`Ficha consultada: ${nombreCompleto(p)} (${p.dni}).`, 'nota');
+  if(id === c.conductor) hallazgo(`Ficha del titular del vehículo: ${nombreCompleto(p)}.`, 'nota');
+  const vehs = p.veh.map(v=>DB.byId[v]).filter(Boolean);
+  paint({view:`<div class="col fade">
+    <div class="box hi">
+      <div class="row" style="gap:12px">
+        <div style="font-size:40px;line-height:1">${p.foto}</div>
+        <div style="flex:1">
+          <div class="cap" style="font-size:19px;line-height:1.1">${esc(p.ape1)} ${esc(p.ape2)}</div>
+          <div class="cap g" style="font-size:16px">${esc(p.nombre)}</div>
+          ${p.alias?`<div class="xs">alias «${esc(p.alias)}»</div>`:''}
+        </div>
+      </div>
+      <div class="tags" style="margin-top:9px">
+        <span class="tag">${p.dni}</span>
+        <span class="tag">${p.sexo==='H'?'VARÓN':'MUJER'} · ${p.fnac.edad} AÑOS</span>
+        ${p.ant.length?`<span class="tag ${p.riesgo>=3?'r':'a'}">${p.ant.length} ANTECEDENTES</span>`:'<span class="tag g">SIN ANTECEDENTES</span>'}
+        ${p.req?'<span class="tag r">REQUISITORIA VIGENTE</span>':''}
+        ${G.marcados[p.id]?'<span class="tag g">SOSPECHOSO MARCADO</span>':''}
+      </div>
+    </div>
+    <div class="box">
+      <div class="k g">FILIACIÓN</div>
+      <div class="f"><b>Fecha nac.</b><span>${fmtF(p.fnac)}</span></div>
+      <div class="f"><b>Nacionalidad</b><span>${esc(p.nac)}</span></div>
+      <div class="f"><b>Domicilio</b><span>${esc(domTexto(p))}</span></div>
+      <div class="f"><b>Teléfonos</b><span class="mono">${p.tel.join(' · ')}</span></div>
+      <div class="f"><b>Actividad</b><span>${esc(p.prof)}</span></div>
+      <div class="f" style="border:0"><b>Señas</b><span class="a">${esc(p.senas)}</span></div>
+    </div>
+    <div class="box ${p.ant.length?'al':''}">
+      <div class="k ${p.ant.length?'a':'g'}">ANTECEDENTES POLICIALES</div>
+      ${p.ant.length ? `<div class="scrollx" style="margin-top:6px"><table class="tbl">
+        <tr><th>Fecha</th><th>Hecho</th><th>Situación</th></tr>
+        ${p.ant.map(a=>`<tr><td class="mono">${fmtF(a.fecha)}</td>
+          <td><b>${esc(a.del)}</b><br><span class="dim2">${a.art}</span></td>
+          <td>${esc(a.res)}<br><span class="dim2" style="font-size:10px">${esc(a.jz)}</span></td></tr>`).join('')}
+        </table></div>`
+       : `<p class="sm" style="margin-top:6px">No constan antecedentes en las bases consultadas.</p>`}
+      ${p.req?`<div class="box cr" style="margin-top:8px"><div class="k r">REQUISITORIA</div>
+        <div class="sm">${esc(p.req.mot)} · ${esc(p.req.org)} · ${fmtF(p.req.fecha)}</div></div>`:''}
+    </div>
+    <div class="box">
+      <div class="k g">VEHÍCULOS A SU NOMBRE</div>
+      ${vehs.length ? `<div class="col" style="gap:6px;margin-top:6px">${vehs.map(v=>`
+        <button class="hit" data-a="veh" data-i="${v.id}">
+          <span class="av">🚗</span>
+          <span style="flex:1"><span class="nm mono">${v.mat}</span>
+          <span class="sub">${esc(v.marca)} ${esc(v.modelo)} · ${esc(v.color)} · ${v.año}</span></span>
+        </button>`).join('')}</div>` : `<p class="sm" style="margin-top:6px">Ninguno.</p>`}
+    </div>
+    <div class="box">
+      <div class="k g">VÍNCULOS CONOCIDOS</div>
+      ${p.vinc.length ? `<div class="col" style="gap:6px;margin-top:6px">${p.vinc.map(v=>{
+          const o = DB.byId[v.id]; if(!o) return '';
+          return `<button class="hit ${G.marcados[o.id]?'on':''}" data-a="ficha" data-i="${o.id}">
+            <span class="av">${o.foto}</span>
+            <span style="flex:1"><span class="nm">${esc(nombreCompleto(o))}</span>
+            <span class="sub">${esc(v.tipo)} · ${o.fnac.edad} años · ${esc(o.dom.mun)}</span></span>
+            ${o.ant.length?`<span class="tag ${o.riesgo>=3?'r':'a'}">${o.ant.length}</span>`:''}
+          </button>`;
+        }).join('')}</div>` : `<p class="sm" style="margin-top:6px">Sin vínculos registrados.</p>`}
+    </div>
+    ${p.notas.length?`<div class="box"><div class="k g">NOTAS OPERATIVAS</div>
+      ${p.notas.map(n=>`<p class="sm" style="margin:6px 0 0">· ${esc(n)}</p>`).join('')}</div>`:''}
+    <div class="box hi">
+      <div class="k a">DESCRIPCIÓN DEL TESTIGO</div>
+      <p class="sm" style="margin-top:5px">${esc(G.caso.descripcion)}</p>
+      <p class="xs" style="margin-top:5px">Compárala tú con las señas de arriba. El sistema no lo hace por ti.</p>
+    </div>
+    <div class="g2">
+      ${G.aut.tel?`<button class="btn sm" data-a="lldDe" data-i="${p.id}">📞 PEDIR LLAMADAS</button>`:''}
+      ${G.aut.banco?`<button class="btn sm" data-a="bancoDe" data-i="${p.id}">🏦 VER CUENTA</button>`:''}
+    </div>
+  </div>`,
+  bar:`<button class="btn ${G.marcados[p.id]?'dgr':'pri'}" data-a="marcar" data-i="${p.id}">
+      ${G.marcados[p.id]?'QUITAR MARCA DE SOSPECHOSO':'MARCAR COMO SOSPECHOSO'}</button>
+    <button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+  SFX.ok();
+}
+ACT.marcar = t => {
+  const id = t.dataset.i, p = DB.byId[id];
+  if(G.marcados[id]){ delete G.marcados[id]; msg('Marca retirada'); }
+  else {
+    G.marcados[id] = true;
+    hallazgo(`Marcado como sospechoso: ${nombreCompleto(p)}.`, 'marca');
+    msg('✔ Sospechoso incorporado al expediente');
+    SFX.hit();
+  }
+  abrirFicha(id, true);
+};
+
+/* ── VEHÍCULOS ── */
+let qVeh = '';
+function scrVehiculos(res){
+  paint({view:`<div class="col fade">
+    <div class="row sb"><h2 class="g">CONSULTA DE VEHÍCULOS</h2><span class="tag">${DB.veh.length} REG.</span></div>
+    <div class="box hi"><div class="k a">MATRÍCULA DEL ATESTADO</div>
+      <div class="mono g" style="font-size:20px;letter-spacing:.12em">${G.caso.matParcial}</div>
+      <div class="xs">Puedes buscar con interrogantes: <span class="mono">${G.caso.matParcial}</span></div></div>
+    <input class="inp" id="qv" placeholder="MATRÍCULA O PARTE DE ELLA" value="${esc(qVeh||G.caso.matParcial)}">
+    <div class="g2">
+      <button class="btn pri" data-a="buscarVeh">BUSCAR <span class="s">30 min</span></button>
+      <button class="btn" data-a="buscarVehAt">USAR LA DEL ATESTADO</button>
+    </div>
+    ${res ? (res.length ? `<div class="k g">${res.length} VEHÍCULO${res.length>1?'S':''} COMPATIBLE${res.length>1?'S':''}</div>
+      <div class="col" style="gap:6px">${res.slice(0,30).map(v=>{
+        const tit = DB.byId[v.titular];
+        return `<button class="hit" data-a="veh" data-i="${v.id}">
+          <span class="av">🚗</span>
+          <span style="flex:1"><span class="nm mono">${v.mat}</span>
+          <span class="sub">${esc(v.marca)} ${esc(v.modelo)} · ${esc(v.color)}</span>
+          <span class="sub">${tit?esc(nombreCompleto(tit)):'titular desconocido'}</span></span>
+        </button>`;
+      }).join('')}</div>` : `<div class="box cr"><div class="k r">SIN COINCIDENCIAS</div>
+        <p class="sm" style="margin-top:6px">Ninguna matrícula encaja con ese patrón.</p></div>`) : ''}
+  </div>`,
+  bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+function patronMat(q){
+  const t = q.toUpperCase().replace(/[\s-]/g,'');
+  const rx = new RegExp('^' + t.split('').map(ch=> ch==='?'||ch==='*' ? '.' : ch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('') + '$');
+  return {rx, plano:t};
+}
+function buscarVehiculos(q){
+  if(!gastar(COSTE.vehiculo, 'Consulta de matrícula: ' + q)) return null;
+  const {rx, plano} = patronMat(q);
+  return DB.veh.filter(v=>{
+    const m = v.mat.replace(' ','');
+    return rx.test(m) || (plano.length>=3 && !plano.includes('?') && m.includes(plano));
+  });
+}
+ACT.buscarVeh = () => {
+  const q = ($('#qv').value||'').trim();
+  qVeh = q;
+  if(q.replace(/[\s?]/g,'').length < 2){ msg('Introduce al menos dos caracteres conocidos'); return; }
+  const res = buscarVehiculos(q);
+  if(res === null) return scrFinal();
+  SFX.ok();
+  scrVehiculos(res);
+};
+ACT.buscarVehAt = () => {
+  qVeh = G.caso.matParcial;
+  const res = buscarVehiculos(qVeh);
+  if(res === null) return scrFinal();
+  SFX.ok();
+  scrVehiculos(res);
+};
+ACT.veh = t => abrirVehiculo(t.dataset.i);
+function abrirVehiculo(id){
+  const v = DB.byId[id], tit = DB.byId[v.titular], c = G.caso;
+  if(!G.vistos[id]){ if(!gastar(COSTE.vehiculo, 'Ficha de vehículo ' + v.mat)) return scrFinal(); }
+  G.vistos[id] = true;
+  if(v.mat === c.mat){
+    hallazgo(`Vehículo ${v.mat} (${v.marca} ${v.modelo}) identificado. Titular: ${nombreCompleto(tit)}.`, 'clave');
+    if(G.vistoLectura) prueba('veh', `El ${v.marca} ${v.modelo} matrícula ${v.mat} fue captado por el lector de ${c.punto} minutos después de los hechos.`);
+    else msg('Anotado. Falta situarlo en el lugar: mira los LECTORES.', 3200);
+  }
+  const lect = G.vistoLectura ? c.lecturas.filter(l=>l.mat===v.mat) : [];
+  paint({view:`<div class="col fade">
+    <div class="box hi">
+      <div class="row sb"><div class="k g">VEHÍCULO</div><span class="tag">${v.año}</span></div>
+      <div class="mono g" style="font-size:26px;letter-spacing:.12em">${v.mat}</div>
+      <div class="cap" style="font-size:16px">${esc(v.marca)} ${esc(v.modelo)}</div>
+      <div class="xs">Color ${esc(v.color)}</div>
+    </div>
+    <div class="box">
+      <div class="k g">DATOS REGISTRALES</div>
+      <div class="f"><b>Titular</b><span>${tit?esc(nombreCompleto(tit)):'—'}</span></div>
+      <div class="f"><b>DNI titular</b><span class="mono">${tit?tit.dni:'—'}</span></div>
+      <div class="f"><b>Domicilio</b><span>${tit?esc(domTexto(tit)):'—'}</span></div>
+      <div class="f"><b>Seguro</b><span>${v.seguro?esc(v.seguro):'<span class="r">SIN SEGURO EN VIGOR</span>'}</span></div>
+      <div class="f" style="border:0"><b>ITV</b><span>${esc(v.itv)}</span></div>
+    </div>
+    ${v.inc.length?`<div class="box al"><div class="k a">INCIDENCIAS</div>
+      ${v.inc.map(i=>`<p class="sm" style="margin:6px 0 0">· ${esc(i)}</p>`).join('')}</div>`:''}
+    ${lect.length?`<div class="box hi"><div class="k g">PASOS REGISTRADOS POR LECTOR</div>
+      <div class="scrollx" style="margin-top:6px"><table class="tbl">
+        <tr><th>Hora</th><th>Punto</th><th>Vel.</th></tr>
+        ${lect.map(l=>`<tr class="hot"><td class="mono">${fmtH(l.min)}</td><td>${esc(l.punto)}</td><td class="mono">${l.vel} km/h</td></tr>`).join('')}
+      </table></div></div>`:''}
+    ${tit?`<button class="hit" data-a="ficha" data-i="${tit.id}">
+      <span class="av">${tit.foto}</span>
+      <span style="flex:1"><span class="nm">ABRIR FICHA DEL TITULAR</span>
+      <span class="sub">${esc(nombreCompleto(tit))}</span></span></button>`:''}
+  </div>`,
+  bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+  SFX.ok();
+}
+
+/* ── LECTORES DE MATRÍCULA ── */
+let lectPunto = null, lectCruce = false;
+function scrLector(){
+  const c = G.caso;
+  paint({view:`<div class="col fade">
+    <h2 class="g">LECTORES DE MATRÍCULA</h2>
+    <div class="box hi"><div class="k a">SEGÚN EL ATESTADO</div>
+      <p class="sm" style="margin-top:4px">El vehículo huye en dirección a <b class="g">${esc(c.punto)}</b>, sobre las
+      <b class="mono">${c.horaTxt}</b> h.</p></div>
+    <div class="k g">ELIGE PUNTO DE LECTURA <span class="dim2">· 2 h por volcado</span></div>
+    <div class="col" style="gap:6px">
+      ${PUNTOS.map((p,i)=>`<button class="hit" data-a="verLect" data-i="${i}">
+        <span class="av">📷</span><span style="flex:1"><span class="nm">${esc(p)}</span>
+        <span class="sub">franja ${fmtH(c.horaMin-120)} – ${fmtH(c.horaMin+140)}</span></span></button>`).join('')}
+    </div>
+  </div>`,
+  bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+ACT.verLect = t => {
+  const p = PUNTOS[+t.dataset.i];
+  if(!gastar(COSTE.lector, 'Volcado de lector: ' + p)) return scrFinal();
+  lectPunto = p; lectCruce = false;
+  SFX.print();
+  pintarLect();
+};
+ACT.cruzar = () => { lectCruce = !lectCruce; SFX.ok(); pintarLect(); };
+function pintarLect(){
+  const c = G.caso;
+  let filas = c.lecturas.filter(l=>l.punto === lectPunto);
+  const hayClave = filas.some(l=>l.clave);
+  if(hayClave && !G.vistoLectura){
+    G.vistoLectura = true;
+    hallazgo(`Lector de ${lectPunto}: un vehículo pasa a ${filas.filter(l=>l.clave).map(l=>fmtH(l.min)).join(' y ')} h.`, 'clave');
+    const v = DB.byMat[c.mat];
+    if(G.vistos[v.id]) prueba('veh', `El ${v.marca} ${v.modelo} matrícula ${v.mat} fue captado por el lector de ${c.punto} minutos después de los hechos.`);
+  }
+  const {rx} = patronMat(c.matParcial);
+  if(lectCruce) filas = filas.filter(l=>rx.test(l.mat.replace(' ','')));
+  paint({view:`<div class="col fade">
+    <div class="row sb"><h2 class="g">VOLCADO DE LECTOR</h2><span class="tag">${filas.length} PASOS</span></div>
+    <div class="box"><div class="k g">PUNTO</div><div class="cap">${esc(lectPunto)}</div>
+      <div class="xs">Franja ${fmtH(c.horaMin-140)} – ${fmtH(c.horaMin+140)} del ${c.fechaTxt}</div></div>
+    <button class="btn ${lectCruce?'pri':''}" data-a="cruzar">
+      ${lectCruce?'✔ CRUZADO CON '+c.matParcial:'CRUZAR CON LA MATRÍCULA DEL ATESTADO'}
+      <span class="s">${lectCruce?'quitar filtro':'filtra los que encajan'}</span></button>
+    <div class="box" style="padding:8px">
+      <div class="scrollx"><table class="tbl">
+        <tr><th>Hora</th><th>Matrícula</th><th>Vel.</th><th></th></tr>
+        ${filas.length?filas.map(l=>{
+          const v = DB.byMat[l.mat];
+          const enc = rx.test(l.mat.replace(' ',''));
+          return `<tr class="${enc?'hot':''}">
+            <td class="mono">${fmtH(l.min)}</td>
+            <td class="mono ${enc?'a':''}">${l.mat}</td>
+            <td class="mono dim2">${l.vel}</td>
+            <td>${v?`<button class="btn sm" style="min-height:28px;padding:2px 6px" data-a="veh" data-i="${v.id}">VER</button>`:''}</td></tr>`;
+        }).join(''):'<tr><td colspan="4" class="dim">Sin pasos en esa franja.</td></tr>'}
+      </table></div>
+    </div>
+    ${lectCruce?'<div class="box hi"><div class="k a">FILTRO ACTIVO</div><p class="sm" style="margin-top:4px">Solo se muestran las matrículas que encajan con el patrón del testigo. Abre cada una y mira quién es el titular.</p></div>':''}
+  </div>`,
+  bar:`<div class="g2"><button class="btn gh" data-a="mod" data-m="lector">OTRO PUNTO</button>
+    <button class="btn gh" data-a="home">TERMINAL</button></div>`});
+}
+</script>
+<script>
+/* ── TELEFONÍA ── */
+function personasEnFoco(){
+  const ids = new Set(Object.keys(G.marcados));
+  Object.keys(G.vistos).forEach(id=>{ if(DB.byId[id] && DB.byId[id].dni) ids.add(id); });
+  return [...ids].map(id=>DB.byId[id]).filter(Boolean).slice(0,16);
+}
+function scrTelefonia(){
+  const marc = personasEnFoco();
+  paint({view:`<div class="col fade">
+    <h2 class="g">LISTADO DE LLAMADAS</h2>
+    <div class="box hi"><div class="k g">AUTORIZACIÓN VIGENTE</div>
+      <p class="xs" style="margin-top:4px">El juzgado autoriza el volcado de tráfico de llamadas de los números
+      relacionados con la investigación. Cada volcado: <b>4 h</b>.</p></div>
+    ${marc.length?`<div class="k g">EN LA INVESTIGACIÓN</div>
+      <div class="col" style="gap:6px">${marc.map(p=>`<button class="hit ${G.marcados[p.id]?'on':''}" data-a="lldDe" data-i="${p.id}">
+        <span class="av">${p.foto}</span><span style="flex:1"><span class="nm">${esc(nombreCompleto(p))}</span>
+        <span class="sub mono">${p.tel.join(' · ')}</span></span></button>`).join('')}</div>`:''}
+    <div class="k g">O INTRODUCE UN NÚMERO</div>
+    <input class="inp" id="qt" placeholder="6XXXXXXXX">
+    <button class="btn pri" data-a="lldNum">VOLCAR TRÁFICO <span class="s">4 h</span></button>
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+ACT.lldNum = () => {
+  const n = ($('#qt').value||'').replace(/\D/g,'');
+  if(n.length < 9){ msg('Número incompleto'); return; }
+  const p = DB.byTel[n];
+  if(!p){ if(!gastar(COSTE.telefonia,'Volcado de tráfico: '+n)) return scrFinal();
+    SFX.err(); msg('Número sin titular en la base. 90 minutos perdidos.', 3200); return scrHome(); }
+  volcarLLD(p);
+};
+ACT.lldDe = t => volcarLLD(DB.byId[t.dataset.i]);
+function volcarLLD(p){
+  const c = G.caso;
+  if(!gastar(COSTE.telefonia, 'Volcado de tráfico: ' + nombreCompleto(p))) return scrFinal();
+  const esCaso = p.id === c.conductor || p.id === c.autor;
+  const num = p.tel[0];
+  let filas;
+  if(esCaso){
+    filas = c.llamadas.filter(l=>l.a===num || l.b===num);
+    const otro = p.id === c.conductor ? DB.byId[c.autor] : DB.byId[c.conductor];
+    if(filas.some(l=>l.clave)){
+      hallazgo(`Tráfico de llamadas: ${nombreCompleto(p)} contacta cuatro veces con ${nombreCompleto(otro)} alrededor de la hora de los hechos.`, 'clave');
+      prueba('tel', `Cuatro comunicaciones entre ${nombreCompleto(DB.byId[c.conductor])} y ${nombreCompleto(DB.byId[c.autor])} entre las ${fmtH(c.horaMin-38)} y las ${fmtH(c.horaMin+41)} h, con celdas en ${c.mun}.`);
+    }
+  } else {
+    RND = mulberry32(parseInt(num.slice(-6),10));
+    filas = [];
+    for(let i=0;i<12;i++){
+      const o = pk(DB.per);
+      filas.push({a:num, b:o.tel[0], min:c.horaMin + ri(-900,900), dur:ri(10,400), celda:`Celda ${pad(ri(1,90),2)}${pk('ABC')} · ${o.dom.mun}`});
+    }
+    filas.sort((a,b)=>a.min-b.min);
+  }
+  SFX.print();
+  paint({view:`<div class="col fade">
+    <div class="row sb"><h2 class="g">TRÁFICO DE LLAMADAS</h2><span class="tag">${filas.length}</span></div>
+    <div class="box"><div class="k g">ABONADO</div>
+      <div class="cap" style="font-size:16px">${esc(nombreCompleto(p))}</div>
+      <div class="mono xs">${p.tel.join(' · ')}</div></div>
+    <div class="box" style="padding:8px">
+      <div class="scrollx"><table class="tbl">
+        <tr><th>Hora</th><th>Interlocutor</th><th>Dur.</th><th>Celda</th></tr>
+        ${filas.map(l=>{
+          const otroNum = l.a===num ? l.b : l.a;
+          const o = DB.byTel[otroNum];
+          return `<tr class="${l.clave?'hot':''}">
+            <td class="mono">${fmtH(l.min)}</td>
+            <td class="mono ${l.clave?'a':''}">${otroNum}${o?`<br><span class="dim2" style="font-size:10px">${esc(o.ape1)}, ${esc(o.nombre)}</span>`:''}</td>
+            <td class="mono dim2">${l.dur}s</td>
+            <td class="dim2" style="font-size:10px">${esc(l.celda)}</td></tr>`;
+        }).join('')}
+      </table></div>
+    </div>
+    ${esCaso?'<div class="box hi"><div class="k a">LO SUBRAYADO</div><p class="sm" style="margin-top:4px">Las líneas resaltadas caen dentro de la franja del delito. Ese patrón de llamadas cortas y seguidas es material de informe.</p></div>':'<div class="box"><div class="k">SIN RELEVANCIA APARENTE</div><p class="sm" style="margin-top:4px">Nada en este tráfico se relaciona con los hechos.</p></div>'}
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+
+/* ── ECONÓMICO ── */
+function scrBanco(){
+  const marc = personasEnFoco();
+  paint({view:`<div class="col fade">
+    <h2 class="g">INVESTIGACIÓN PATRIMONIAL</h2>
+    <div class="box hi"><div class="k g">AUTORIZACIÓN VIGENTE</div>
+      <p class="xs" style="margin-top:4px">Puedes requerir a las entidades el extracto de los titulares relacionados.
+      Cada requerimiento: <b>3 h 20</b>.</p></div>
+    ${marc.length?`<div class="k g">EN LA INVESTIGACIÓN</div>
+      <div class="col" style="gap:6px">${marc.map(p=>`<button class="hit ${G.marcados[p.id]?'on':''}" data-a="bancoDe" data-i="${p.id}">
+        <span class="av">${p.foto}</span><span style="flex:1"><span class="nm">${esc(nombreCompleto(p))}</span>
+        <span class="sub">${esc(p.cuenta.banco)}</span></span></button>`).join('')}</div>`
+      :`<div class="box cr"><div class="k r">NADIE EN FOCO</div>
+        <p class="sm" style="margin-top:4px">Abre primero la ficha de alguien para poder requerir su cuenta.</p></div>`}
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+ACT.bancoDe = t => {
+  const p = DB.byId[t.dataset.i], c = G.caso;
+  if(!gastar(COSTE.banco, 'Requerimiento bancario: ' + nombreCompleto(p))) return scrFinal();
+  const esAutor = p.id === c.autor, esCond = p.id === c.conductor;
+  let movs;
+  if(esAutor) movs = c.movs;
+  else if(esCond){
+    movs = c.movs.filter(m=>!m.clave).slice(0,6).concat([{fecha:{d:clampi(c.fecha.d+2,1,28),m:c.fecha.m,y:c.fecha.y},
+      con:`Transferencia recibida de ${nombreCompleto(DB.byId[c.autor])}`, imp: Math.round(c.botin*.09), clave:true}]);
+  } else {
+    RND = mulberry32(p.cuenta.saldo + 7);
+    movs = [];
+    for(let i=0;i<8;i++) movs.push({fecha:{d:ri(1,28),m:c.fecha.m,y:c.fecha.y},
+      con:pk(['Nómina','Recibo suministro','Compra TPV','Cuota préstamo','Bizum emitido','Retirada cajero']), imp:Math.round(rr(-800,1600))});
+    movs.sort((a,b)=>a.fecha.d-b.fecha.d);
+  }
+  if(esAutor || esCond){
+    hallazgo(`Movimiento sospechoso en la cuenta de ${nombreCompleto(p)} justo después de los hechos.`, 'clave');
+    prueba('din', esAutor
+      ? `Ingreso en efectivo de ${eur(c.movs.find(m=>m.clave&&m.imp>0).imp)} en la cuenta de ${nombreCompleto(DB.byId[c.autor])} al día siguiente de los hechos, y transferencia posterior al conductor.`
+      : `Transferencia recibida por ${nombreCompleto(DB.byId[c.conductor])} desde la cuenta de ${nombreCompleto(DB.byId[c.autor])} dos días después de los hechos.`);
+  }
+  SFX.print();
+  paint({view:`<div class="col fade">
+    <h2 class="g">EXTRACTO DE CUENTA</h2>
+    <div class="box"><div class="k g">TITULAR</div>
+      <div class="cap" style="font-size:16px">${esc(nombreCompleto(p))}</div>
+      <div class="f" style="margin-top:6px"><b>Entidad</b><span>${esc(p.cuenta.banco)}</span></div>
+      <div class="f"><b>IBAN</b><span class="mono" style="font-size:11.5px">${p.cuenta.iban}</span></div>
+      <div class="f" style="border:0"><b>Saldo</b><span class="mono">${eur(p.cuenta.saldo)}</span></div></div>
+    <div class="box" style="padding:8px">
+      <div class="scrollx"><table class="tbl">
+        <tr><th>Fecha</th><th>Concepto</th><th style="text-align:right">Importe</th></tr>
+        ${movs.map(m=>`<tr class="${m.clave?'hot':''}">
+          <td class="mono">${fmtF(m.fecha)}</td>
+          <td class="${m.clave?'a':''}">${esc(m.con)}</td>
+          <td class="mono" style="text-align:right;color:${m.imp<0?'var(--red)':'var(--green-hi)'}">${m.imp<0?'−':''}${eur(Math.abs(m.imp))}</td></tr>`).join('')}
+      </table></div></div>
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+};
+
+/* ── MERCANTIL ── */
+function scrEmpresas(res){
+  paint({view:`<div class="col fade">
+    <h2 class="g">REGISTRO MERCANTIL</h2>
+    <input class="inp" id="qe" placeholder="NOMBRE DE SOCIEDAD, CIF O ADMINISTRADOR">
+    <button class="btn pri" data-a="buscarEmp">BUSCAR <span class="s">1 h</span></button>
+    ${res?(res.length?`<div class="col" style="gap:6px">${res.map(e=>{
+        const a = DB.byId[e.admin];
+        return `<div class="box"><div class="cap g" style="font-size:15px">${esc(e.nom)}</div>
+          <div class="f"><b>CIF</b><span class="mono">${e.cif}</span></div>
+          <div class="f"><b>Objeto social</b><span>${esc(e.act)}</span></div>
+          <div class="f"><b>Domicilio social</b><span>${esc(e.mun)}</span></div>
+          <div class="f" style="border:0"><b>Administrador</b><span>${a?esc(nombreCompleto(a)):'—'}</span></div>
+          ${a?`<button class="btn sm" style="margin-top:8px" data-a="ficha" data-i="${a.id}">ABRIR FICHA DEL ADMINISTRADOR</button>`:''}
+        </div>`;
+      }).join('')}</div>`:'<div class="box cr"><div class="k r">SIN RESULTADOS</div></div>'):''}
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+ACT.buscarEmp = () => {
+  const q = ($('#qe').value||'').trim().toUpperCase();
+  if(q.length<2){ msg('Escribe al menos dos caracteres'); return; }
+  if(!gastar(COSTE.empresa, 'Consulta mercantil: '+q)) return scrFinal();
+  const res = DB.emp.filter(e=>{
+    const a = DB.byId[e.admin];
+    return e.nom.toUpperCase().includes(q) || e.cif.includes(q) || (a && nombreCompleto(a).toUpperCase().includes(q));
+  });
+  SFX.ok();
+  scrEmpresas(res);
+};
+
+/* ── AUTORIZACIONES ── */
+function indicios(){
+  let n = 0;
+  if(G.vistoLectura) n++;
+  if(G.vistos[DB.byMat[G.caso.mat] && DB.byMat[G.caso.mat].id]) n++;
+  n += Object.keys(G.marcados).filter(id=>DB.byId[id] && DB.byId[id].ant.length).length;
+  return n + nPruebas();
+}
+function scrAutoriz(){
+  const ind = indicios();
+  const fila = (id, nom, req, txt) => {
+    const dado = G.aut[id], ok = ind >= req;
+    return `<div class="box ${dado?'hi':''}">
+      <div class="row sb"><div class="k ${dado?'g':'a'}">${nom}</div>
+        <span class="tag ${dado?'g':ok?'a':'r'}">${dado?'CONCEDIDA':ok?'PROCEDE':'INSUFICIENTE'}</span></div>
+      <p class="sm" style="margin:6px 0 0">${txt}</p>
+      <div class="xs" style="margin-top:6px">Indicios exigidos: ${req} · tienes ${ind}</div>
+      ${dado?'':`<button class="btn ${ok?'pri':''} sm" style="margin-top:8px" data-a="pedirAut" data-i="${id}" ${ok?'':'disabled'}>SOLICITAR AL JUZGADO <span class="s">2 h 30</span></button>`}
+    </div>`;
+  };
+  paint({view:`<div class="col fade">
+    <h2 class="g">AUTORIZACIONES JUDICIALES</h2>
+    <div class="box"><div class="k g">CÓMO FUNCIONA</div>
+      <p class="sm" style="margin-top:5px">El juez no firma nada por corazonadas. Cada indicio sólido que metes en el
+      expediente (situar el coche, marcar a alguien con antecedentes, una prueba obtenida) sube tu contador.</p>
+      <div class="row sb" style="margin-top:8px"><span class="k">INDICIOS EN EL EXPEDIENTE</span>
+        <span class="mono g" style="font-size:20px">${ind}</span></div></div>
+    ${fila('tel','INTERVENCIÓN DE COMUNICACIONES', 2, 'Permite volcar el tráfico de llamadas: con quién habló y desde qué celda.')}
+    ${fila('banco','INVESTIGACIÓN PATRIMONIAL', 3, 'Permite requerir a las entidades los movimientos de cuenta de los investigados.')}
+    ${fila('registro','ENTRADA Y REGISTRO', 5, 'Permite registrar el domicilio de un sospechoso marcado y ocupar efectos.')}
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+ACT.pedirAut = t => {
+  const id = t.dataset.i;
+  const req = {tel:2, banco:3, registro:5}[id];
+  if(!gastar(COSTE.auto, 'Solicitud de autorización: ' + id)) return scrFinal();
+  if(indicios() < req){ SFX.err(); msg('El juzgado deniega: indicios insuficientes.', 3000); return scrAutoriz(); }
+  G.aut[id] = true;
+  hallazgo(`El juzgado autoriza: ${({tel:'intervención de comunicaciones', banco:'investigación patrimonial', registro:'entrada y registro'})[id]}.`, 'auto');
+  SFX.hit();
+  const c = G.caso;
+  paint({view:`<div class="col fade">
+    <div class="doc"><div class="stamp">CONCEDIDO</div>
+      <div class="k">JUZGADO DE INSTRUCCIÓN Nº ${ri(1,9)} DE ${esc(c.mun.toUpperCase())}</div>
+      <h3 style="margin-top:4px">AUTO</h3>
+      <div class="sep"></div>
+      <p style="margin:0">Vistos los indicios aportados en las diligencias <b>${c.num}</b>, y siendo la medida
+      proporcionada a la gravedad de los hechos (${esc(c.tipo.toLowerCase())}), <b>SE AUTORIZA</b>
+      ${({tel:'la intervención y volcado del tráfico de comunicaciones de los números señalados',
+          banco:'el requerimiento a las entidades financieras de los movimientos de las cuentas de los investigados',
+          registro:'la entrada y registro del domicilio del investigado, con ocupación de efectos'})[id]}.</p>
+      <div class="sep"></div>
+      <p style="margin:0;font-size:12px">Notifíquese al instructor. Doy fe.</p>
+    </div>
+  </div>`, bar:`<button class="btn pri" data-a="home">CONTINUAR</button>`});
+};
+
+/* ── EXPEDIENTE ── */
+function scrExpediente(){
+  const c = G.caso;
+  const pr = Object.keys(G.pruebas);
+  const marc = Object.keys(G.marcados).map(id=>DB.byId[id]).filter(Boolean);
+  paint({view:`<div class="col fade">
+    <h2 class="g">EXPEDIENTE ${c.num}</h2>
+    <div class="box hi"><div class="k g">PRUEBAS (${pr.length}/3)</div>
+      ${pr.length?pr.map(k=>`<div class="box" style="margin-top:8px;border-color:var(--green-dk)">
+        <div class="k g">✔ ${({veh:'VEHÍCULO SITUADO',tel:'COMUNICACIONES',din:'RASTRO ECONÓMICO',obj:'EFECTOS INTERVENIDOS',vig:'VIGILANCIA'})[k]||k}</div>
+        <p class="sm" style="margin-top:4px">${esc(G.pruebas[k].txt)}</p></div>`).join('')
+       :'<p class="sm" style="margin-top:6px">Todavía no hay ninguna prueba en el expediente.</p>'}</div>
+    <div class="box"><div class="k g">SOSPECHOSOS MARCADOS</div>
+      ${marc.length?`<div class="col" style="gap:6px;margin-top:6px">${marc.map(p=>hitPersona(p)).join('')}</div>`
+        :'<p class="sm" style="margin-top:6px">Ninguno.</p>'}</div>
+    <div class="box"><div class="k g">DILIGENCIAS PRACTICADAS</div>
+      <div class="col" style="gap:5px;margin-top:6px">
+        ${G.hallazgos.map(h=>`<div class="sm ${h.tipo==='prueba'||h.tipo==='clave'?'a':''}">
+          <span class="mono dim2" style="font-size:10px">${pad(Math.floor(h.min/60))}:${pad(h.min%60)}</span> · ${esc(h.txt)}</div>`).join('')}
+      </div></div>
+    <div class="box"><div class="k">REGISTRO DE ACCESOS AL SISTEMA</div>
+      <div class="xs" style="margin-top:6px">${G.log.length} consultas · ${Math.floor(G.reloj/60)} h ${G.reloj%60} min consumidas</div>
+      <div class="col" style="gap:2px;margin-top:6px">
+        ${G.log.slice(-14).reverse().map(l=>`<div class="xs mono">[${pad(Math.floor(l.t/60))}:${pad(l.t%60)}] ${esc(l.etiqueta)} (+${l.min}′)</div>`).join('')}
+      </div></div>
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+}
+</script>
+<script>
+/* ── SIGUIENTE PASO ── */
+function siguientePaso(){
+  const c = G.caso, v = DB.byMat[c.mat], cond = DB.byId[c.conductor], aut = DB.byId[c.autor];
+  if(!G.vistoLectura) return `Ve a <b>LECTORES</b> y vuelca el punto que dice el atestado: <b>${esc(c.punto)}</b>. Ahí pasó el coche.`;
+  if(!G.vistos[v.id]) return `En el volcado, pulsa <b>CRUZAR CON LA MATRÍCULA DEL ATESTADO</b>. Quedarán varias que encajan: quédate con la que pasa <b>justo después de las ${G.caso.horaTxt}</b>, que es cuando huyeron. Ábrela.`;
+  if(!G.vistos[cond.id]) return `Ya tienes el coche. Abre la <b>ficha del titular</b> desde la propia ficha del vehículo.`;
+  if(!G.vistos[aut.id]) return `El titular conducía, pero el testigo describe a otra persona. Baja a <b>VÍNCULOS CONOCIDOS</b> en su ficha y abre uno por uno, comparando las <b>señas</b> con la descripción del testigo.`;
+  if(!G.marcados[aut.id]) return `Uno de esos vinculados encaja con la descripción del testigo. <b>Márcalo como sospechoso</b> en su ficha.`;
+  if(!G.aut.tel) return `Con esos indicios el juez ya te firma. Pide la <b>intervención de comunicaciones</b> en AUTORIZACIONES.`;
+  if(!G.pruebas.tel) return `Vuelca el <b>tráfico de llamadas</b> del titular del vehículo o del sospechoso y mira la franja del delito.`;
+  if(!G.aut.banco) return `Pide la <b>investigación patrimonial</b> en AUTORIZACIONES: ya tienes indicios de sobra.`;
+  if(!G.pruebas.din) return `Requiere la <b>cuenta del sospechoso</b> y busca el movimiento raro justo después de los hechos.`;
+  if(nPruebas() < 3) return `Te falta una prueba. Prueba con una <b>vigilancia</b> sobre el sospechoso o con el <b>registro domiciliario</b> si el juez ya lo autorizó.`;
+  return `Tienes tres pruebas. Ve a <b>ACTUACIONES</b> y solicita la <b>detención</b> de quien encaja con la descripción del testigo.`;
+}
+ACT.pista = () => {
+  if(!gastar(COSTE.pista, 'Reunión con el instructor (orientación)')) return scrFinal();
+  G.pistasUsadas++;
+  SFX.ok();
+  paint({view:`<div class="col fade">
+    <div class="box hi" style="border-color:var(--amber)">
+      <div class="k a">💡 EL INSTRUCTOR TE ORIENTA</div>
+      <p style="margin:10px 0 0;font-size:15px">${siguientePaso()}</p>
+      <div class="xs" style="margin-top:10px">Consultas de orientación usadas: ${G.pistasUsadas} · restan ${restanteTxt()}</div>
+    </div>
+  </div>`, bar:`<button class="btn pri" data-a="home">VOLVER AL TERMINAL</button>`});
+};
+
+/* ── ACTUACIONES ── */
+ACT.actuaciones = () => {
+  const marc = Object.keys(G.marcados).map(id=>DB.byId[id]).filter(Boolean);
+  const lista = (act, txt) => marc.length
+    ? marc.map(p=>`<button class="hit" data-a="${act}" data-i="${p.id}">
+        <span class="av">${p.foto}</span><span style="flex:1"><span class="nm">${esc(nombreCompleto(p))}</span>
+        <span class="sub">${esc(p.dom.mun)} · ${p.ant.length} antecedentes</span></span></button>`).join('')
+    : `<p class="sm" style="margin-top:6px">${txt}</p>`;
+  paint({view:`<div class="col fade">
+    <h2 class="g">ACTUACIONES</h2>
+    <div class="box"><div class="k g">VIGILANCIA DISCRETA <span class="dim2">· 10 h</span></div>
+      <p class="xs" style="margin:5px 0 0">Un equipo sigue al sospechoso. Caro en horas, pero a veces vale por una prueba.</p>
+      <div class="col" style="gap:6px;margin-top:8px">${lista('vigilar','Marca antes a alguien como sospechoso.')}</div></div>
+    <div class="box ${G.aut.registro?'hi':''}"><div class="k ${G.aut.registro?'g':'r'}">ENTRADA Y REGISTRO <span class="dim2">· 8 h</span></div>
+      ${G.aut.registro
+        ? `<p class="xs" style="margin:5px 0 0">Autorizado por el juzgado. Si aciertas de domicilio, aparecerán efectos.</p>
+           <div class="col" style="gap:6px;margin-top:8px">${lista('registrar','Marca antes a alguien como sospechoso.')}</div>`
+        : `<p class="sm" style="margin:5px 0 0">Sin autorización judicial. Necesitas 5 indicios y pedirla en AUTORIZACIONES.</p>`}</div>
+    <div class="box cr"><div class="k r">${G.modo==='duelo'?'ACUSACIÓN FINAL':'SOLICITUD DE DETENCIÓN'} <span class="dim2">· 2 h</span></div>
+      <p class="xs" style="margin:5px 0 0">${G.modo==='duelo'
+        ? 'Cada agente firma en secreto a quién acusa. Después se abre el sobre y se compara con la realidad.'
+        : 'Solo se detiene una vez. Si te equivocas de persona, el caso se cae.'}</p>
+      ${G.modo==='duelo'
+        ? `<button class="btn dgr" style="margin-top:10px" data-a="acusar">FIRMAR ACUSACIONES</button>`
+        : `<div class="col" style="gap:6px;margin-top:8px">${lista('detener','Marca antes a alguien como sospechoso.')}</div>`}
+      ${nPruebas()<3?`<div class="xs a" style="margin-top:8px">⚠ Con menos de tres pruebas el juez puede no autorizarla.</div>`:''}
+    </div>
+  </div>`, bar:`<button class="btn gh" data-a="home">VOLVER AL TERMINAL</button>`});
+};
+ACT.vigilar = t => {
+  const p = DB.byId[t.dataset.i], c = G.caso;
+  if(!gastar(COSTE.vigilancia, 'Vigilancia sobre ' + nombreCompleto(p))) return scrFinal();
+  let txt, ok = false;
+  if(p.id === c.autor){
+    ok = true;
+    txt = `Se le observa acudir a un trastero en las afueras de ${esc(c.mun)} y salir con una bolsa de deporte. Se reúne quince minutos con ${esc(nombreCompleto(DB.byId[c.conductor]))} en un aparcamiento y se separan sin despedirse.`;
+    prueba('vig', `Vigilancia: ${nombreCompleto(p)} accede a un trastero y se reúne con el titular del vehículo de la huida, con actitud de contravigilancia.`);
+  } else if(p.id === c.conductor){
+    txt = `Rutina normal salvo una reunión breve, en un aparcamiento, con un varón que no baja del coche. No se identifica al acompañante.`;
+    hallazgo(`Vigilancia sobre ${nombreCompleto(p)}: se reúne con alguien no identificado.`, 'nota');
+  } else {
+    txt = `Cuatro horas de seguimiento sin nada reseñable. Domicilio, trabajo, domicilio.`;
+  }
+  SFX[ok?'hit':'ok']();
+  paint({view:`<div class="col fade">
+    <div class="doc"><div class="k">ACTA DE VIGILANCIA</div>
+      <h3 style="margin-top:4px">${esc(nombreCompleto(p))}</h3>
+      <div class="sep"></div><p style="margin:0">${txt}</p>
+      <div class="sep"></div><p style="margin:0;font-size:12px">Duración del dispositivo: 4 horas.</p></div>
+  </div>`, bar:`<button class="btn pri" data-a="home">VOLVER AL TERMINAL</button>`});
+};
+ACT.registrar = t => {
+  const p = DB.byId[t.dataset.i], c = G.caso;
+  if(!gastar(COSTE.registro, 'Entrada y registro en domicilio de ' + nombreCompleto(p))) return scrFinal();
+  const acierto = p.id === c.autor || p.id === c.conductor;
+  if(acierto){
+    prueba('obj', `En el registro del domicilio de ${nombreCompleto(p)} se ocupan ${c.objetos[0]}.`);
+    SFX.hit();
+  } else { SFX.err(); G.registroFallido = (G.registroFallido||0)+1; }
+  paint({view:`<div class="col fade">
+    <div class="doc"><div class="stamp">${acierto?'EFECTOS':'NEGATIVO'}</div>
+      <div class="k">ACTA DE ENTRADA Y REGISTRO</div>
+      <h3 style="margin-top:4px">${esc(domTexto(p))}</h3>
+      <div class="sep"></div>
+      ${acierto
+        ? `<p style="margin:0">Practicado el registro en presencia del letrado de la Administración de Justicia, se ocupan:</p>
+           <ul style="margin:8px 0 0;padding-left:18px">${c.objetos.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>`
+        : `<p style="margin:0">Practicado el registro, <b>no se localizan efectos</b> relacionados con los hechos.
+           El titular presenta queja. El instructor no está contento.</p>`}
+    </div>
+  </div>`, bar:`<button class="btn pri" data-a="home">VOLVER AL TERMINAL</button>`});
+};
+ACT.detener = t => {
+  const p = DB.byId[t.dataset.i], c = G.caso;
+  if(!gastar(COSTE.detencion, 'Solicitud de detención de ' + nombreCompleto(p))) return scrFinal();
+  if(p.id === c.autor && nPruebas() >= 3){ G.detenido = p.id; return terminar('resuelto'); }
+  if(p.id === c.autor){
+    SFX.err();
+    return paint({view:`<div class="col fade">
+      <div class="box cr"><div class="k r">EL JUZGADO NO AUTORIZA</div>
+        <p class="sm" style="margin-top:6px">La solicitud decae: solo aportas <b>${nPruebas()} prueba${nPruebas()===1?'':'s'}</b> de las tres exigidas.
+        Sigues teniendo la persona correcta, pero necesitas sostenerla.</p>
+        <p class="xs" style="margin-top:8px">Has perdido una hora. El plazo sigue corriendo.</p></div>
+    </div>`, bar:`<button class="btn pri" data-a="home">SEGUIR TRABAJANDO</button>`});
+  }
+  if(p.id === c.conductor && nPruebas() >= 2){
+    G.confeso = true;
+    gastar(180, 'Declaración del detenido');
+    hallazgo(`${nombreCompleto(p)} declara: conducía, pero el que entró fue otro. Aporta un nombre.`, 'clave');
+    SFX.alarm();
+    return paint({view:`<div class="col fade">
+      <div class="box al"><div class="k a">DECLARACIÓN EN DEPENDENCIAS</div>
+        <p class="sm" style="margin-top:6px">${esc(nombreCompleto(p))} reconoce que <b>solo conducía</b>. Señala como autor material a
+        alguien de su entorno y se acoge a su derecho a no declarar más.</p>
+        <p class="sm" style="margin-top:8px">Has quemado <b>4 horas</b> y la detención del conductor no cierra el caso:
+        el instructor quiere al que entró.</p></div>
+    </div>`, bar:`<button class="btn pri" data-a="home">VOLVER AL TERMINAL</button>`});
+  }
+  G.errorGrave = (G.errorGrave||0) + 1;
+  gastar(240, 'Puesta en libertad tras detención errónea');
+  SFX.lose();
+  paint({view:`<div class="col fade">
+    <div class="box cr"><div class="k r">DETENCIÓN ERRÓNEA</div>
+      <p class="sm" style="margin-top:6px">${esc(nombreCompleto(p))} acredita dónde estaba. Queda en libertad sin cargos
+      y presenta queja. El instructor te lo va a recordar durante años.</p>
+      <p class="xs" style="margin-top:8px">−4 horas de plazo. El autor sigue ahí fuera.</p></div>
+  </div>`, bar:`<button class="btn pri" data-a="home">VOLVER AL TERMINAL</button>`});
+};
+
+/* ── ACUSACIÓN FINAL (MODO DÚO) ── */
+function candidatos(){
+  const ids = new Set(Object.keys(G.marcados));
+  Object.keys(G.vistos).forEach(id=>{ if(DB.byId[id] && DB.byId[id].dni) ids.add(id); });
+  return [...ids].map(id=>DB.byId[id]).filter(Boolean).slice(0, 24);
+}
+ACT.acusar = () => {
+  const c = candidatos();
+  if(c.length < 2){ msg('Antes tenéis que consultar fichas de gente'); return; }
+  G.acusacion = [null, null];
+  pedirAcusacion(0);
+};
+function pedirAcusacion(i){
+  traspaso(G.agentes[i], 'Firma tu acusación. El otro agente no debe verla.', ()=>{
+    paint({view:`<div class="col fade">
+      <div class="box hi"><div class="k a">ACUSACIÓN DE ${esc(G.agentes[i])}</div>
+        <p class="sm" style="margin-top:5px">¿Quién entró? Solo una firma, y no se puede cambiar.</p>
+        <p class="xs" style="margin-top:5px">Descripción del testigo: ${esc(G.caso.descripcion)}</p></div>
+      <div class="col" style="gap:6px">
+        ${candidatos().map(p=>`<button class="hit" data-a="firmar" data-i="${p.id}" data-j="${i}">
+          <span class="av">${p.foto}</span><span style="flex:1"><span class="nm">${esc(nombreCompleto(p))}</span>
+          <span class="sub">${esc(p.senas)}</span></span>
+          ${G.marcados[p.id]?'<span class="tag g">MARCADO</span>':''}</button>`).join('')}
+      </div>
+    </div>`, bar:''});
+  });
+}
+ACT.firmar = t => {
+  const j = +t.dataset.j;
+  G.acusacion[j] = t.dataset.i;
+  SFX.hit();
+  if(j === 0) pedirAcusacion(1);
+  else { gastar(COSTE.detencion, 'Acusaciones firmadas'); terminar('acusacion'); }
+};
+function finPorPlazo(){ if(!G.fin) G.fin = 'plazo'; }
+function terminar(modo){
+  G.fin = modo;
+  const c = G.caso;
+  const m = metaGet();
+  m.casos = (m.casos||0)+1;
+  const ok = modo === 'resuelto' || (modo === 'acusacion' && G.acusacion.includes(c.autor));
+  if(ok){ m.res = (m.res||0)+1; m.mejor = Math.min(m.mejor||99999, G.reloj); }
+  metaSet(m);
+  scrFinal();
+}
+</script>
+<script>
+/* ── CIERRE DEL CASO ── */
+function scrFinal(){
+  const c = G.caso, autor = DB.byId[c.autor], cond = DB.byId[c.conductor];
+  const modo = G.fin || 'plazo';
+  const acierto = modo === 'resuelto' || (modo === 'acusacion' && G.acusacion.includes(c.autor));
+  const horasRest = Math.floor(restante()/60);
+  const pts = Math.max(0,
+      (acierto ? 400 : 0) + nPruebas()*120 + horasRest*4
+      - (G.errorGrave||0)*150 - (G.registroFallido||0)*80 - G.pistasUsadas*40);
+  let cabecera;
+  if(modo === 'resuelto'){
+    cabecera = `<div style="text-align:center"><div style="font-size:52px">⚖️</div>
+      <h1 class="g">CASO RESUELTO</h1>
+      <p class="sm dim">Detenido el autor material con tres pruebas en el expediente.</p></div>`;
+    SFX.win();
+  } else if(modo === 'plazo'){
+    cabecera = `<div style="text-align:center"><div style="font-size:52px">⏱️</div>
+      <h1 class="r">PLAZO AGOTADO</h1>
+      <p class="sm dim">48 horas. El operativo decae y el autor se pierde de vista.</p></div>`;
+    SFX.lose();
+  } else {
+    cabecera = `<div style="text-align:center"><div style="font-size:52px">✒️</div>
+      <h1 class="${acierto?'g':'a'}">SOBRES ABIERTOS</h1>
+      <p class="sm dim">Las dos acusaciones, contra la realidad.</p></div>`;
+    acierto ? SFX.win() : SFX.lose();
+  }
+  const duo = modo === 'acusacion' ? `<div class="box hi">
+      <div class="k g">LAS FIRMAS</div>
+      ${[0,1].map(i=>{
+        const p = DB.byId[G.acusacion[i]];
+        const bien = G.acusacion[i] === c.autor;
+        return `<div class="row sb" style="padding:7px 0;border-bottom:1px solid var(--line)">
+          <div><div class="cap" style="font-size:15px">${esc(G.agentes[i])}</div>
+            <div class="xs">acusó a ${p?esc(nombreCompleto(p)):'nadie'}</div></div>
+          <span class="tag ${bien?'g':'r'}">${bien?'ACERTÓ':'FALLÓ'}</span></div>`;
+      }).join('')}
+      <div class="sm" style="margin-top:8px">${
+        G.acusacion[0]===c.autor && G.acusacion[1]===c.autor ? 'Los dos lo vieron. Empate honroso.' :
+        G.acusacion.includes(c.autor) ? `<b class="g">${esc(G.agentes[G.acusacion[0]===c.autor?0:1])}</b> se lo lleva. El otro tendrá que aguantarlo.` :
+        'Ninguno de los dos acertó. El instructor no quiere ni miraros.'}</div>
+      ${G.datos?`<div class="xs" style="margin-top:8px">El dato reservado bueno lo tenía <b>${esc(G.agentes[G.datoFiable])}</b>.</div>`:''}
+    </div>` : '';
+  paint({view:`<div class="col fade">
+    ${cabecera}
+    <div class="box hi">
+      <div class="k g">LO QUE PASÓ DE VERDAD</div>
+      <div class="row" style="gap:10px;margin-top:8px">
+        <div style="font-size:34px">${autor.foto}</div>
+        <div style="flex:1"><div class="cap" style="font-size:16px">${esc(nombreCompleto(autor))}</div>
+          <div class="xs">AUTOR MATERIAL · ${autor.dni} · ${autor.ant.length} antecedentes</div>
+          <div class="xs a">${esc(autor.senas)}</div></div>
+      </div>
+      <div class="row" style="gap:10px;margin-top:10px">
+        <div style="font-size:34px">${cond.foto}</div>
+        <div style="flex:1"><div class="cap" style="font-size:16px">${esc(nombreCompleto(cond))}</div>
+          <div class="xs">CONDUCTOR · titular del ${c.mat}</div></div>
+      </div>
+      <div class="rule" style="margin:10px 0"></div>
+      <p class="sm">${esc(c.descripcion)}</p>
+      <p class="xs" style="margin-top:6px">Estaba en la base de datos desde el minuto uno. Solo había que llegar.</p>
+    </div>
+    ${duo}
+    <div class="box">
+      <div class="k g">BALANCE</div>
+      <div class="f"><b>Pruebas</b><span>${nPruebas()} de 3</span></div>
+      <div class="f"><b>Tiempo empleado</b><span>${Math.floor(G.reloj/60)} h ${G.reloj%60} min</span></div>
+      <div class="f"><b>Consultas</b><span>${G.log.length}</span></div>
+      <div class="f"><b>Orientaciones pedidas</b><span>${G.pistasUsadas}</span></div>
+      ${G.errorGrave?`<div class="f"><b class="r">Detenciones erróneas</b><span class="r">${G.errorGrave}</span></div>`:''}
+      ${G.registroFallido?`<div class="f"><b class="r">Registros en balde</b><span class="r">${G.registroFallido}</span></div>`:''}
+      <div class="f" style="border:0"><b>Puntuación</b><span class="mono g" style="font-size:18px">${pts}</span></div>
+    </div>
+    ${nPruebas()?`<div class="box"><div class="k g">PRUEBAS QUE LLEGASTE A REUNIR</div>
+      ${Object.keys(G.pruebas).map(k=>`<p class="sm" style="margin:7px 0 0">✔ ${esc(G.pruebas[k].txt)}</p>`).join('')}</div>`:''}
+  </div>`,
+  bar:`<button class="btn pri" data-a="otroCaso">OTRO CASO</button>
+    <button class="btn gh" data-a="menu">SALIR AL MENÚ</button>`});
+}
+ACT.otroCaso = () => {
+  const ag = G.agentes.slice();
+  const seed = Math.floor(Math.random()*2000000000);
+  nuevaPartida(seed, ag, ag[1] ? 'duelo' : 'solo');
+  SFX.print();
+  scrBrief();
+};
+
+/* ── arranque ── */
+scrBoot();
+</script>

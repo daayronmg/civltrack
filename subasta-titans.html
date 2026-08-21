@@ -1,0 +1,2818 @@
+<title>Subasta Titans</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0B0609">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ── SUBASTA TITANS ─ sala de subastas nocturna: laca oxblood, latón, cobalto ── */
+:root{
+  --ink:#0B0609; --ink2:#120A0F; --panel:#1A0F15; --panel2:#23151D; --panel3:#2C1B24;
+  --line:#3A2531; --line2:#553645;
+  --brass:#C9A227; --brass-hi:#F2DA92; --brass-dim:#7E661B;
+  --ivory:#F4EADA; --mute:#A28D93; --mute2:#6B565E;
+  --p1:#D9534B; --p1-deep:#4A1512; --p1-hi:#FF8A80;
+  --p2:#5C86D6; --p2-deep:#132546; --p2-hi:#9CBBFF;
+  --up:#5FC79B; --down:#E08A3C; --danger:#E2564D;
+  --r:14px;
+  --f-disp:"Bodoni Moda",'Times New Roman',serif;
+  --f-ui:"Archivo",system-ui,-apple-system,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--ink);color:var(--ivory);font-family:var(--f-ui);
+  font-size:16px;line-height:1.45;overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;
+}
+button,input{font-family:inherit;color:inherit}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ── carcasa ── */
+#shell{
+  position:relative;width:100%;max-width:480px;margin:0 auto;
+  height:100vh;height:100dvh;max-height:100dvh;
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+  background:
+    radial-gradient(120% 60% at 50% -10%, #2A1520 0%, rgba(42,21,32,0) 60%),
+    radial-gradient(80% 40% at 50% 105%, #1C1018 0%, rgba(28,16,24,0) 70%),
+    var(--ink);
+  box-shadow:0 0 0 1px var(--line), 0 0 90px rgba(0,0,0,.9);
+  overflow:hidden;
+}
+#topbar{
+  grid-row:1;display:flex;align-items:center;gap:8px;padding:10px 12px 8px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(201,162,39,.10),rgba(201,162,39,0));
+}
+#topbar.hide{display:none}
+#stage{grid-row:2;min-height:0;overflow-y:auto;overflow-x:hidden;padding:14px 14px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#dock{
+  grid-row:3;padding:10px 14px calc(12px + var(--safe-b));display:flex;flex-direction:column;gap:8px;
+  max-height:52vh;overflow-y:auto;flex:0 0 auto
+}
+#dock:empty{display:none}
+
+/* ── tipografía ── */
+h1,h2,h3{margin:0;font-family:var(--f-disp);font-weight:700;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:30px;line-height:1.05}
+h2{font-size:23px;line-height:1.12}
+h3{font-size:18px}
+.lbl{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.lbl.gold{color:var(--brass)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
+.small{font-size:13px;color:var(--mute)}
+.tiny{font-size:11.5px;color:var(--mute2);line-height:1.4}
+.ital{font-family:var(--f-disp);font-style:italic}
+.c1{color:var(--p1)}.c2{color:var(--p2)}.gold{color:var(--brass-hi)}
+.up{color:var(--up)}.down{color:var(--down)}
+
+/* ── paneles ── */
+.panel{background:linear-gradient(165deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.panel.gilt{border-color:var(--brass-dim);box-shadow:inset 0 1px 0 rgba(242,218,146,.18)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:8px}
+.row.sb{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:2px 0}
+
+/* ── botones ── */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  min-height:56px;padding:12px 16px;border-radius:12px;border:1px solid var(--line2);
+  background:linear-gradient(180deg,var(--panel3),var(--panel));color:var(--ivory);
+  font-weight:700;font-size:16px;letter-spacing:.04em;text-transform:uppercase;
+  cursor:pointer;transition:transform .09s ease,filter .15s ease,opacity .15s;
+}
+.btn:active{transform:scale(.975);filter:brightness(1.15)}
+.btn:disabled{opacity:.35;pointer-events:none}
+.btn:focus-visible{outline:2px solid var(--brass-hi);outline-offset:2px}
+.btn.pri{
+  background:linear-gradient(180deg,#E9CE6E,#C9A227 55%,#9A7A18);
+  color:#20150A;border-color:#F2DA92;text-shadow:0 1px 0 rgba(255,255,255,.25);
+  box-shadow:0 6px 18px -8px rgba(201,162,39,.9);
+}
+.btn.p1{background:linear-gradient(180deg,#E4645B,#B23A33);border-color:#FF8A80;color:#2A0B09}
+.btn.p2{background:linear-gradient(180deg,#6E95E2,#3B60AC);border-color:#9CBBFF;color:#08152E}
+.btn.gh{background:transparent;border-color:var(--line2);color:var(--mute);min-height:48px;font-size:14px}
+.btn.dgr{background:linear-gradient(180deg,#7E2A25,#521916);border-color:#B24A43}
+.btn.sm{min-height:44px;font-size:13px;padding:8px 10px}
+.btn.wide{grid-column:1/-1}
+.btn .sub{display:block;font-size:10.5px;letter-spacing:.14em;opacity:.72;font-weight:600}
+.btn-col{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.15;text-align:center}
+
+/* ── chips / medidores ── */
+.chip{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;
+  border:1px solid var(--line2);background:rgba(255,255,255,.03);
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap
+}
+.chip.gold{border-color:var(--brass-dim);color:var(--brass-hi);background:rgba(201,162,39,.10)}
+.chip.risk{border-color:#7A3B2E;color:#F0A88F;background:rgba(224,138,60,.10)}
+.chip.c1{border-color:var(--p1);color:var(--p1-hi);background:rgba(217,83,75,.12)}
+.chip.c2{border-color:var(--p2);color:var(--p2-hi);background:rgba(92,134,214,.14)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.meter{height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brass-dim),var(--brass-hi))}
+.meter.blue i{background:linear-gradient(90deg,#2F4E86,var(--p2-hi))}
+
+/* ── lote (lámina de catálogo) ── */
+.plate{
+  position:relative;border:1px solid var(--brass-dim);border-radius:var(--r);
+  background:radial-gradient(70% 70% at 50% 32%, #3A2230 0%, #1A0F15 72%);
+  padding:18px 14px 14px;text-align:center;overflow:hidden
+}
+.plate::before,.plate::after{
+  content:"";position:absolute;width:16px;height:16px;border:1px solid var(--brass);opacity:.6
+}
+.plate::before{top:6px;left:6px;border-right:0;border-bottom:0}
+.plate::after{bottom:6px;right:6px;border-left:0;border-top:0}
+.plate .obj{
+  font-size:74px;line-height:1;filter:drop-shadow(0 10px 22px rgba(0,0,0,.75));
+  animation:float 5s ease-in-out infinite
+}
+.plate .lotno{font-family:var(--f-num);font-size:11px;letter-spacing:.3em;color:var(--brass);opacity:.85}
+.plate h2{margin:6px 0 2px}
+.spot{position:absolute;inset:-40% -10% auto;height:200px;background:radial-gradient(50% 60% at 50% 0%,rgba(242,218,146,.20),transparent 70%);pointer-events:none}
+
+/* ── puja ── */
+.bidbox{
+  border:1px solid var(--brass-dim);border-radius:var(--r);padding:12px;text-align:center;
+  background:linear-gradient(180deg,rgba(201,162,39,.10),rgba(201,162,39,.02))
+}
+.bidnum{font-family:var(--f-num);font-size:40px;font-weight:600;letter-spacing:-.03em;color:var(--brass-hi);line-height:1}
+.bidnum.sm{font-size:30px}
+.ladder{display:flex;flex-direction:column;gap:6px;max-height:168px;overflow-y:auto}
+.bidrow{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);border-left:3px solid var(--line2);font-size:14px}
+.bidrow.b1{border-left-color:var(--p1)}
+.bidrow.b2{border-left-color:var(--p2)}
+.bidrow.newest{animation:slam .35s cubic-bezier(.2,1.5,.4,1)}
+input[type=range]{width:100%;accent-color:var(--brass);height:34px}
+
+/* ── temporizador ── */
+.timer{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.timer i{display:block;height:100%;background:linear-gradient(90deg,var(--brass-hi),var(--brass));transition:width .25s linear}
+.timer.hot i{background:linear-gradient(90deg,#FF8A80,var(--danger));animation:pulse .5s infinite}
+
+/* ── traspaso de móvil ── */
+#handoff{
+  position:absolute;inset:0;z-index:60;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center;
+  background:radial-gradient(80% 50% at 50% 40%,#1C1018,#08050700 70%),#060406
+}
+#handoff.on{display:flex;animation:fade .35s ease}
+#handoff .lock{font-size:64px;animation:pulse 2.2s infinite}
+
+/* ── superposiciones ── */
+#toast{
+  position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:70;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%
+}
+.toast{
+  padding:10px 16px;border-radius:99px;border:1px solid var(--brass-dim);
+  background:rgba(26,15,21,.96);font-size:13.5px;font-weight:600;text-align:center;
+  animation:fade .25s ease;box-shadow:0 10px 30px -10px #000
+}
+#fx{position:absolute;inset:0;pointer-events:none;z-index:65;width:100%;height:100%}
+.blackout{position:absolute;inset:0;z-index:80;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.count{font-family:var(--f-disp);font-size:120px;color:var(--brass-hi);animation:zoom .9s ease}
+
+/* ── cartas ── */
+.card{
+  position:relative;border:1px solid var(--line2);border-radius:12px;padding:10px;
+  background:linear-gradient(160deg,#2E1C27,#180E14);overflow:hidden;text-align:left
+}
+.card.playable{border-color:var(--brass-dim);cursor:pointer}
+.card.playable:active{transform:scale(.97)}
+.card .ce{font-size:26px}
+.card .cn{font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.card .cd{font-size:11px;color:var(--mute);line-height:1.35;margin-top:3px}
+.card .shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(242,218,146,.22) 50%,transparent 65%);transform:translateX(-120%);animation:shine 3.5s ease-in-out infinite}
+.card.used{opacity:.3;filter:grayscale(1)}
+
+/* ── mercado ── */
+.mkt{display:flex;gap:6px;overflow-x:auto;padding:2px 0}
+.mktcell{flex:0 0 auto;padding:6px 9px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.02);text-align:center;min-width:62px}
+.mktcell .v{font-family:var(--f-num);font-size:12px;font-weight:600}
+.news{border-left:3px solid var(--brass);padding:8px 0 8px 11px;font-size:14px}
+.news .src{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass-dim);font-weight:700}
+
+/* ── inventario ── */
+.inv{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
+.inv .e{font-size:26px;flex:0 0 auto}
+.inv .n{font-size:13.5px;font-weight:600;line-height:1.2}
+
+/* ── animaciones ── */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes fade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes zoom{from{opacity:0;transform:scale(.4)}60%{opacity:1}to{opacity:1;transform:scale(1)}}
+@keyframes slam{from{transform:scale(1.12) translateX(8px);opacity:0}to{transform:none;opacity:1}}
+@keyframes shine{0%,55%{transform:translateX(-120%)}80%,100%{transform:translateX(120%)}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-5px)}}
+.shake{animation:shake .4s}
+.pop{animation:zoom .4s cubic-bezier(.2,1.6,.4,1)}
+:fullscreen #shell, :-webkit-full-screen #shell{height:100vh;height:100dvh;max-height:100dvh}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+@media (max-height:680px){
+  .plate .obj{font-size:56px}h1{font-size:26px}.bidnum{font-size:34px}
+  .btn{min-height:50px}
+}
+</style>
+
+<div id="shell">
+  <div id="topbar"></div>
+  <div id="stage"></div>
+  <div id="dock"></div>
+  <div id="handoff"></div>
+  <div id="toast"></div>
+  <canvas id="fx"></canvas>
+</div>
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════════════
+   SUBASTA TITANS — motor de juego
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── 1. DATOS ─────────────────────────────────────────────── */
+const CATS = {
+  coches:{n:'COCHES',e:'🏎️'}, joyas:{n:'JOYAS',e:'💎'}, arte:{n:'ARTE',e:'🎨'},
+  inmuebles:{n:'INMUEBLES',e:'🏠'}, tec:{n:'TECNOLOGÍA',e:'📱'}, deporte:{n:'DEPORTE',e:'🏆'},
+  anti:{n:'ANTIGÜEDADES',e:'🗿'}, espacio:{n:'ESPACIO',e:'🚀'}, games:{n:'VIDEOJUEGOS',e:'🎮'}
+};
+const CATKEYS = Object.keys(CATS);
+/* [nombre, emoji, categoría, valor base, rareza, demanda, volatilidad, riesgos, set] */
+const ITEMS = [
+ ["Ferrari 250 GTO","🏎️","coches",9000,96,88,.32,"V","clasicos"],
+ ["Porsche 911 Carrera RS","🏎️","coches",7200,84,78,.24,"","clasicos"],
+ ["Mercedes 300 SL Alas de Gaviota","🚗","coches",8200,90,74,.22,"","clasicos"],
+ ["Lancia Stratos de rally","🏎️","coches",5400,78,66,.30,"V",""],
+ ["DeLorean DMC-12","🚙","coches",3200,60,58,.26,"M",""],
+ ["Mini Cooper S de 1967","🚕","coches",2100,48,52,.20,"",""],
+ ["Vespa Faro Basso 1958","🛵","coches",900,35,44,.18,"D",""],
+ ["Moto campeona de Gran Premio","🏍️","coches",3800,66,62,.28,"",""],
+ ["Collar de zafiros Románov","💠","joyas",7600,92,80,.26,"A","corona"],
+ ["Diamante amarillo de 12 quilates","💎","joyas",8800,94,84,.24,"","corona"],
+ ["Patek Philippe Nautilus 5711","⌚","joyas",6800,88,90,.30,"V","relojes"],
+ ["Rolex Daytona 'Paul Newman'","⌚","joyas",7400,90,86,.28,"A","relojes"],
+ ["Anillo Art Déco de platino","💍","joyas",3100,58,56,.20,"",""],
+ ["Pendientes de perla barroca","🦪","joyas",2400,52,48,.22,"D",""],
+ ["Broche de esmeraldas colombianas","🟢","joyas",3600,64,60,.24,"",""],
+ ["Boceto firmado de Picasso","🖼️","arte",6600,86,78,.34,"A","maestros"],
+ ["Óleo flamenco del siglo XVII","🖼️","arte",5200,80,64,.26,"A","maestros"],
+ ["Serigrafía original de Warhol","🎨","arte",4100,70,72,.30,"",""],
+ ["Bronce de taller de Rodin","🗿","arte",5800,82,68,.28,"A","maestros"],
+ ["Acuarela japonesa de Hokusai","🌊","arte",4700,76,70,.26,"","japon"],
+ ["Mural urbano firmado","🧱","arte",1800,44,58,.40,"V",""],
+ ["Retrato anónimo del XIX","🖌️","arte",1200,30,34,.34,"A",""],
+ ["Ático en Manhattan","🏙️","inmuebles",9500,88,82,.18,"","imperio"],
+ ["Casa modernista en Barcelona","🏛️","inmuebles",7100,80,70,.16,"","imperio"],
+ ["Bodega centenaria en La Rioja","🍷","inmuebles",4300,64,58,.20,"",""],
+ ["Faro abandonado del Atlántico","🗼","inmuebles",2600,56,40,.30,"D",""],
+ ["Cabaña alpina con vistas","🏔️","inmuebles",3400,58,54,.18,"",""],
+ ["Local comercial en Gran Vía","🏪","inmuebles",5600,72,66,.20,"M","imperio"],
+ ["Apple I en funcionamiento","🖥️","tec",8100,93,86,.30,"A","silicio"],
+ ["Servidor cuántico experimental","🧊","tec",6300,85,80,.36,"V","silicio"],
+ ["Robot humanoide de exhibición","🤖","tec",5100,74,72,.32,"",""],
+ ["Gafas de realidad aumentada, prototipo","🕶️","tec",3300,66,68,.34,"V",""],
+ ["Prototipo de teléfono nunca lanzado","📱","tec",2900,62,60,.30,"A",""],
+ ["Primer disco duro de IBM","💾","tec",2200,50,44,.22,"D","silicio"],
+ ["Camiseta de Maradona, México 86","👕","deporte",7800,91,88,.26,"A","leyendas"],
+ ["Guantes de Muhammad Ali","🥊","deporte",6100,84,76,.24,"A","leyendas"],
+ ["Trofeo de campeonato de F1","🏆","deporte",4800,72,66,.22,"","leyendas"],
+ ["Zapatillas Jordan 1 sin estrenar","👟","deporte",3700,68,80,.36,"V",""],
+ ["Bicicleta ganadora del Tour","🚲","deporte",1900,46,44,.20,"D",""],
+ ["Balón de una final de Champions","⚽","deporte",1500,40,50,.24,"",""],
+ ["Códice medieval iluminado","📜","anti",7300,89,66,.22,"A","reliquias"],
+ ["Espada samurái de la era Muromachi","⚔️","anti",6900,87,72,.24,"A","japon"],
+ ["Moneda griega de oro","🪙","anti",5300,78,62,.20,"","reliquias"],
+ ["Ánfora romana intacta","🏺","anti",4400,74,56,.22,"A","reliquias"],
+ ["Máscara ceremonial africana","🎭","anti",3000,60,52,.28,"A",""],
+ ["Reloj de sol otomano","🧭","anti",2000,48,40,.20,"D",""],
+ ["Traje de misión Apolo","👨‍🚀","espacio",9200,96,88,.24,"","orbita"],
+ ["Fragmento de meteorito lunar","🌑","espacio",8600,94,82,.28,"A","orbita"],
+ ["Placa gemela de la sonda Voyager","🛰️","espacio",6400,85,74,.26,"","orbita"],
+ ["Reloj usado en órbita","⏱️","espacio",5000,76,70,.24,"","relojes"],
+ ["Panel de la estación Mir","🛠️","espacio",3900,68,58,.30,"M",""],
+ ["Super Mario Bros. sellado de 1985","🍄","games",8300,92,90,.38,"A","consolas"],
+ ["Cartucho ultra raro de coleccionista","👾","games",6000,83,84,.40,"A",""],
+ ["Prototipo de consola cancelada","🕹️","games",4600,74,72,.34,"","consolas"],
+ ["Consola bañada en oro","🎮","games",3500,64,66,.30,"","consolas"],
+ ["Recreativa original de 1980","🕹️","games",2700,56,54,.26,"M",""],
+ ["Primer PC de torneo","💻","games",1700,42,48,.28,"D",""]
+];
+/* lotes legendarios: rondas 5, 10, 15, 20, 25 */
+const LEGENDS = [
+ ["La Corona de los Titanes","👑","anti",15000,100,92,.30,"A","reliquias"],
+ ["Isla privada del Egeo","🏝️","inmuebles",16000,99,88,.22,"M","imperio"],
+ ["Cápsula orbital original","🚀","espacio",14000,98,90,.26,"","orbita"],
+ ["La obra maestra perdida","🖼️","arte",15500,99,86,.34,"A","maestros"],
+ ["Bugatti: el único prototipo","🏎️","coches",14500,98,88,.28,"","clasicos"],
+ ["El Diamante Sangre de Titán","💎","joyas",13500,97,90,.32,"A","corona"],
+ ["El cartucho fantasma","👾","games",12000,95,92,.42,"A","consolas"],
+ ["El ídolo de obsidiana","🗿","anti",12500,96,84,.30,"A","reliquias"]
+];
+const RISKN = {V:{e:'🔥',t:'MUY VOLÁTIL'},D:{e:'💧',t:'DEMANDA BAJA'},A:{e:'⚠️',t:'AUTENTICIDAD DUDOSA'},M:{e:'📉',t:'MERCADO INESTABLE'}};
+const SETS = {
+  clasicos:{n:'CLÁSICOS DE MOTOR',e:'🏁',need:3,bonus:320,full:4,fullBonus:900},
+  corona:{n:'JOYAS DE LA CORONA',e:'👑',need:2,bonus:280,full:3,fullBonus:800},
+  relojes:{n:'ALTA RELOJERÍA',e:'⌚',need:2,bonus:260,full:4,fullBonus:1000},
+  maestros:{n:'VIEJOS MAESTROS',e:'🖼️',need:2,bonus:300,full:4,fullBonus:1000},
+  japon:{n:'TESOROS DE JAPÓN',e:'🎌',need:2,bonus:340,full:2,fullBonus:340},
+  imperio:{n:'IMPERIO INMOBILIARIO',e:'🏙️',need:2,bonus:300,full:4,fullBonus:1000},
+  silicio:{n:'ERA DEL SILICIO',e:'💾',need:2,bonus:280,full:3,fullBonus:850},
+  leyendas:{n:'LEYENDAS DEL DEPORTE',e:'🏅',need:2,bonus:300,full:4,fullBonus:950},
+  orbita:{n:'CARRERA ORBITAL',e:'🛰️',need:2,bonus:340,full:4,fullBonus:1100},
+  reliquias:{n:'RELIQUIAS PERDIDAS',e:'📜',need:3,bonus:330,full:5,fullBonus:1200},
+  consolas:{n:'SALÓN RECREATIVO',e:'🕹️',need:3,bonus:300,full:4,fullBonus:900}
+};
+/* cartas */
+const CARDS = {
+  tasacion:{n:'TASACIÓN',e:'🔍',d:'Revela el valor real del lote con un margen mínimo. Solo tú lo ves.',when:'prep'},
+  bloqueo:{n:'BLOQUEO',e:'🛑',d:'El rival no puede pujar en esta subasta. Cuesta 1 de reputación.',when:'prep'},
+  subsidio:{n:'SUBSIDIO',e:'💰',d:'Ingresas 500 monedas al instante.',when:'prep'},
+  farol:{n:'FAROL',e:'🎭',d:'En esta subasta pagarás un 30% menos de lo que el rival cree que pujas.',when:'prep'},
+  doble:{n:'DOBLE',e:'⚡',d:'Duplica el bonus de tu mejor colección en el recuento final.',when:'prep'},
+  espionaje:{n:'ESPIONAJE',e:'🕵️',d:'Revela el efectivo exacto del rival, una carta suya y su soplo de esta ronda.',when:'prep'},
+  crash:{n:'CRASH',e:'💣',d:'Hunde una categoría un 18% durante 3 rondas. Cuesta 1 de reputación.',when:'prep'},
+  seguro:{n:'SEGURO',e:'🛡️',d:'Protege un objeto de tu inventario: no puede resultar falso ni desplomarse.',when:'cartera'},
+  tanteo:{n:'DERECHO DE TANTEO',e:'📜',d:'Si el rival gana este lote, puedes arrebatárselo pagando su precio +25%.',when:'prep'},
+  intercambio:{n:'INTERCAMBIO',e:'🔄',d:'En la fase de negociación, fuerza un intercambio de objetos si el rival acepta.',when:'nego'}
+};
+const CARDPOOL = ['tasacion','tasacion','tasacion','bloqueo','subsidio','subsidio','farol','farol','doble','espionaje','crash','seguro','tanteo','tanteo','intercambio'];
+/* soplos privados */
+const TIPS = [
+  {t:c=>`Los expertos susurran que ${CATS[c].n.toLowerCase()} subirá con fuerza esta temporada.`,dir:1},
+  {t:c=>`Un gran vendedor está intentando deshacerse de todo lo de ${CATS[c].n.toLowerCase()}.`,dir:-1},
+  {t:c=>`Un coleccionista asiático está comprando ${CATS[c].n.toLowerCase()} a cualquier precio.`,dir:1},
+  {t:c=>`Corre el rumor de falsificaciones en el mercado de ${CATS[c].n.toLowerCase()}.`,dir:-1},
+  {t:c=>`Un museo prepara una exposición de ${CATS[c].n.toLowerCase()}.`,dir:1},
+  {t:c=>`Los fondos de inversión están saliendo de ${CATS[c].n.toLowerCase()}.`,dir:-1}
+];
+const NEWS = [
+  {h:'El mercado de tecnología crece por tercer trimestre',c:'tec',dir:1},
+  {h:'Un coleccionista busca desesperadamente arte europeo',c:'arte',dir:1},
+  {h:'Los relojes de lujo pierden demanda entre los jóvenes',c:'joyas',dir:-1},
+  {h:'Una marca anuncia una consola retro: nostalgia en máximos',c:'games',dir:1},
+  {h:'Subida de tipos: el ladrillo se enfría',c:'inmuebles',dir:-1},
+  {h:'Una agencia espacial privada compra memorabilia histórica',c:'espacio',dir:1},
+  {h:'Escándalo de dopaje salpica al coleccionismo deportivo',c:'deporte',dir:-1},
+  {h:'Nueva ley de exportación de antigüedades: la oferta se seca',c:'anti',dir:1},
+  {h:'Los clásicos de motor baten récords en Mónaco',c:'coches',dir:1},
+  {h:'Aparece un alijo de joyas robadas: el sector tiembla',c:'joyas',dir:-1},
+  {h:'La bolsa cae: los ricos buscan refugio en objetos tangibles',c:null,dir:1},
+  {h:'Auditoría fiscal al mundo del arte: pánico entre galerías',c:'arte',dir:-1},
+  {h:'Un documental viral dispara el interés por la carrera espacial',c:'espacio',dir:1},
+  {h:'Un influyente crítico declara muerta la pintura clásica',c:'arte',dir:-1},
+  {h:'Los emuladores hunden el precio de las recreativas',c:'games',dir:-1},
+  {h:'Un fondo soberano entra en el mercado inmobiliario de lujo',c:'inmuebles',dir:1}
+];
+const EVENTS = [
+  {t:'LOS CLÁSICOS SE DISPARAN',e:'📈',c:'coches',p:.25,d:'Una subasta récord en Mónaco arrastra a todo el motor histórico.'},
+  {t:'EL MERCADO DEL ARTE CAE',e:'📉',c:'arte',p:-.20,d:'Una falsificación descubierta contagia el pánico a las galerías.'},
+  {t:'FIEBRE JAPONESA',e:'🎌',c:'anti',p:.18,d:'Todo lo oriental se pone de moda en Occidente.'},
+  {t:'BURBUJA TECNOLÓGICA',e:'💥',c:'tec',p:.28,d:'El dinero nuevo compra cualquier cosa con un chip dentro.'},
+  {t:'ESCÁNDALO EN EL SECTOR',e:'💣',c:'joyas',p:-.22,d:'Un tasador estrella confiesa años de sobrevaloración.'},
+  {t:'CARRERA ORBITAL',e:'🚀',c:'espacio',p:.30,d:'Un lanzamiento histórico revive el mito espacial.'},
+  {t:'CRISIS INMOBILIARIA',e:'🏚️',c:'inmuebles',p:-.24,d:'El crédito se corta de golpe y los activos se atascan.'},
+  {t:'NOSTALGIA DIGITAL',e:'🕹️',c:'games',p:.26,d:'Una generación entera recompra su infancia.'},
+  {t:'DERRUMBE DEPORTIVO',e:'🥀',c:'deporte',p:-.20,d:'Una leyenda cae en desgracia y arrastra sus reliquias.'},
+  {t:'ORO Y REFUGIO',e:'🪙',c:'joyas',p:.24,d:'Con las bolsas en rojo, las piedras vuelven a brillar.'},
+  {t:'INFLACIÓN GENERALIZADA',e:'🌪️',c:null,p:.10,d:'Todo sube. El dinero en efectivo pierde valor.'},
+  {t:'CREDIT CRUNCH',e:'🧊',c:null,p:-.12,d:'Nadie presta a nadie: todo el mercado se congela.'},
+  {t:'ROBO DEL SIGLO',e:'🕳️',c:'anti',p:-.18,d:'Un museo saqueado inunda el mercado negro de piezas.'},
+  {t:'PATENTE REVOLUCIONARIA',e:'⚡',c:'tec',p:-.16,d:'Lo viejo queda obsoleto de la noche a la mañana.'}
+];
+const OBJECTIVES = [
+  {id:'arte3',t:'Gana 3 lotes de ARTE',p:280,chk:P=>P.inv.filter(i=>i.cat==='arte').length>=3},
+  {id:'esp2',t:'Consigue 2 piezas de ESPACIO',p:260,chk:P=>P.inv.filter(i=>i.cat==='espacio').length>=2},
+  {id:'cash',t:'Termina con más de €6.000 en efectivo',p:240,chk:P=>P.cash>6000},
+  {id:'ganga',t:'Gana un lote por menos del 45% de su estimación',p:280,chk:P=>P.st.ganga},
+  {id:'ocho',t:'Termina con 8 objetos o más',p:260,chk:P=>P.inv.length>=8},
+  {id:'racha',t:'Gana 3 subastas seguidas',p:250,chk:P=>P.st.maxRacha>=3},
+  {id:'sangrar',t:'Haz que el rival pague más de €7.000 por un solo lote',p:300,chk:(P,R)=>R.st.maxPago>7000},
+  {id:'rep',t:'Termina con reputación 7 o más',p:250,chk:P=>P.rep>=7},
+  {id:'cinco',t:'Gana al menos 5 subastas cerradas (a sobre)',p:270,chk:P=>P.st.sobresGanados>=5},
+  {id:'legend',t:'Hazte con un lote LEGENDARIO',p:300,chk:P=>P.inv.some(i=>i.legend)}
+];
+const FORMATS = {
+  abierta:{n:'SUBASTA ABIERTA',e:'🔨',d:'Pujas alternas a la vista de todos. Quien se retira, pierde el lote.'},
+  inglesa:{n:'SUBASTA INGLESA',e:'🎩',d:'El precio sube en escalones fijos. Solo puedes SEGUIR o PASAR.'},
+  sobre1:{n:'SOBRE CERRADO · PRIMER PRECIO',e:'✉️',d:'Cada uno escribe su oferta en secreto. El más alto gana y paga lo que ofreció.'},
+  sobre2:{n:'SOBRE CERRADO · SEGUNDO PRECIO',e:'📩',d:'El más alto gana, pero paga la oferta del rival. Ofrece lo que de verdad vale para ti.'},
+  media:{n:'SOBRE CERRADO · PRECIO MEDIO',e:'⚖️',d:'El más alto gana y paga la media de las dos ofertas.'},
+  holandesa:{n:'SUBASTA HOLANDESA',e:'🌷',d:'El precio BAJA solo. El primero que pulse su botón, se lo lleva.'},
+  guerra:{n:'GUERRA DE SOBRES',e:'⚔️',d:'Oferta secreta… y PAGAN LOS DOS. Gana el más alto. Perder aquí duele.'}
+};
+const ROUNDPLAN = ['abierta','abierta','sobre1','abierta','guerra','sobre2','abierta','holandesa','sobre1','holandesa',
+  'media','abierta','sobre2','inglesa','sobre1','abierta','holandesa','sobre2','media','guerra',
+  'abierta','sobre1','inglesa','sobre2','abierta'];
+</script>
+<script>
+/* ─── 2. UTILIDADES ────────────────────────────────────────── */
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), topbar = $('#topbar'), dock = $('#dock'), hoff = $('#handoff');
+const rnd = (a,b) => a + Math.random()*(b-a);
+const ri = (a,b) => Math.floor(rnd(a,b+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const shuffle = a => {const r=a.slice();for(let i=r.length-1;i>0;i--){const j=ri(0,i);[r[i],r[j]]=[r[j],r[i]];}return r;};
+const money = n => {
+  const v = Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return (n<0?'−€':'€') + v;
+};
+const pct = n => (n>=0?'+':'') + Math.round(n) + '%';
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const round50 = n => Math.round(n/50)*50;
+
+/* ─── PANTALLA COMPLETA ────────────────────────────────────── */
+const FS = {
+  wl:null,
+  activo(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); },
+  async wake(){ try{ if('wakeLock' in navigator && !this.wl) this.wl = await navigator.wakeLock.request('screen'); }catch(e){} },
+  async toggle(){
+    const e = document.documentElement;
+    try{
+      if(this.activo()){
+        const salir = document.exitFullscreen || document.webkitExitFullscreen;
+        if(salir) await salir.call(document);
+        if(this.wl){ try{ this.wl.release(); }catch(x){} this.wl = null; }
+        return true;
+      }
+      const pedir = e.requestFullscreen || e.webkitRequestFullscreen;
+      if(!pedir) return false;
+      await pedir.call(e, {navigationUI:'hide'});
+      this.wake();
+      return true;
+    }catch(err){ return false; }
+  }
+};
+
+/* ─── 3. AUDIO + HÁPTICA ───────────────────────────────────── */
+const AU = {ctx:null, on:true, vib:true,
+  init(){ if(!this.ctx){ try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+          if(this.ctx && this.ctx.state==='suspended') this.ctx.resume(); },
+  tone(f,dur,type='sine',vol=.18,slide=0,delay=0){
+    if(!this.on||!this.ctx) return;
+    const t = this.ctx.currentTime + delay;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,f*slide), t+dur);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t+dur+.05);
+  },
+  noise(dur=.25,vol=.12){
+    if(!this.on||!this.ctx) return;
+    const n = this.ctx.sampleRate*dur, buf = this.ctx.createBuffer(1,n,this.ctx.sampleRate), d = buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i] = (Math.random()*2-1)*Math.pow(1-i/n,2);
+    const s = this.ctx.createBufferSource(), g = this.ctx.createGain(), f = this.ctx.createBiquadFilter();
+    f.type='bandpass'; f.frequency.value=1400; g.gain.value=vol;
+    s.buffer=buf; s.connect(f); f.connect(g); g.connect(this.ctx.destination); s.start();
+  },
+  vibrate(p){ if(this.vib && navigator.vibrate) try{navigator.vibrate(p);}catch(e){} }
+};
+const SFX = {
+  tap(){ AU.tone(520,.06,'triangle',.10); },
+  bid(){ AU.tone(440,.09,'square',.10); AU.tone(660,.12,'triangle',.10,1,.05); AU.vibrate(12); },
+  outbid(){ AU.tone(300,.14,'sawtooth',.10,.6); AU.vibrate([10,40,10]); },
+  tick(){ AU.tone(880,.045,'square',.07); },
+  hot(){ AU.tone(1180,.05,'square',.10); AU.vibrate(8); },
+  hammer(){ AU.noise(.18,.20); AU.tone(180,.30,'square',.16,.4); AU.vibrate([30,50,90]); },
+  coin(){ AU.tone(1200,.07,'triangle',.10); AU.tone(1800,.10,'triangle',.08,1,.05); },
+  buy(){ [523,659,784].forEach((f,i)=>AU.tone(f,.16,'triangle',.12,1,i*.07)); AU.vibrate(30); },
+  lose(){ [392,330,262].forEach((f,i)=>AU.tone(f,.22,'sine',.12,1,i*.10)); AU.vibrate([40,60,40]); },
+  card(){ AU.noise(.14,.10); AU.tone(760,.14,'triangle',.10,1.6); },
+  event(){ [330,494,660].forEach((f,i)=>AU.tone(f,.30,'sine',.10,1,i*.10)); AU.vibrate([20,40,20]); },
+  up(){ [440,554,659,880].forEach((f,i)=>AU.tone(f,.14,'triangle',.10,1,i*.06)); },
+  down(){ [660,554,440,330].forEach((f,i)=>AU.tone(f,.16,'sawtooth',.09,1,i*.07)); },
+  win(){ [523,659,784,1047,1319].forEach((f,i)=>AU.tone(f,.5,'triangle',.14,1,i*.13)); AU.vibrate([60,40,60,40,180]); },
+  end(){ [262,196,131].forEach((f,i)=>AU.tone(f,.9,'sine',.13,1,i*.22)); }
+};
+
+/* ─── 4. ESTADO ────────────────────────────────────────────── */
+let S = null;
+function newPlayer(id,name){
+  return {
+    id, name, cash:10000, inv:[], cards:[], rep:5, rencor:0, debt:0, loans:0,
+    obj:null, tip:null, seguro:null, dobleUsed:false, snipeUsed:false, vengeUsed:false,
+    hist:[10000],
+    st:{ ganadas:0, sobresGanados:0, gastado:0, maxPuja:0, maxPago:0, racha:0, maxRacha:0,
+         ganga:false, faroles:0, taunts:0, cartas:0, retiradas:0, mejor:null, peor:null,
+         curse:0, remontadas:0, pagadoTotal:0,
+         robos:0, apuestas:0, duelos:0, cortes:0, prestigio:0, primas:0, pulgar:0 }
+  };
+}
+function newMarket(){
+  const m = {};
+  CATKEYS.forEach(c=>{ m[c] = {idx:1, trend:rnd(-.02,.03), dem:ri(42,68), crash:0}; });
+  return m;
+}
+function newGame(n1,n2){
+  const objs = shuffle(OBJECTIVES);
+  S = {
+    round:0, phase:'', players:[newPlayer(0,n1||'JUGADOR 1'), newPlayer(1,n2||'JUGADOR 2')],
+    market:newMarket(), lot:null, fmt:'abierta', pool:shuffle(ITEMS), legends:shuffle(LEGENDS),
+    news:[], eventLog:[], tm:[], startPlayer:0, over:false, nudges:[], seenFmt:{}, lastComeback:0,
+    feud:[0,0], bet:null, bounty:null, betResult:null, titanHour:false
+  };
+  S.players[0].obj = objs[0]; S.players[1].obj = objs[1];
+  S.players.forEach(p=>{ drawCard(p); drawCard(p); });
+}
+const P = i => S.players[i];
+function feud(pid, n, why){
+  S.feud[pid] += (n||1);
+  S.feudLog = (S.feudLog||[]).concat([{p:pid, why}]).slice(-6);
+}
+function serieKey(){
+  const n = [P(0).name, P(1).name].map(x=>x.toUpperCase());
+  return 'serie:' + n.slice().sort().join('|');
+}
+function getSerie(){
+  const m = meta(), k = serieKey();
+  return (m.series && m.series[k]) || {};
+}
+function addSerie(name){
+  const m = meta(), k = serieKey();
+  m.series = m.series || {};
+  m.series[k] = m.series[k] || {};
+  m.series[k][name] = (m.series[k][name]||0) + 1;
+  m.lastKey = k;
+  m.lastNames = [P(0).name, P(1).name];
+  saveMeta(m);
+  return m.series[k];
+}
+const RIVAL = i => S.players[1-i];
+function drawCard(p,forced){
+  if(p.cards.length>=5) return null;
+  const k = forced || pick(CARDPOOL);
+  p.cards.push({k, id:Math.random().toString(36).slice(2,8)});
+  return k;
+}
+
+/* ─── 5. MERCADO Y VALOR ───────────────────────────────────── */
+function catMult(cat){
+  const m = S.market[cat];
+  return m.idx * (0.86 + 0.28*(m.dem/100));
+}
+function trueValue(it){
+  const m = S.market[it.cat];
+  const v = it.base * m.idx * (0.80 + 0.40*((it.dem*0.5 + m.dem*0.5)/100));
+  return Math.max(120, v);
+}
+function startPriceOf(L){ return Math.max(100, round50(estimate(L).lo * (L.legend?0.45:0.52))); }
+function estimate(lot){
+  const v = trueValue(lot) * (1 + lot.bias);
+  const w = 0.13 + lot.vol*0.42 + (lot.risk.includes('A')?0.10:0);
+  return {lo: round50(v*(1-w)), hi: round50(v*(1+w)), mid: round50(v)};
+}
+function advanceMarket(){
+  S.nudges = (S.nudges||[]).filter(n=>{
+    S.market[n.cat].trend += n.dir * 0.035;
+    n.left--;
+    return n.left > 0;
+  });
+  CATKEYS.forEach(c=>{
+    const m = S.market[c];
+    if(m.crash>0){ m.crash--; if(m.crash===0) m.idx /= 0.82; }
+    m.trend = clamp(m.trend*0.72 + rnd(-.035,.035), -.10, .12);
+    m.idx = clamp(m.idx * (1 + m.trend), .45, 2.6);
+    m.dem = clamp(m.dem + ri(-6,6) + Math.round(m.trend*60), 12, 98);
+  });
+}
+function applyNews(n){
+  if(!n.c){ CATKEYS.forEach(c=>{ S.market[c].trend += n.dir*0.02; }); return; }
+  S.market[n.c].trend += n.dir * rnd(.03,.07);
+  S.market[n.c].dem = clamp(S.market[n.c].dem + n.dir*ri(4,11), 10, 98);
+}
+function applyEvent(ev){
+  const hit = ev.c ? [ev.c] : CATKEYS;
+  hit.forEach(c=>{
+    S.market[c].idx = clamp(S.market[c].idx * (1+ev.p), .40, 2.8);
+    S.market[c].dem = clamp(S.market[c].dem + Math.round(ev.p*60), 10, 98);
+    S.market[c].trend += ev.p*0.25;
+  });
+  S.eventLog.push(ev.t);
+}
+
+/* ─── 6. MOTOR DE PANTALLAS ────────────────────────────────── */
+const ACT = {};
+function clearTimers(){ S && S.tm.forEach(t=>{clearTimeout(t);clearInterval(t);}); if(S) S.tm=[]; }
+function later(fn,ms){ const t=setTimeout(fn,ms); S.tm.push(t); return t; }
+function every(fn,ms){ const t=setInterval(fn,ms); S.tm.push(t); return t; }
+function render(o){
+  clearTimers();
+  if(o.top===null){ topbar.classList.add('hide'); } else { topbar.classList.remove('hide'); topbar.innerHTML = o.top || topHTML(); }
+  stage.innerHTML = o.body || '';
+  dock.innerHTML = o.dock || '';
+  stage.scrollTop = 0;
+}
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  AU.init();
+  const fn = ACT[t.dataset.act];
+  if(fn){ if(!t.dataset.quiet) SFX.tap(); fn(t); }
+});
+function toast(msg,ms){
+  const d = document.createElement('div');
+  d.className='toast'; d.innerHTML = msg; $('#toast').appendChild(d);
+  setTimeout(()=>{ d.style.opacity='0'; d.style.transition='opacity .4s'; setTimeout(()=>d.remove(),400); }, ms||2200);
+}
+function topHTML(){
+  const mk = CATKEYS.map(c=>{
+    const m = S.market[c], d = (m.idx-1)*100;
+    const cls = d>2?'up':d<-2?'down':'';
+    return `<div class="mktcell"><div style="font-size:15px">${CATS[c].e}</div><div class="v ${cls}">${pct(d)}</div></div>`;
+  }).join('');
+  return `<div style="width:100%">
+    <div class="row sb" style="margin-bottom:6px">
+      <div class="lbl gold">RONDA ${S.round}<span style="color:var(--mute2)"> / 25</span></div>
+      <div class="lbl">🏛️ SUBASTA TITANS</div>
+      <div class="lbl">${S.feud ? `😤 <span style="color:var(--p1-hi)">${S.feud[0]}</span>–<span style="color:var(--p2-hi)">${S.feud[1]}</span>` : esc(S.phase||'')}</div>
+    </div>
+    <div class="mkt">${mk}</div>
+  </div>`;
+}
+
+/* ─── 7. TRASPASO DEL MÓVIL ────────────────────────────────── */
+let handoffNext = null;
+function handoff(pid, note, next){
+  clearTimers();
+  const p = P(pid);
+  handoffNext = next;
+  hoff.innerHTML = `
+    <div class="lock">🔒</div>
+    <div class="lbl gold">TURNO PRIVADO</div>
+    <h1 style="color:var(--${pid===0?'p1':'p2'}-hi)">ENTREGA EL MÓVIL A<br>${esc(p.name)}</h1>
+    <p class="small" style="max-width:280px">${note||'Nadie más debe mirar la pantalla. Lo que viene es solo para sus ojos.'}</p>
+    <button class="btn pri" style="max-width:300px" data-act="hoffGo">ESTOY LISTO</button>
+    <div class="tiny">El rival no puede ver esta pantalla.</div>`;
+  hoff.classList.add('on');
+  AU.vibrate(25);
+}
+ACT.hoffGo = () => { hoff.classList.remove('on'); hoff.innerHTML = ''; const n = handoffNext; handoffNext=null; if(n) n(); };
+</script>
+<script>
+/* ─── 8. ALMACENAMIENTO ────────────────────────────────────── */
+const KEY = 'titans_meta_v1';
+function meta(){
+  try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; }
+}
+function saveMeta(m){ try{ localStorage.setItem(KEY, JSON.stringify(m)); }catch(e){} }
+function recordGame(res){
+  const m = meta();
+  m.partidas = (m.partidas||0)+1;
+  m.vict = m.vict||{};
+  m.vict[res.winner] = (m.vict[res.winner]||0)+1;
+  m.recordPat = Math.max(m.recordPat||0, res.bestPat);
+  m.maxPuja = Math.max(m.maxPuja||0, res.maxPuja);
+  m.mejorCol = Math.max(m.mejorCol||0, res.bestCol);
+  m.hist = (m.hist||[]).slice(-9);
+  m.hist.push({d:Date.now(), w:res.winner, p:Math.round(res.bestPat)});
+  saveMeta(m);
+}
+
+/* ─── 9. MENÚ ──────────────────────────────────────────────── */
+function screenMenu(){
+  S = S || {tm:[]};
+  clearTimers();
+  const m = meta();
+  const ls = (m.series && m.lastKey && m.series[m.lastKey]) || null;
+  const lsNames = m.lastNames || [];
+  const pending = ls && lsNames.length===2 ? `
+    <div class="panel gilt" style="text-align:center">
+      <div class="lbl gold">CUENTA PENDIENTE</div>
+      <div class="row sb" style="margin-top:6px">
+        <div style="flex:1"><div class="num" style="font-size:26px;color:var(--p1-hi)">${ls[lsNames[0]]||0}</div><div class="tiny">${esc(lsNames[0])}</div></div>
+        <div class="ital gold">–</div>
+        <div style="flex:1"><div class="num" style="font-size:26px;color:var(--p2-hi)">${ls[lsNames[1]]||0}</div><div class="tiny">${esc(lsNames[1])}</div></div>
+      </div>
+      <div class="tiny" style="margin-top:6px">${(ls[lsNames[0]]||0)===(ls[lsNames[1]]||0)?'Empatados. Esto hay que desempatarlo.':'Alguien tiene una revancha que jugar.'}</div>
+    </div>` : '';
+  if(m.lastNames && !setupNames[0] && !setupNames[1]) setupNames = m.lastNames.slice();
+  const stats = m.partidas ? `
+    <div class="grid3" style="text-align:center">
+      <div><div class="lbl">PARTIDAS</div><div class="num gold" style="font-size:20px">${m.partidas}</div></div>
+      <div><div class="lbl">RÉCORD</div><div class="num gold" style="font-size:20px">${money(m.recordPat||0)}</div></div>
+      <div><div class="lbl">MAYOR PUJA</div><div class="num gold" style="font-size:20px">${money(m.maxPuja||0)}</div></div>
+    </div>` : `<div class="tiny" style="text-align:center">Sin partidas registradas todavía.</div>`;
+  topbar.classList.add('hide');
+  stage.innerHTML = `
+    <div class="stack" style="padding-top:20px;text-align:center">
+      <div>
+        <div class="lbl gold">CASA DE SUBASTAS · SALA PRIVADA</div>
+        <h1 style="font-size:46px;margin-top:6px">SUBASTA<br><span class="ital gold" style="font-size:56px">TITANS</span></h1>
+        <div style="font-size:44px;margin:6px 0">🏛️</div>
+        <p class="small" style="max-width:300px;margin:0 auto">Dos coleccionistas. Un teléfono. Veinticinco lotes.<br>Solo uno saldrá de aquí siendo un titán.</p>
+      </div>
+      ${pending}
+      <div class="panel gilt">${stats}</div>
+      <div class="panel" style="text-align:left">
+        <div class="lbl gold">CÓMO SE JUEGA</div>
+        <p class="small" style="margin:8px 0 0">El teléfono se pasa de mano en mano. Cuando aparezca el candado, entrégalo: lo que hay detrás es información privada de un solo jugador — su dinero, sus cartas y los soplos que recibe.</p>
+        <p class="small" style="margin:8px 0 0">Los formatos de subasta van cambiando. El juego te explica cada uno la primera vez que aparece.</p>
+      </div>
+    </div>`;
+  dock.innerHTML = `
+    <button class="btn pri" data-act="goSetup">EMPEZAR PARTIDA</button>
+    <div class="grid3">
+      <button class="btn gh" data-act="goHist">📊 RÉCORDS</button>
+      <button class="btn gh" data-act="fs">⛶ PANTALLA</button>
+      <button class="btn gh" data-act="goOpts">⚙️ AJUSTES</button>
+    </div>`;
+}
+ACT.fs = async () => {
+  const ok = await FS.toggle();
+  if(!ok) toast('Este navegador no permite pantalla completa aquí.<br><span class="tiny">Abre el juego en una pestaña normal o añádelo a la pantalla de inicio.</span>', 5200);
+};
+ACT.goSetup = () => screenSetup();
+ACT.goMenu = () => screenMenu();
+ACT.goOpts = () => screenOpts('menu');
+ACT.goHist = () => {
+  const m = meta();
+  const v = m.vict||{};
+  const rows = Object.keys(v).sort((a,b)=>v[b]-v[a]).map(k=>`<div class="row sb"><span>${esc(k)}</span><span class="num gold">${v[k]} 🏆</span></div>`).join('') || '<div class="tiny">Todavía no hay ganadores.</div>';
+  const h = (m.hist||[]).slice().reverse().map(x=>`<div class="row sb small"><span>${new Date(x.d).toLocaleDateString('es-ES')}</span><span>${esc(x.w)}</span><span class="num">${money(x.p)}</span></div>`).join('') || '<div class="tiny">Sin historial.</div>';
+  topbar.classList.add('hide');
+  stage.innerHTML = `<div class="stack">
+    <h2 class="gold">📊 RÉCORDS DE LA CASA</h2>
+    <div class="panel"><div class="lbl gold">VICTORIAS</div><div class="stack" style="gap:4px;margin-top:8px">${rows}</div></div>
+    <div class="panel"><div class="lbl gold">MEJOR COLECCIÓN</div><div class="num gold" style="font-size:24px">${(m.mejorCol||0)} pts</div></div>
+    <div class="panel"><div class="lbl gold">ÚLTIMAS PARTIDAS</div><div class="stack" style="gap:6px;margin-top:8px">${h}</div></div>
+  </div>`;
+  dock.innerHTML = `<button class="btn" data-act="goMenu">VOLVER</button>
+    <button class="btn dgr sm" data-act="wipe">🗑️ BORRAR TODOS LOS DATOS</button>`;
+};
+ACT.wipe = () => {
+  dock.innerHTML = `<div class="panel" style="border-color:var(--danger)"><div class="lbl" style="color:var(--danger)">¿SEGURO?</div>
+    <p class="small" style="margin:6px 0 10px">Se borrarán récords, victorias e historial. No hay vuelta atrás.</p>
+    <div class="grid2"><button class="btn gh" data-act="goHist">CANCELAR</button><button class="btn dgr" data-act="wipeYes">SÍ, BORRAR</button></div></div>`;
+};
+ACT.wipeYes = () => { try{localStorage.removeItem(KEY);}catch(e){} SFX.down(); toast('Datos borrados'); screenMenu(); };
+function screenOpts(back){
+  topbar.classList.add('hide');
+  stage.innerHTML = `<div class="stack">
+    <h2 class="gold">⚙️ AJUSTES</h2>
+    <div class="panel">
+      <div class="row sb" style="margin-bottom:12px"><span>🔊 Sonido</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglSnd">${AU.on?'ON':'OFF'}</button></div>
+      <div class="row sb" style="margin-bottom:12px"><span>📳 Vibración</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglVib">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb"><span>⛶ Pantalla completa</span><button class="btn sm" style="width:auto;min-width:92px" data-act="fs">${FS.activo()?'SALIR':'ACTIVAR'}</button></div>
+      <div class="tiny" style="margin-top:8px">En iPhone, si el navegador no lo permite, añade la página a la pantalla de inicio: se abre sin barras.</div>
+    </div>
+    <div class="panel"><div class="lbl gold">FORMATOS DE SUBASTA</div>
+      <div class="stack" style="gap:10px;margin-top:10px">
+      ${Object.keys(FORMATS).map(k=>`<div><b style="font-size:13px">${FORMATS[k].e} ${FORMATS[k].n}</b><div class="tiny">${FORMATS[k].d}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+  dock.innerHTML = `<button class="btn" data-act="${back==='menu'?'goMenu':'optsBack'}">VOLVER</button>`;
+}
+ACT.tglSnd = () => { AU.on=!AU.on; SFX.tap(); screenOpts(S && S.round ? 'game':'menu'); };
+ACT.tglVib = () => { AU.vib=!AU.vib; AU.vibrate(30); screenOpts(S && S.round ? 'game':'menu'); };
+ACT.optsBack = () => screenNews();
+
+/* ─── 10. CONFIGURACIÓN DE PARTIDA ─────────────────────────── */
+let setupNames = ['',''];
+function screenSetup(){
+  topbar.classList.add('hide');
+  stage.innerHTML = `<div class="stack" style="padding-top:8px">
+    <h2 class="gold">LOS DOS TITANES</h2>
+    <p class="small">Opcional: escribe los nombres. Podéis dejarlo tal cual y empezar ya.</p>
+    <div class="panel" style="border-color:var(--p1)">
+      <div class="lbl c1">JUGADOR 1 · CARMESÍ</div>
+      <input id="n1" maxlength="12" placeholder="JUGADOR 1" value="${esc(setupNames[0])}"
+        style="width:100%;margin-top:8px;padding:12px;border-radius:10px;border:1px solid var(--line2);background:#140C10;font-size:17px;font-weight:700">
+    </div>
+    <div class="panel" style="border-color:var(--p2)">
+      <div class="lbl c2">JUGADOR 2 · COBALTO</div>
+      <input id="n2" maxlength="12" placeholder="JUGADOR 2" value="${esc(setupNames[1])}"
+        style="width:100%;margin-top:8px;padding:12px;border-radius:10px;border:1px solid var(--line2);background:#140C10;font-size:17px;font-weight:700">
+    </div>
+    <div class="panel gilt">
+      <div class="lbl gold">REGLAS DE LA CASA</div>
+      <ul class="small" style="margin:8px 0 0;padding-left:18px;line-height:1.6">
+        <li>Empezáis con <b class="gold">€10.000</b> cada uno.</li>
+        <li>25 lotes. Cada 5, un lote <b class="gold">legendario</b>.</li>
+        <li>El dinero, las cartas y los soplos son <b>secretos</b>.</li>
+        <li>Nadie sabe lo que vale de verdad un objeto hasta el final.</li>
+        <li>Gana quien acumule más <b class="gold">puntos de titán</b>.</li>
+      </ul>
+    </div>
+  </div>`;
+  dock.innerHTML = `<button class="btn pri" data-act="startGame">REPARTIR CARTAS Y EMPEZAR</button>
+    <button class="btn gh" data-act="goMenu">VOLVER</button>`;
+}
+ACT.startGame = () => {
+  const n1 = ($('#n1').value||'').trim().toUpperCase().slice(0,12);
+  const n2 = ($('#n2').value||'').trim().toUpperCase().slice(0,12);
+  setupNames = [n1,n2];
+  newGame(n1, n2 || (n1==='JUGADOR 2'?'':''));
+  if(n2) S.players[1].name = n2;
+  SFX.buy();
+  S.briefStage = 0;
+  briefing(0);
+};
+/* misión secreta inicial */
+function briefing(pid){
+  const p = P(pid);
+  handoff(pid, 'Vas a ver tu misión secreta y tus cartas. El rival no debe verlas.', ()=>{
+    render({top:null, body:`<div class="stack" style="padding-top:10px">
+      <div class="lbl" style="color:var(--${pid?'p2':'p1'})">${esc(p.name)} · DOSIER PRIVADO</div>
+      <div class="panel gilt">
+        <div class="lbl gold">🎯 MISIÓN SECRETA</div>
+        <h3 style="margin-top:6px">${p.obj.t}</h3>
+        <div class="small">Si lo consigues: <b class="gold">+${p.obj.p} puntos</b>. El rival no sabe cuál es tu misión.</div>
+      </div>
+      <div class="panel">
+        <div class="lbl gold">🃏 TUS CARTAS</div>
+        <div class="grid2" style="margin-top:8px">${p.cards.map(c=>cardHTML(c,false)).join('')}</div>
+        <div class="tiny" style="margin-top:8px">Podrás jugarlas antes de cada subasta, en tu pantalla privada.</div>
+      </div>
+      <div class="panel">
+        <div class="lbl gold">💰 TU CAJA</div>
+        <div class="num gold" style="font-size:34px">${money(p.cash)}</div>
+        <div class="tiny">El rival nunca verá esta cifra exacta. Solo intuirá si vas sobrado o justo.</div>
+      </div>
+    </div>`, dock:`<button class="btn pri" data-act="briefNext">ENTENDIDO</button>`});
+    SFX.card();
+  });
+}
+ACT.briefNext = () => { if(S.briefStage===0){ S.briefStage = 1; briefing(1); } else { startRound(); } };
+
+/* ─── 11. CARTAS (HTML) ────────────────────────────────────── */
+function cardHTML(c, playable){
+  const D = CARDS[c.k];
+  return `<div class="card ${playable?'playable':''}" ${playable?`data-act="playCard" data-id="${c.id}"`:''}>
+    <div class="shine"></div><div class="ce">${D.e}</div>
+    <div class="cn gold">${D.n}</div><div class="cd">${D.d}</div>
+  </div>`;
+}
+</script>
+<script>
+/* ─── 12. RONDA: PREPARACIÓN ───────────────────────────────── */
+function feeFactor(p){ return p.rep>=8 ? .95 : p.rep<=2 ? 1.05 : 1; }
+function maxBid(p){ return Math.max(0, round50(Math.floor(p.cash / feeFactor(p)) - 25)); }
+function patrimonio(p){ return p.cash + p.inv.reduce((a,i)=>a+trueValue(i),0) - p.debt; }
+function cashBand(p){
+  const c = p.cash;
+  if(c>9000) return {t:'FORRADO',e:'🤑'}; if(c>6000) return {t:'SOLVENTE',e:'😎'};
+  if(c>3500) return {t:'AJUSTADO',e:'😬'}; if(c>1200) return {t:'CON LO JUSTO',e:'😰'};
+  return {t:'EN LA RUINA',e:'💀'};
+}
+function assignTips(){
+  S.players.forEach(p=>{
+    const cat = Math.random()<.55 ? S.lot.cat : pick(CATKEYS);
+    const tpl = pick(TIPS);
+    const truth = Math.random()<.72;
+    if(truth) S.nudges.push({cat, dir:tpl.dir, left:ri(2,4)});
+    p.tip = {cat, dir:tpl.dir, txt:tpl.t(cat), truth};
+  });
+}
+function startRound(){
+  S.round++;
+  S.phase = '';
+  if(S.round>25){ finale(); return; }
+  S.nudges = S.nudges || [];
+  advanceMarket();
+  S.players.forEach(p=>{ p.blocked=false; p.farol=false; p.tanteo=false; p.taunted=false; p.venge=false; p.know=null; p.spied=false; });
+  S.startPlayer = (S.round-1)%2;
+  const legend = S.round%5===0;
+  const raw = legend ? (S.legends.pop() || pick(LEGENDS)) : (S.pool.pop() || pick(ITEMS));
+  S.lot = {name:raw[0], e:raw[1], cat:raw[2], base:raw[3], rar:raw[4], dem:raw[5], vol:raw[6],
+           risk:raw[7]||'', set:raw[8]||'', legend, bias:rnd(-.14,.14), id:'L'+S.round};
+  S.fmt = ROUNDPLAN[S.round-1];
+  S.news = [];
+  const n1 = pick(NEWS); applyNews(n1); S.news.push(n1);
+  if(Math.random()<.55){ const n2 = pick(NEWS); if(n2!==n1){ applyNews(n2); S.news.push(n2); } }
+  S.event = null;
+  if(S.round>=3 && S.round%3===0){ S.event = pick(EVENTS); applyEvent(S.event); }
+  S.bet = null; S.betResult = null;
+  S.bounty = null;
+  const hot = S.players.find(x=>x.st.racha >= 2);
+  if(hot) S.bounty = {target:hot.id, racha:hot.st.racha, cash:400};
+  const titan = S.round >= 21;
+  S.income = [0,0];
+  if(S.round > 1){
+    S.players.forEach(p=>{
+      const inc = Math.round((250 + p.inv.length*60 + Math.round(p.rep*25)) * (titan?2:1));
+      p.cash += inc; S.income[p.id] = inc;
+    });
+  }
+  assignTips();
+  S.seenFmt = S.seenFmt || {};
+  if(S.round === 21 && !S.titanHour){ S.titanHour = true; return screenTitanHour(); }
+  screenNews();
+}
+/* ── periódico + presentación del lote (público) ── */
+function screenNews(){
+  S.phase = 'MERCADO';
+  const L = S.lot, est = estimate(L), F = FORMATS[S.fmt];
+  const first = !S.seenFmt[S.fmt]; S.seenFmt[S.fmt] = true;
+  const movers = CATKEYS.map(c=>({c, d:S.market[c].trend*100})).sort((a,b)=>Math.abs(b.d)-Math.abs(a.d)).slice(0,3);
+  const evHTML = S.event ? `<div class="panel gilt pop" style="border-color:${S.event.p>0?'var(--up)':'var(--down)'}">
+      <div class="lbl" style="color:${S.event.p>0?'var(--up)':'var(--down)'}">${S.event.e} EVENTO DE MERCADO</div>
+      <h3 style="margin:4px 0">${S.event.t}</h3>
+      <div class="small">${S.event.d}</div>
+      <div class="num ${S.event.p>0?'up':'down'}" style="margin-top:6px">${S.event.c?CATS[S.event.c].e+' '+CATS[S.event.c].n:'TODO EL MERCADO'} ${pct(S.event.p*100)}</div>
+    </div>` : '';
+  const bountyHTML = S.bounty ? `<div class="panel" style="border-color:var(--danger)">
+      <div class="lbl" style="color:var(--danger)">🎯 SE BUSCA · ${esc(P(S.bounty.target).name)} LLEVA ${S.bounty.racha} SEGUIDOS</div>
+      <div class="small" style="margin-top:6px">Quien le arrebate este lote cobra <b class="gold">${money(S.bounty.cash)}</b> y roba una carta.
+      Si nadie le planta cara, la racha sigue.</div></div>` : '';
+  const titanHTML = S.round>=21 ? `<div class="panel gilt">
+      <div class="lbl gold">👑 LA HORA DE LOS TITANES</div>
+      <div class="small" style="margin-top:4px">Rentas dobladas y <b class="gold">+150 puntos de prestigio</b> para quien se lleve este lote.</div></div>` : '';
+  const betHTML = S.bet && S.bet.accepted ? `<div class="panel" style="border-color:var(--brass)">
+      <div class="lbl gold">🎲 APUESTA EN JUEGO</div>
+      <div class="small" style="margin-top:4px">${esc(P(S.bet.by).name)} apuesta <b class="gold">${money(S.bet.stake)}</b> a que el precio final será
+      <b>${S.bet.side>0?'MÁS':'MENOS'} de ${money(S.bet.line)}</b>.</div></div>` : '';
+  render({body:`<div class="stack">
+    ${evHTML}${titanHTML}${bountyHTML}${betHTML}
+    <div class="panel">
+      <div class="row sb"><div class="lbl gold">📰 TITAN NEWS</div><div class="tiny">EDICIÓN ${S.round}</div></div>
+      <div class="stack" style="gap:10px;margin-top:10px">
+        ${S.news.map(n=>`<div class="news"><div class="src">${n.c?CATS[n.c].n:'MERCADO GENERAL'}</div>${n.h}.</div>`).join('')}
+      </div>
+      <div class="hr" style="margin:12px 0"></div>
+      <div class="lbl">TENDENCIAS DEL DÍA</div>
+      <div class="row" style="gap:10px;margin-top:6px;flex-wrap:wrap">
+        ${movers.map(m=>`<span class="chip ${m.d>0?'gold':'risk'}">${CATS[m.c].e} ${pct(m.d)}</span>`).join('')}
+      </div>
+    </div>
+    <div class="plate">
+      <div class="spot"></div>
+      <div class="lotno">LOTE Nº ${S.round}${L.legend?' · LEGENDARIO':''}</div>
+      <div class="obj">${L.e}</div>
+      <h2>${esc(L.name)}</h2>
+      <div class="chips" style="justify-content:center;margin-top:8px">
+        <span class="chip gold">${CATS[L.cat].e} ${CATS[L.cat].n}</span>
+        ${L.set?`<span class="chip">${SETS[L.set].e} ${SETS[L.set].n}</span>`:''}
+        ${L.risk.split('').map(r=>`<span class="chip risk">${RISKN[r].e} ${RISKN[r].t}</span>`).join('')}
+      </div>
+      <div class="hr" style="margin:12px 0"></div>
+      <div class="lbl">ESTIMACIÓN DE LA CASA</div>
+      <div class="num gold" style="font-size:26px">${money(est.lo)} — ${money(est.hi)}</div>
+      <div class="tiny" style="margin-top:4px">La casa se equivoca a menudo. Nadie conoce el valor real.</div>
+      <div class="grid2" style="margin-top:12px;text-align:left">
+        <div><div class="lbl">RAREZA ${L.rar}</div><div class="meter"><i style="width:${L.rar}%"></i></div></div>
+        <div><div class="lbl">DEMANDA ${Math.round((L.dem+S.market[L.cat].dem)/2)}</div><div class="meter blue"><i style="width:${(L.dem+S.market[L.cat].dem)/2}%"></i></div></div>
+      </div>
+    </div>
+    ${S.income && S.income[0] ? `<div class="panel">
+      <div class="lbl gold">💵 RENTAS DE LA COLECCIÓN</div>
+      <div class="row sb" style="margin-top:8px">
+        <span class="chip c1">${esc(P(0).name)} +${money(S.income[0])}</span>
+        <span class="chip c2">${esc(P(1).name)} +${money(S.income[1])}</span></div>
+      <div class="tiny" style="margin-top:6px">€250 fijos + €60 por objeto en propiedad + €25 por punto de reputación. Tener cosas da dinero; acumular efectivo, no.</div>
+    </div>` : ''}
+    <div class="panel ${first?'gilt':''}">
+      <div class="lbl gold">FORMATO DE ESTA SUBASTA</div>
+      <h3 style="margin:4px 0">${F.e} ${F.n}</h3>
+      <div class="small">${F.d}</div>
+      <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">
+        <span class="chip gold">${S.fmt==='holandesa'?'PRECIO INICIAL':'SALIDA'} ${money(S.fmt==='holandesa'?round50(estimate(L).hi*1.45):startPriceOf(L))}</span>
+        ${S.fmt==='sobre2'?`<span class="chip">RESERVA ${money(startPriceOf(L))}</span>`:''}
+        ${first?'<span class="chip gold">NUEVO FORMATO</span>':''}
+      </div>
+      ${S.fmt==='guerra'?'<div class="chip risk" style="margin-top:8px">⚠️ PERDER TAMBIÉN CUESTA DINERO</div>':''}
+    </div>
+  </div>`,
+  dock:`<button class="btn pri" data-act="toPrivate">🔒 EMPEZAR RONDA · MÓVIL A ${esc(P(S.startPlayer).name)}</button>
+        ${S.bet?'':`<button class="btn" style="border-color:var(--brass)" data-act="betOpen">🎲 APUESTA PARALELA <span class="sub">RETA AL RIVAL ANTES DE PUJAR</span></button>`}
+        <div class="grid3"><button class="btn gh" data-act="pause">⏸ PAUSA</button><button class="btn gh" data-act="peekMkt">📈 MERCADO</button><button class="btn gh" data-act="feudScreen">😤 PIQUE</button></div>`});
+  if(S.event){ S.event.p>0?SFX.up():SFX.down(); } else if(S.round>1){ SFX.tap(); }
+}
+ACT.peekMkt = () => {
+  const rows = CATKEYS.map(c=>{
+    const m = S.market[c], d=(m.idx-1)*100;
+    return `<div class="row sb" style="padding:6px 0;border-bottom:1px solid var(--line)">
+      <span style="flex:1">${CATS[c].e} ${CATS[c].n}</span>
+      <span class="num ${d>2?'up':d<-2?'down':''}" style="width:64px;text-align:right">${pct(d)}</span>
+      <span class="tiny" style="width:74px;text-align:right">dem. ${m.dem}</span></div>`;
+  }).join('');
+  render({body:`<div class="stack"><h2 class="gold">📈 ÍNDICE DEL MERCADO</h2>
+    <div class="panel">${rows}</div>
+    <div class="panel"><div class="lbl gold">EVENTOS OCURRIDOS</div>
+      <div class="small" style="margin-top:6px">${S.eventLog.length?S.eventLog.map(e=>'• '+e).join('<br>'):'Todavía ninguno.'}</div></div>
+    <div class="tiny">El índice muestra cuánto se ha movido cada categoría desde el inicio de la partida. Los objetos que tenéis valen más o menos según esto.</div>
+  </div>`, dock:`<button class="btn" data-act="backNews">VOLVER AL LOTE</button>`});
+};
+ACT.backNews = () => screenNews();
+ACT.pause = () => {
+  render({top:null, body:`<div class="stack" style="padding-top:26px;text-align:center">
+    <div style="font-size:52px">⏸</div><h2 class="gold">PARTIDA EN PAUSA</h2>
+    <div class="small">Ronda ${S.round} de 25 · Nadie está mirando información privada.</div>
+    <div class="panel">
+      <div class="row sb" style="margin-bottom:12px"><span>🔊 Sonido</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglSnd2">${AU.on?'ON':'OFF'}</button></div>
+      <div class="row sb" style="margin-bottom:12px"><span>📳 Vibración</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglVib2">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb"><span>⛶ Pantalla completa</span><button class="btn sm" style="width:auto;min-width:92px" data-act="fs">${FS.activo()?'SALIR':'ACTIVAR'}</button></div>
+    </div>
+  </div>`, dock:`<button class="btn pri" data-act="backNews">REANUDAR</button>
+    <div class="grid2"><button class="btn gh" data-act="rules">📖 REGLAS</button>
+    <button class="btn dgr sm" data-act="abandon">ABANDONAR</button></div>`});
+};
+ACT.tglSnd2 = () => { AU.on=!AU.on; ACT.pause(); };
+ACT.tglVib2 = () => { AU.vib=!AU.vib; AU.vibrate(30); ACT.pause(); };
+ACT.abandon = () => { S.over=true; screenMenu(); };
+ACT.rules = () => {
+  render({top:null, body:`<div class="stack">
+    <h2 class="gold">📖 REGLAS DE LA CASA</h2>
+    <div class="panel"><div class="lbl gold">CÓMO SE GANA</div>
+      <div class="small" style="margin-top:6px">Al terminar los 25 lotes se suman los <b>puntos de titán</b>:
+      patrimonio ÷ 30 + colecciones + reputación × 10 + 60 por pieza legendaria + tu misión secreta − penalizaciones.
+      El patrimonio es efectivo + valor real de tus objetos − deudas.</div></div>
+    <div class="panel"><div class="lbl gold">FORMATOS</div>
+      <div class="stack" style="gap:8px;margin-top:8px">
+      ${Object.keys(FORMATS).map(k=>`<div><b style="font-size:13px">${FORMATS[k].e} ${FORMATS[k].n}</b><div class="tiny">${FORMATS[k].d}</div></div>`).join('')}
+      </div></div>
+    <div class="panel"><div class="lbl gold">CARTAS</div>
+      <div class="stack" style="gap:8px;margin-top:8px">
+      ${Object.keys(CARDS).map(k=>`<div><b style="font-size:13px">${CARDS[k].e} ${CARDS[k].n}</b><div class="tiny">${CARDS[k].d}</div></div>`).join('')}
+      </div></div>
+    <div class="panel"><div class="lbl gold">RIESGOS</div>
+      <div class="stack" style="gap:6px;margin-top:8px">
+      ${Object.keys(RISKN).map(k=>`<div class="tiny">${RISKN[k].e} <b>${RISKN[k].t}</b>${k==='A'?': puede resultar falso y perder casi todo su valor.':k==='V'?': su valor final puede casi duplicarse o hundirse a la mitad.':k==='M'?': el mercado le mueve el precio en el recuento final.':': cuesta encontrarle comprador.'}</div>`).join('')}
+      </div></div>
+    <div class="panel"><div class="lbl gold">RENCOR Y VENGANZA</div>
+      <div class="small" style="margin-top:6px">Cada provocación que recibes te da 1 de rencor. Con 3 puedes gastar un
+      <b>golpe de venganza</b>: si el rival gana ese lote, paga un 15% más. Provocar y luego perder cuesta reputación; provocar y ganar la sube.</div></div>
+  </div>`, dock:`<button class="btn pri" data-act="pause">VOLVER</button>`});
+};
+
+/* ─── 13. PANTALLA PRIVADA ─────────────────────────────────── */
+let curP = 0, bidVal = 0, secondVisit = false;
+ACT.toPrivate = () => { secondVisit = false; goPrivate(S.startPlayer); };
+function goPrivate(pid){
+  curP = pid;
+  handoff(pid, 'Tu dinero, tus cartas y tu soplo. Que no mire nadie.', ()=>renderPrivate(pid));
+}
+function sealed(){ return ['sobre1','sobre2','media','guerra'].includes(S.fmt); }
+function renderPrivate(pid){
+  const p = P(pid), L = S.lot, est = estimate(L), col = pid?'p2':'p1';
+  S.phase = 'PRIVADO';
+  bidVal = clamp(bidVal||0, 0, maxBid(p));
+  const known = p.know ? `<div class="panel gilt"><div class="lbl gold">🔍 TU TASACIÓN PRIVADA</div>
+      <div class="num gold" style="font-size:22px">${money(p.know.lo)} — ${money(p.know.hi)}</div>
+      <div class="tiny">Solo tú tienes este dato.</div></div>` : '';
+  const spy = p.spyInfo ? `<div class="panel gilt"><div class="lbl gold">🕵️ INFORME DE ESPIONAJE</div>
+      <div class="small" style="margin-top:6px">${p.spyInfo}</div></div>` : '';
+  const blocked = p.blocked ? `<div class="panel" style="border-color:var(--danger)">
+      <div class="lbl" style="color:var(--danger)">🛑 ESTÁS BLOQUEADO</div>
+      <div class="small">Alguien ha movido hilos: no puedes pujar por este lote. Guarda el dinero para el siguiente.</div></div>` : '';
+  const cardsHTML = p.cards.length ? `<div class="grid2" style="margin-top:8px">
+      ${p.cards.map(c=>cardHTML(c, CARDS[c.k].when!=='nego')).join('')}</div>
+      <div class="tiny" style="margin-top:8px">Toca una carta para jugarla ahora. Las de 🔄 se usan en la negociación.</div>`
+    : `<div class="tiny" style="margin-top:6px">No te queda ninguna carta.</div>`;
+  const bidBox = (sealed() && !p.blocked) ? bidUI(p) : '';
+  render({body:`<div class="stack">
+    <div class="row sb">
+      <div class="lbl" style="color:var(--${col})">${esc(p.name)}</div>
+      <div class="chips"><span class="chip">⭐ ${p.rep.toFixed(1)}</span>${p.rencor>0?`<span class="chip risk">😤 RENCOR ${p.rencor}</span>`:''}${p.debt?`<span class="chip risk">🏦 ${money(p.debt)}</span>`:''}</div>
+    </div>
+    <div class="panel gilt">
+      <div class="row sb"><div><div class="lbl gold">TU EFECTIVO</div>
+        <div class="num gold" style="font-size:30px">${money(p.cash)}</div></div>
+        <div style="text-align:right"><div class="lbl">PUJA MÁXIMA</div><div class="num" style="font-size:18px">${money(maxBid(p))}</div>
+        ${feeFactor(p)!==1?`<div class="tiny">${feeFactor(p)<1?'−5% por reputación':'+5% de recargo'}</div>`:''}</div>
+      </div>
+    </div>
+    ${blocked}
+    <div class="panel">
+      <div class="lbl gold">🔒 SOPLO PRIVADO DE ESTA RONDA</div>
+      <p class="ital" style="font-size:16px;margin:8px 0 0">“${p.tip.txt}”</p>
+      <div class="tiny" style="margin-top:6px">Tu fuente no siempre acierta. El rival ha recibido otro soplo distinto.</div>
+    </div>
+    ${p.farol?`<div class="panel gilt"><div class="lbl gold">🎭 FAROL ACTIVO</div>
+      <div class="small">${sealed()?'Al abrir los sobres, tu cifra aparecerá distorsionada antes de mostrarse la real.'
+      :'Los botones mostrarán la cifra que ve el rival. Tú pagarás un 30% menos de lo que aparente. Disimula.'}</div></div>`:''}
+    ${known}${spy}
+    <div class="panel">
+      <div class="row sb"><div class="lbl gold">EL LOTE</div><div class="chip">${FORMATS[S.fmt].e} ${FORMATS[S.fmt].n}</div></div>
+      <div class="row" style="margin-top:8px;gap:12px">
+        <div style="font-size:40px">${L.e}</div>
+        <div style="flex:1"><b>${esc(L.name)}</b>
+          <div class="tiny">${CATS[L.cat].n} · estimación ${money(est.lo)}–${money(est.hi)}</div></div>
+      </div>
+    </div>
+    <div class="panel"><div class="lbl gold">🃏 TUS CARTAS (${p.cards.length})</div>${cardsHTML}</div>
+    ${bidBox}
+  </div>`,
+  dock: sealed() && !p.blocked
+    ? `<button class="btn pri" data-act="confirmSealed">SELLAR MI OFERTA</button>`
+    : `<button class="btn pri" data-act="privDone">LISTO · CERRAR MI PANTALLA</button>`});
+  if(sealed() && !p.blocked){ bidSubmit = 'confirmSealed'; startBidClock(); }
+}
+function bidUI(p){
+  const mx = maxBid(p), est = estimate(S.lot);
+  const warn = S.fmt==='guerra' ? '<div class="chip risk" style="margin-top:8px">⚔️ PAGARÁS ESTA CIFRA GANES O PIERDAS</div>' : '';
+  return `<div class="panel gilt" id="bidPanel">
+    <div class="row sb"><div class="lbl gold">TU OFERTA SECRETA</div><div class="tiny" id="bidClock">40 s</div></div>
+    <div class="timer" style="margin:6px 0 10px"><i id="bidBar" style="width:100%"></i></div>
+    <div class="bidbox"><div class="bidnum" id="bidNum">${money(bidVal)}</div>
+      <div class="tiny" id="bidHint">${bidHint(bidVal, est)}</div></div>
+    <input type="range" id="bidRange" min="0" max="${mx}" step="50" value="${bidVal}">
+    <div class="grid3">
+      <button class="btn sm" data-act="bidAdd" data-d="-500" data-quiet="1">−500</button>
+      <button class="btn sm" data-act="bidAdd" data-d="-100" data-quiet="1">−100</button>
+      <button class="btn sm" data-act="bidZero" data-quiet="1">0</button>
+      <button class="btn sm" data-act="bidAdd" data-d="100" data-quiet="1">+100</button>
+      <button class="btn sm" data-act="bidAdd" data-d="500" data-quiet="1">+500</button>
+      <button class="btn sm" data-act="bidAdd" data-d="1000" data-quiet="1">+1000</button>
+    </div>
+    <div class="grid2" style="margin-top:8px">
+      <button class="btn sm" data-act="bidSet" data-v="${round50(est.lo)}" data-quiet="1">ESTIMACIÓN BAJA</button>
+      <button class="btn sm" data-act="bidSet" data-v="${mx}" data-quiet="1">TODO (${money(mx)})</button>
+    </div>${warn}
+    <div class="tiny" style="margin-top:8px">Ofrecer 0 equivale a no pujar. Si se acaba el tiempo, se envía la cifra que esté puesta.</div>
+  </div>`;
+}
+function bidHint(v, est){
+  if(v<=0) return 'No pujas por este lote.';
+  const r = v/est.mid;
+  if(r<.5) return 'Muy por debajo de la estimación.';
+  if(r<.85) return 'Por debajo de la estimación.';
+  if(r<1.15) return 'En línea con la estimación de la casa.';
+  if(r<1.6) return 'Por encima de la estimación. Te lo quieres llevar.';
+  return 'Una barbaridad. O sabes algo, o te vas a arruinar.';
+}
+function syncBid(){
+  const p = P(curP), est = estimate(S.lot);
+  bidVal = clamp(round50(bidVal), 0, maxBid(p));
+  const n = $('#bidNum'), r = $('#bidRange'), h = $('#bidHint');
+  if(n) n.textContent = money(bidVal);
+  if(r) r.value = bidVal;
+  if(h) h.textContent = bidHint(bidVal, est);
+}
+ACT.bidAdd = t => { bidVal += +t.dataset.d; syncBid(); SFX.tick(); };
+ACT.bidSet = t => { bidVal = +t.dataset.v; syncBid(); SFX.bid(); };
+ACT.bidZero = () => { bidVal = 0; syncBid(); SFX.tick(); };
+document.addEventListener('input', e=>{ if(e.target.id==='bidRange'){ bidVal = +e.target.value; syncBid(); } });
+let bidSubmit = 'confirmSealed';
+function startBidClock(){
+  let t = 40;
+  const bar = $('#bidBar'), lab = $('#bidClock');
+  every(()=>{
+    t--;
+    if(bar) bar.style.width = (t/40*100)+'%';
+    if(lab) lab.textContent = t+' s';
+    if(t<=5){ const bp=$('#bidPanel'); if(bp) bp.querySelector('.timer').classList.add('hot'); SFX.hot(); }
+    if(t<=0){ clearTimers(); (ACT[bidSubmit]||ACT.confirmSealed)(); }
+  },1000);
+}
+ACT.privDone = () => nextPrivate();
+ACT.confirmSealed = () => {
+  const p = P(curP);
+  p.bid = p.blocked ? 0 : clamp(round50(bidVal), 0, maxBid(p));
+  bidVal = 0;
+  SFX.card();
+  nextPrivate();
+};
+function nextPrivate(){
+  clearTimers();
+  const p = P(curP);
+  if(sealed() && p.blocked) p.bid = 0;
+  if(!secondVisit){
+    secondVisit = true;
+    goPrivate(1 - S.startPlayer);
+  } else {
+    startAuction();
+  }
+}
+</script>
+<script>
+/* ─── 14. JUGAR CARTAS ─────────────────────────────────────── */
+function consume(p, id){ const i = p.cards.findIndex(c=>c.id===id); if(i>=0) p.cards.splice(i,1); p.st.cartas++; }
+ACT.playCard = t => {
+  const p = P(curP), id = t.dataset.id, c = p.cards.find(x=>x.id===id);
+  if(!c) return;
+  const R = RIVAL(curP), L = S.lot;
+  switch(c.k){
+    case 'tasacion':{
+      const v = trueValue(L);
+      p.know = {lo:round50(v*rnd(.90,.94)), hi:round50(v*rnd(1.06,1.10))};
+      consume(p,id); SFX.card(); toast('🔍 Tasación realizada'); break;
+    }
+    case 'bloqueo':{
+      R.blocked = true; p.rep = clamp(p.rep-1,0,10); consume(p,id); SFX.down();
+      toast('🛑 Has bloqueado al rival en este lote'); break;
+    }
+    case 'subsidio':{
+      p.cash += 500; consume(p,id); SFX.coin(); toast('💰 +500 monedas'); break;
+    }
+    case 'farol':{
+      p.farol = true; consume(p,id); SFX.card();
+      toast(sealed()?'🎭 Tu oferta se abrirá distorsionada'
+        :'🎭 Tus pujas se verán un 30% más altas de lo que pagarás', 3200); break;
+    }
+    case 'doble':{
+      p.doble = true; consume(p,id); SFX.card(); toast('⚡ Tu mejor colección contará doble'); break;
+    }
+    case 'tanteo':{
+      p.tanteo = true; consume(p,id); SFX.card(); toast('📜 Derecho de tanteo activado'); break;
+    }
+    case 'espionaje':{
+      const rc = R.cards.length ? CARDS[pick(R.cards).k].n : 'ninguna carta';
+      p.spyInfo = `Efectivo del rival: <b class="gold">${money(R.cash)}</b>.<br>Tiene en la mano: <b>${rc}</b>.<br>Su soplo dice: “${R.tip.txt}”`;
+      p.rep = clamp(p.rep-1,0,10); consume(p,id); SFX.card(); break;
+    }
+    case 'crash':{
+      renderChooser('💣 ¿QUÉ CATEGORÍA HUNDES?', CATKEYS.map(k=>({v:k, l:`${CATS[k].e} ${CATS[k].n}`, s:`índice ${pct((S.market[k].idx-1)*100)}`})), 'doCrash', id);
+      return;
+    }
+    case 'seguro':{
+      if(!p.inv.length){ toast('No tienes objetos que asegurar'); return; }
+      renderChooser('🛡️ ¿QUÉ OBJETO ASEGURAS?', p.inv.map((it,i)=>({v:i, l:`${it.e} ${it.name}`, s:CATS[it.cat].n})), 'doSeguro', id);
+      return;
+    }
+    case 'intercambio': toast('🔄 Esta carta se juega en la fase de negociación'); return;
+  }
+  renderPrivate(curP);
+};
+function renderChooser(title, opts, act, cardId){
+  clearTimers();
+  render({body:`<div class="stack"><h2 class="gold">${title}</h2>
+    <div class="stack" style="gap:8px">${opts.map(o=>`<button class="btn" style="justify-content:flex-start" data-act="${act}" data-v="${o.v}" data-card="${cardId}">
+      <span class="btn-col" style="align-items:flex-start">${o.l}<span class="sub">${o.s}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="chooseCancel">CANCELAR</button></div>`, dock:''});
+}
+ACT.chooseCancel = () => renderPrivate(curP);
+ACT.doCrash = t => {
+  const p = P(curP), k = t.dataset.v, m = S.market[k];
+  m.idx *= 0.82; m.crash = 3; m.trend -= .04;
+  p.rep = clamp(p.rep-1,0,10);
+  consume(p, t.dataset.card); SFX.down();
+  toast(`💣 ${CATS[k].n} se hunde un 18%`);
+  renderPrivate(curP);
+};
+ACT.doSeguro = t => {
+  const p = P(curP), i = +t.dataset.v;
+  p.inv[i].seguro = true;
+  consume(p, t.dataset.card); SFX.card();
+  toast(`🛡️ ${p.inv[i].name} asegurado`);
+  renderPrivate(curP);
+};
+
+/* ─── 15. SUBASTAS ─────────────────────────────────────────── */
+function startAuction(){
+  clearTimers();
+  S.phase = 'SUBASTA';
+  const est = estimate(S.lot);
+  S.A = {price:0, high:null, turn:S.startPlayer, hist:[], passes:0, ghost:null, start:startPriceOf(S.lot), reopens:0};
+  if(sealed()) return revealSealed();
+  if(S.fmt==='holandesa') return startDutch();
+  S.A.step = Math.max(100, round50(S.A.start*0.14));
+  renderOpen();
+}
+function bandHTML(pid){
+  const b = cashBand(P(pid));
+  return `<span class="chip ${pid?'c2':'c1'}">${b.e} ${esc(P(pid).name)}: ${b.t}</span>`;
+}
+function minNext(){ const A=S.A; return A.high===null ? A.start : A.price + Math.max(100, round50(A.price*0.07)); }
+function ladderHTML(){
+  const A = S.A;
+  if(!A.hist.length) return `<div class="tiny">Todavía nadie ha pujado. Precio de salida ${money(A.start)}.</div>`;
+  return `<div class="ladder">${A.hist.slice().reverse().map((h,i)=>`
+    <div class="bidrow b${h.p+1} ${i===0?'newest':''}">
+      <span>${esc(P(h.p).name)}</span>
+      <span class="num ${h.p?'c2':'c1'}" style="font-size:16px">${money(h.shown)}</span>
+    </div>`).join('')}</div>`;
+}
+function renderOpen(){
+  const A = S.A, L = S.lot, p = P(A.turn), est = estimate(L), col = A.turn?'p2':'p1';
+  if(p.blocked){ toast(`🛑 ${p.name} está bloqueado y no puede pujar`); return doPass(true); }
+  const inglesa = S.fmt==='inglesa';
+  const nxt = inglesa ? (A.high===null ? A.start : A.price + A.step) : minNext();
+  const q = [nxt, round50(nxt*1.25), round50(nxt*1.6)];
+  const controls = inglesa
+    ? `<button class="btn ${col==='p1'?'p1':'p2'}" data-act="engSi">SIGO · ${money(nxt)}</button>`
+    : `<div class="grid3">${q.map((v,i)=>`<button class="btn ${col==='p1'?'p1':'p2'} sm" data-act="bidNow" data-v="${v}">
+         <span class="btn-col">${money(v)}<span class="sub">${['MÍNIMO','+25%','+60%'][i]}</span></span></button>`).join('')}</div>
+       <button class="btn gh" data-act="openCustom">✏️ OTRA CANTIDAD</button>`;
+  const vengeBtn = (p.rencor>=3 && !p.vengeUsed) ? `<button class="btn dgr sm" data-act="venge">😤 GOLPE DE VENGANZA (3 rencor)</button>` : '';
+  render({body:`<div class="stack">
+    <div class="row sb">
+      <div class="chip gold">${FORMATS[S.fmt].e} ${FORMATS[S.fmt].n}</div>
+      <div class="chip">LOTE ${S.round}${L.legend?' 👑':''}</div>
+    </div>
+    <div class="panel gilt" style="text-align:center;border-color:var(--${col})">
+      <div class="lbl" style="color:var(--${col})">TURNO DE</div>
+      <h2 style="color:var(--${col}-hi)">${esc(p.name)}</h2>
+      <div class="timer" id="tbar" style="margin-top:8px"><i style="width:100%"></i></div>
+      <div class="tiny" id="tlab" style="margin-top:4px">Si se acaba el tiempo, te retiras.</div>
+    </div>
+    <div class="panel" style="text-align:center">
+      <div class="row" style="justify-content:center;gap:10px">
+        <div style="font-size:34px">${L.e}</div>
+        <div style="text-align:left"><b style="font-size:14px">${esc(L.name)}</b>
+        <div class="tiny">est. ${money(est.lo)}–${money(est.hi)} · ${CATS[L.cat].n}</div></div>
+      </div>
+      <div class="hr" style="margin:10px 0"></div>
+      <div class="lbl">${A.high===null?'PRECIO DE SALIDA':'PUJA ACTUAL'}</div>
+      <div class="bidnum">${money(A.high===null?A.start:A.price)}</div>
+      <div class="small" style="margin-top:4px">${A.high===null?'Nadie ha pujado todavía':`Va ganando <b class="${A.high?'c2':'c1'}">${esc(P(A.high).name)}</b>`}</div>
+    </div>
+    <div class="panel"><div class="lbl gold">HISTORIAL DE PUJAS</div><div style="margin-top:8px">${ladderHTML()}</div></div>
+    <div class="chips" style="justify-content:center">${bandHTML(0)}${bandHTML(1)}</div>
+    <div class="tiny" style="text-align:center">Nadie ve el efectivo exacto del otro. Solo su aspecto.</div>
+  </div>`,
+  dock:`${controls}${vengeBtn}
+    <div class="grid2">
+      <button class="btn gh" data-act="taunt">😈 PROVOCAR</button>
+      <button class="btn dgr" data-act="retire">🚪 ME RETIRO</button>
+    </div>`});
+  startTurnClock();
+}
+function startTurnClock(){
+  const T = S.fmt==='inglesa' ? 14 : 18;
+  let t = T;
+  const bar = $('#tbar'), lab = $('#tlab');
+  every(()=>{
+    t--;
+    if(bar){ bar.querySelector('i').style.width = (t/T*100)+'%'; if(t<=6) bar.classList.add('hot'); }
+    if(lab) lab.textContent = t<=6 ? `¡${t} segundos!` : 'Si se acaba el tiempo, te retiras.';
+    if(t<=6 && t>0) SFX.hot();
+    if(t<=0){ clearTimers(); toast('⏰ Tiempo agotado'); doPass(true); }
+  },1000);
+}
+function placeBid(amount){
+  const A = S.A, p = P(A.turn);
+  amount = round50(amount);
+  if(amount < minNext()) return;
+  const ghost = !!p.farol;
+  const shown = amount;
+  const real = ghost ? round50(amount/1.3) : amount;
+  if(real > maxBid(p)){
+    SFX.outbid(); toast('❌ No tienes fondos para esa puja');
+    const d = $('#dock'); if(d){ d.classList.add('shake'); setTimeout(()=>d.classList.remove('shake'),420); }
+    return;
+  }
+  A.hist.push({p:A.turn, real, shown, ghost});
+  A.price = shown;
+  A.high = A.turn;
+  A.passes = 0;
+  if(ghost && !A.ghost){ A.ghost = true; p.st.faroles++; }
+  p.st.maxPuja = Math.max(p.st.maxPuja, real);
+  SFX.bid();
+  A.turn = 1 - A.turn;
+  renderOpen();
+}
+ACT.bidNow = t => placeBid(+t.dataset.v);
+ACT.engSi = () => { const A=S.A; placeBid(A.high===null?A.start:A.price+A.step); };
+ACT.openCustom = () => {
+  const A = S.A, p = P(A.turn), col = A.turn?'p2':'p1';
+  const mn = minNext(), mx = Math.max(mn*3, estimate(S.lot).hi*2);
+  bidVal = mn;
+  clearTimers();
+  render({body:`<div class="stack" style="padding-top:8px">
+    <div class="row sb"><div class="lbl" style="color:var(--${col})">${esc(p.name)} · TU PUJA</div>
+      <div class="chip">SIGUE CORRIENDO EL RELOJ</div></div>
+    <div class="timer" id="tbar"><i style="width:100%"></i></div>
+    <div class="tiny" id="tlab">Si se acaba el tiempo, te retiras.</div>
+    <div class="panel gilt">
+      <div class="bidbox"><div class="bidnum" id="bidNum">${money(bidVal)}</div>
+      <div class="tiny" id="bidHint">Mínimo permitido: ${money(mn)}</div></div>
+      <input type="range" id="bidRange" min="${mn}" max="${round50(mx)}" step="50" value="${bidVal}">
+      <div class="grid3">
+        <button class="btn sm" data-act="bidAdd" data-d="-500" data-quiet="1">−500</button>
+        <button class="btn sm" data-act="bidAdd" data-d="-100" data-quiet="1">−100</button>
+        <button class="btn sm" data-act="bidSet" data-v="${mn}" data-quiet="1">MÍN</button>
+        <button class="btn sm" data-act="bidAdd" data-d="100" data-quiet="1">+100</button>
+        <button class="btn sm" data-act="bidAdd" data-d="500" data-quiet="1">+500</button>
+        <button class="btn sm" data-act="bidAdd" data-d="1000" data-quiet="1">+1000</button>
+      </div>
+    </div>
+    <div class="tiny">Una puja alta y de golpe puede echar al rival de la sala… o arruinarte.</div>
+  </div>`,
+  dock:`<button class="btn pri" data-act="customGo">PUJAR</button>
+        <div class="grid2"><button class="btn gh" data-act="customBack">VOLVER</button>
+        <button class="btn dgr sm" data-act="retire">🚪 ME RETIRO</button></div>`});
+  startTurnClock();
+};
+ACT.customGo = () => { const mn = minNext(); if(bidVal < mn){ toast('Puja demasiado baja'); return; } placeBid(bidVal); };
+ACT.customBack = () => renderOpen();
+ACT.taunt = () => { if(!S.A) return; clearTimers(); tauntPicker(S.A.turn, 'auction'); };
+ACT.tauntResult = t => { tauntPicker(+t.dataset.p, 'result'); };
+ACT.venge = () => {
+  const A = S.A, p = P(A.turn), R = RIVAL(A.turn);
+  if(p.vengeUsed || p.rencor < 3) return;
+  p.rencor -= 3; p.vengeUsed = true; R.venge = true;
+  SFX.hammer();
+  toast(`😤 <b>GOLPE DE VENGANZA</b><br><span class="tiny">Si ${esc(R.name)} gana este lote, pagará un 15% más</span>`, 3000);
+  later(()=>renderOpen(), 900);
+};
+ACT.retire = () => doPass(false);
+function doPass(auto){
+  const A = S.A;
+  const p = P(A.turn);
+  if(!auto) p.st.retiradas++;
+  if(A.high === null){
+    A.passes++;
+    if(A.passes >= 2){ return desierto(); }
+    A.turn = 1 - A.turn;
+    SFX.tick();
+    return renderOpen();
+  }
+  hammerDown();
+}
+</script>
+<script>
+/* ─── 16. MARTILLO, CONTRAATAQUE Y DESIERTO ────────────────── */
+function winnerRealPrice(){
+  const A = S.A;
+  for(let i=A.hist.length-1;i>=0;i--) if(A.hist[i].p===A.high) return A.hist[i];
+  return {real:A.start, shown:A.start, ghost:false};
+}
+function hammerDown(){
+  clearTimers();
+  const A = S.A, w = A.high, h = winnerRealPrice();
+  const steps = ['A LA UNA…','A LAS DOS…','¡ADJUDICADO!'];
+  let i = 0;
+  const paint = () => {
+    render({body:`<div class="stack" style="padding-top:60px;text-align:center">
+      <div style="font-size:64px" class="pop">🔨</div>
+      <h1 class="gold pop" style="font-size:40px">${steps[i]}</h1>
+      <div class="num" style="font-size:26px">${money(A.price)}</div>
+      <div class="small">${esc(P(w).name)}</div>
+    </div>`, dock:''});
+    SFX.hammer();
+    i++;
+    if(i<steps.length) later(paint, 750);
+    else later(()=>snipeWindow(w, h), 800);
+  };
+  paint();
+}
+function snipeWindow(w, h){
+  clearTimers();
+  const loser = 1 - w, lp = P(loser);
+  if(lp.snipeUsed || lp.blocked){ return resolveOpen(w, h); }
+  const fee = round50(Math.max(100, S.A.price*0.10));
+  let t = 6;
+  const paint = () => {
+    render({body:`<div class="stack" style="padding-top:24px;text-align:center">
+      <div class="lbl gold">ÚLTIMA OPORTUNIDAD</div>
+      <h2>${esc(lp.name)}, ¿lo dejas escapar?</h2>
+      <div class="panel gilt">
+        <div class="small">Puedes reabrir la subasta pagando una comisión a la casa.</div>
+        <div class="num gold" style="font-size:30px;margin-top:6px">${money(fee)}</div>
+        <div class="tiny">Se paga aunque después te retires. Solo una vez por partida.</div>
+      </div>
+      <div class="timer hot"><i id="sbar" style="width:${t/6*100}%"></i></div>
+      <div class="num" style="font-size:20px">${t}</div>
+    </div>`,
+    dock:`<button class="btn dgr" data-act="snipe" data-fee="${fee}">😤 CONTRAATACAR</button>
+          <button class="btn gh" data-act="snipeNo">DEJARLO IR</button>`});
+  };
+  paint();
+  every(()=>{ t--; if(t<=0){ clearTimers(); resolveOpen(w,h); } else { SFX.tick(); paint(); } },1000);
+}
+ACT.snipeNo = () => { const A=S.A; resolveOpen(A.high, winnerRealPrice()); };
+ACT.snipe = t => {
+  const A = S.A, loser = 1 - A.high, lp = P(loser), fee = +t.dataset.fee;
+  if(fee + minNext() > maxBid(lp)){ toast('❌ No te llega para contraatacar y pujar'); return; }
+  clearTimers();
+  lp.snipeUsed = true; lp.cash -= fee; lp.st.gastado += fee;
+  A.turn = loser; A.passes = 0; A.reopens++; A.sniped = loser;
+  SFX.hammer();
+  toast(`😤 ${esc(lp.name)} reabre la subasta`, 2200);
+  renderOpen();
+};
+function desierto(){
+  clearTimers(); SFX.lose();
+  render({body:`<div class="stack" style="padding-top:50px;text-align:center">
+    <div style="font-size:60px">🕸️</div>
+    <h2 class="gold">LOTE DESIERTO</h2>
+    <p class="small">Nadie ha querido ${esc(S.lot.name)}. La casa lo retira.<br>Puede que fuera una trampa… o la ganga del siglo.</p>
+  </div>`, dock:`<button class="btn pri" data-act="afterLot">CONTINUAR</button>`});
+  S.result = {winner:null};
+}
+
+/* ─── 17. RESOLUCIÓN ───────────────────────────────────────── */
+function acquire(p, price, extra){
+  const L = S.lot;
+  const it = {name:L.name, e:L.e, cat:L.cat, base:L.base, rar:L.rar, dem:L.dem, vol:L.vol,
+              risk:L.risk, set:L.set, legend:L.legend, paid:price, round:S.round, bias:L.bias};
+  p.inv.push(it);
+  p.cash -= price;
+  p.st.gastado += price; p.st.pagadoTotal += price;
+  p.st.maxPago = Math.max(p.st.maxPago, price);
+  p.st.ganadas++;
+  p.st.racha++; p.st.maxRacha = Math.max(p.st.maxRacha, p.st.racha);
+  RIVAL(p.id).st.racha = 0;
+  if(sealed()) p.st.sobresGanados++;
+  const est = estimate(L);
+  if(price < est.mid*0.45) p.st.ganga = true;
+  if(price > est.hi*1.35){ p.st.curse++; p.rep = clamp(p.rep+0.5,0,10); }
+  p.rep = clamp(p.rep + 0.4, 0, 10);
+  if(p.taunted) p.rep = clamp(p.rep + 1, 0, 10);
+  const R = RIVAL(p.id);
+  if(R.taunted) R.rep = clamp(R.rep - 1, 0, 10);
+  if(S.round >= 21) p.st.prestigio += 150;
+  S.corteHecho = false;
+  if(S.bounty && S.bounty.target !== p.id){
+    p.cash += S.bounty.cash; drawCard(p); p.st.cortes++;
+    feud(p.id, 1, 'corte'); S.corteHecho = true;
+  }
+  const rivalPeleo = S.fmt==='holandesa' ? true
+    : sealed() ? (R.bid > 0)
+    : (S.A && S.A.hist.some(h=>h.p !== p.id));
+  if(rivalPeleo) feud(p.id, 1, 'lote');
+  S.betResult = resolveBet(price);
+  return it;
+}
+function finalPrice(pid, base){
+  let price = base;
+  if(P(pid).venge) price = round50(price*1.15);
+  price = round50(price * feeFactor(P(pid)));
+  return price;
+}
+function resolveOpen(w, h){
+  clearTimers();
+  const base = h.real;
+  let price = finalPrice(w, base);
+  const p = P(w);
+  if(price > p.cash) price = Math.floor(p.cash);
+  const it = acquire(p, price, {});
+  const loser = 1 - w;
+  let prima = 0;
+  if(S.A.hist.some(x=>x.p === loser)){
+    prima = Math.min(400, round50(price*0.06));
+    P(loser).cash += prima; P(loser).st.primas += prima;
+  }
+  if(S.A.sniped === w){ p.st.robos++; feud(w, 1, 'robo'); }
+  const bluffLost = S.A.hist.filter(x=>x.ghost && x.p!==w).pop();
+  S.result = {winner:w, price, base, ghost:h.ghost, shown:h.shown, item:it, venge:p.venge,
+              fee:feeFactor(p), bluffLost: bluffLost || null, bluffer: bluffLost ? P(1-w).name : null,
+              prima, primaFor: prima ? P(loser).name : null, sniped: S.A.sniped === w};
+  SFX.buy();
+  screenResult();
+}
+/* ── sobres cerrados ── */
+function revealSealed(){
+  clearTimers();
+  const b0 = P(0).bid||0, b1 = P(1).bid||0;
+  if(b0<=0 && b1<=0) return desierto();
+  if(b0===b1) return duelo();
+  const w = b0>b1 ? 0 : 1, l = 1-w, hi = Math.max(b0,b1), lo = Math.min(b0,b1);
+  let base;
+  if(S.fmt==='sobre1' || S.fmt==='guerra') base = hi;
+  else if(S.fmt==='sobre2') base = Math.max(lo, S.A.start);
+  else base = round50((hi+lo)/2);
+  revealAnim(b0,b1,()=>{
+    const price = Math.min(finalPrice(w, base), Math.floor(P(w).cash));
+    const it = acquire(P(w), price, {});
+    let alsoPaid = 0;
+    if(S.fmt==='guerra' && lo>0){
+      alsoPaid = Math.min(lo, Math.floor(P(l).cash));
+      P(l).cash -= alsoPaid; P(l).st.gastado += alsoPaid;
+      P(l).rep = clamp(P(l).rep - 0.3, 0, 10);
+    }
+    const margen = hi - lo;
+    S.result = {winner:w, price, base, bids:[b0,b1], alsoPaid, loser:l, item:it,
+                venge:P(w).venge, fee:feeFactor(P(w)),
+                margen: (lo>0 && margen <= Math.max(300, hi*0.06)) ? margen : 0};
+    SFX.buy();
+    screenResult();
+  });
+}
+function revealAnim(b0,b1,done){
+  const f0 = P(0).farol, f1 = P(1).farol;
+  const fake = (v,f) => f ? round50(v * (Math.random()<.5?1.3:0.7)) : v;
+  let step = 0;
+  const show = () => {
+    const s0 = step>=1 ? (step>=3 && f0 ? money(b0) : money(fake(b0,f0))) : '🔒';
+    const s1 = step>=2 ? (step>=3 && f1 ? money(b1) : money(fake(b1,f1))) : '🔒';
+    render({body:`<div class="stack" style="padding-top:18px;text-align:center">
+      <div class="lbl gold">${FORMATS[S.fmt].e} APERTURA DE SOBRES</div>
+      <h2>${esc(S.lot.name)}</h2>
+      <div class="panel ${step>=1?'gilt':''}" style="border-color:var(--p1)">
+        <div class="lbl c1">${esc(P(0).name)}</div>
+        <div class="bidnum ${step>=1?'pop':''}" style="color:var(--p1-hi)">${s0}</div>
+        ${step>=3&&f0?'<div class="chip risk" style="margin-top:6px">🎭 ERA UN FAROL</div>':''}
+      </div>
+      <div class="panel ${step>=2?'gilt':''}" style="border-color:var(--p2)">
+        <div class="lbl c2">${esc(P(1).name)}</div>
+        <div class="bidnum ${step>=2?'pop':''}" style="color:var(--p2-hi)">${s1}</div>
+        ${step>=3&&f1?'<div class="chip risk" style="margin-top:6px">🎭 ERA UN FAROL</div>':''}
+      </div>
+    </div>`, dock:''});
+    if(step>=1) SFX.card();
+    step++;
+    const need = (f0||f1) ? 4 : 3;
+    if(step<need) later(show, 900);
+    else later(done, 700);
+  };
+  show();
+}
+function duelo(){
+  clearTimers();
+  const tie = P(0).bid;
+  S.duel = {tie, ready:false, done:false};
+  SFX.hammer();
+  render({body:`<div class="stack" style="padding-top:26px;text-align:center">
+    <div style="font-size:60px" class="pop">⚔️</div>
+    <h1 class="gold">EMPATE</h1>
+    <p class="small">Los dos habéis ofrecido exactamente <b class="gold">${money(tie)}</b>.<br>
+    La casa no admite empates: <b>DUELO DE PULGARES</b>.</p>
+    <div class="panel gilt" style="text-align:left">
+      <div class="stack" style="gap:8px">
+        <div class="small">1 · Poned el móvil entre los dos, uno enfrente del otro, y cada uno el pulgar en su mitad.</div>
+        <div class="small">2 · Cuando la pantalla se vuelva <b class="gold">DORADA</b> y diga <b>¡YA!</b>, el primero que pulse se lleva el lote por ${money(tie)}.</div>
+        <div class="small">3 · Quien pulse antes de tiempo, pierde. Sin excusas.</div>
+      </div>
+    </div>
+  </div>`, dock:`<button class="btn pri" data-act="duelStart">EMPEZAR EL DUELO</button>`});
+}
+ACT.duelStart = () => {
+  const d = S.duel;
+  d.ready = false; d.done = false;
+  const half = pid => `<button class="btn ${pid?'p2':'p1'}" style="min-height:150px;border-radius:16px${pid?'':';transform:rotate(180deg)'}" data-act="duelTap" data-p="${pid}" data-quiet="1">
+      <span class="btn-col"><span style="font-size:26px" class="duelLabel">ESPERA…</span>
+      <span class="sub">${esc(P(pid).name)}</span></span></button>`;
+  render({top:null, body:`<div class="stack" id="duelBox" style="padding-top:10px">
+    ${half(0)}
+    <div style="text-align:center">
+      <div class="lbl gold">DUELO POR ${money(d.tie)}</div>
+      <h1 id="duelMsg" style="font-size:40px">PREPARADOS…</h1>
+      <div class="tiny">No pulses antes de que diga ¡YA!</div>
+    </div>
+    ${half(1)}
+  </div>`, dock:''});
+  SFX.tick();
+  const t = setTimeout(()=>{
+    const dd = S.duel;
+    if(!dd || dd.done) return;
+    dd.ready = true;
+    const m = $('#duelMsg');
+    if(m){ m.textContent = '¡YA!'; m.className = 'gold pop'; m.style.fontSize = '56px'; }
+    document.querySelectorAll('.duelLabel').forEach(e=>{ e.textContent = '¡PULSA!'; });
+    const box = $('#duelBox');
+    if(box) box.style.background = 'radial-gradient(60% 40% at 50% 50%, rgba(242,218,146,.22), transparent 70%)';
+    SFX.hot(); AU.vibrate(70);
+  }, ri(2200, 5200));
+  S.tm.push(t);
+};
+ACT.duelTap = t => {
+  const d = S.duel;
+  if(!d || d.done) return;
+  const pid = +t.dataset.p;
+  d.done = true;
+  clearTimers();
+  const early = !d.ready;
+  const w = early ? 1 - pid : pid;
+  const price = Math.min(finalPrice(w, d.tie), Math.floor(P(w).cash));
+  const it = acquire(P(w), price, {});
+  P(w).st.duelos++; P(w).st.pulgar++;
+  feud(w, 1, 'duelo');
+  S.result = {winner:w, price, base:d.tie, item:it, duelo:true, early, loserName:P(1-w).name,
+              venge:P(w).venge, fee:feeFactor(P(w))};
+  SFX.buy(); AU.vibrate([60,40,120]);
+  render({top:null, body:`<div class="stack" style="padding-top:60px;text-align:center">
+    <div style="font-size:60px" class="pop">${early?'🐔':'⚡'}</div>
+    <h1 style="color:var(--${w?'p2':'p1'}-hi)">${esc(P(w).name)}</h1>
+    <h2 class="gold">${early?'GANA POR SALIDA EN FALSO':'GANA EL DUELO'}</h2>
+    <p class="small">${early?`${esc(P(1-w).name)} ha pulsado antes de tiempo. El lote cambia de manos por impaciente.`:'Reflejos de titán. El lote es suyo.'}</p>
+  </div>`, dock:`<button class="btn pri" data-act="duelDone">VER EL REMATE</button>`});
+};
+ACT.duelDone = () => screenResult();
+/* ── holandesa ── */
+function startDutch(){
+  const est = estimate(S.lot);
+  const D = S.A;
+  D.price = round50(est.hi*1.45);
+  D.floor = round50(est.lo*0.30);
+  D.step = Math.max(50, round50(D.price*0.045));
+  D.taken = null;
+  renderDutch();
+  every(()=>{
+    if(D.taken!==null) return;
+    D.price -= D.step;
+    SFX.tick();
+    if(D.price <= D.floor){ clearTimers(); return desierto(); }
+    const el = $('#dprice'); if(el) el.textContent = money(D.price);
+    const f = $('#dfloor'); if(f) f.style.width = clamp((D.price-D.floor)/(D.startP-D.floor)*100,0,100)+'%';
+  }, 850);
+  D.startP = D.price;
+}
+function renderDutch(){
+  const D = S.A, L = S.lot;
+  const half = pid => {
+    const p = P(pid), col = pid?'p2':'p1';
+    return `<button class="btn ${col}" style="min-height:104px;border-radius:14px" data-act="dutchTake" data-p="${pid}" ${p.blocked?'disabled':''}>
+      <span class="btn-col"><span style="font-size:20px">${p.blocked?'🛑 BLOQUEADO':'¡LO COMPRO!'}</span>
+      <span class="sub">${esc(p.name)}</span></span></button>`;
+  };
+  render({body:`<div class="stack">
+    <div class="chip gold" style="align-self:center">🌷 SUBASTA HOLANDESA</div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="row" style="justify-content:center;gap:10px">
+        <div style="font-size:34px">${L.e}</div>
+        <div style="text-align:left"><b style="font-size:14px">${esc(L.name)}</b><div class="tiny">${CATS[L.cat].n}</div></div>
+      </div>
+      <div class="lbl" style="margin-top:10px">EL PRECIO ESTÁ BAJANDO</div>
+      <div class="bidnum" id="dprice" style="font-size:46px">${money(D.price)}</div>
+      <div class="timer" style="margin-top:8px"><i id="dfloor" style="width:100%"></i></div>
+      <div class="tiny" style="margin-top:6px">El primero que pulse se lo lleva a ese precio. Si nadie pulsa, el lote se pierde.</div>
+    </div>
+    ${half(0)}
+    ${half(1)}
+    <div class="tiny" style="text-align:center">Cada uno su botón. Sin trampas: pulsar antes cuesta dinero, pulsar tarde cuesta el lote.</div>
+  </div>`, dock:''});
+}
+ACT.dutchTake = t => {
+  const D = S.A, pid = +t.dataset.p, p = P(pid);
+  if(D.taken!==null) return;
+  if(D.price > maxBid(p)){
+    SFX.outbid(); toast('❌ Fondos insuficientes');
+    return;
+  }
+  D.taken = pid; clearTimers();
+  const price = Math.min(finalPrice(pid, D.price), Math.floor(p.cash));
+  const it = acquire(p, price, {});
+  S.result = {winner:pid, price, base:D.price, item:it, dutch:true, fee:feeFactor(p)};
+  SFX.buy(); AU.vibrate([40,30,80]);
+  screenResult();
+};
+</script>
+<script>
+/* ─── 18. RESULTADO DEL LOTE ───────────────────────────────── */
+function screenResult(){
+  clearTimers();
+  const r = S.result, L = S.lot, est = estimate(L);
+  if(r.winner===null) return;
+  const w = r.winner, p = P(w), col = w?'p2':'p1', l = 1-w;
+  const rel = (r.price/est.mid-1)*100;
+  const lector = rel < -25 ? {t:'POR DEBAJO DE LA ESTIMACIÓN',e:'🧊'} : rel > 30 ? {t:'MUY POR ENCIMA DE LA ESTIMACIÓN',e:'🔥'} : {t:'EN LÍNEA CON LA ESTIMACIÓN',e:'⚖️'};
+  const extras = [];
+  if(r.ghost) extras.push(`🎭 <b>FAROL DESCUBIERTO</b>: aparentaba ${money(r.shown)} y en realidad paga ${money(r.base)}.`);
+  if(r.bluffLost) extras.push(`🎭 <b>${esc(r.bluffer)} iba de farol</b>: su puja de ${money(r.bluffLost.shown)} eran en realidad ${money(r.bluffLost.real)}. Le has ganado a un fantasma.`);
+  if(r.venge) extras.push(`😤 <b>PRIMA DE VENGANZA</b>: +15% sobre su puja.`);
+  if(r.fee && r.fee!==1) extras.push(r.fee<1?`⭐ La casa le hace un <b>−5%</b> por reputación.`:`⚠️ La casa le cobra un <b>+5%</b> de recargo por reputación.`);
+  if(r.alsoPaid) extras.push(`⚔️ <b>${esc(P(r.loser).name)}</b> también paga su oferta: <b class="down">−${money(r.alsoPaid)}</b>.`);
+  if(r.duelo) extras.push(r.early
+    ? `⚔️ <b>Duelo de pulgares</b>: ${esc(r.loserName)} pulsó antes de tiempo.`
+    : `⚔️ <b>Duelo de pulgares</b> ganado por reflejos.`);
+  if(r.sniped) extras.push(`😤 <b>ROBO</b>: reabrió la subasta y se lo llevó igual.`);
+  if(r.prima) extras.push(`🩸 <b>PRIMA DEL PICADOR</b>: ${esc(r.primaFor)} cobra <b class="up">${money(r.prima)}</b> por haber apretado el precio.`);
+  if(S.corteHecho) extras.push(`🎯 <b>RACHA CORTADA</b>: +${money(S.bounty.cash)} y una carta por frenar a ${esc(P(S.bounty.target).name)}.`);
+  if(S.round>=21) extras.push(`👑 <b>+150 puntos de prestigio</b> por ganar en la hora de los titanes.`);
+  if(S.betResult) extras.push(`🎲 <b>APUESTA</b>: ${esc(P(S.betResult.w).name)} acierta (${S.betResult.side>0?'más':'menos'} de ${money(S.betResult.line)}) y se lleva <b class="up">${money(S.betResult.stake)}</b> de ${esc(P(S.betResult.l).name)}.`);
+  if(S.fmt==='sobre2' && r.bids) extras.push(`📩 Segundo precio: paga la oferta del rival, no la suya.`);
+  const lp = P(l);
+  const tanteoBtn = (lp.tanteo && !lp.blocked) ? `<button class="btn dgr" data-act="tanteo">📜 EJERCER TANTEO · ${money(round50(r.price*1.25))}</button>` : '';
+  render({body:`<div class="stack" style="padding-top:6px">
+    <div style="text-align:center">
+      <div class="lbl gold">LOTE ${S.round} ADJUDICADO A</div>
+      <h1 class="pop" style="color:var(--${col}-hi)">${esc(p.name)}</h1>
+    </div>
+    <div class="plate"><div class="spot"></div>
+      <div class="obj">${L.e}</div>
+      <h2 style="font-size:20px">${esc(L.name)}</h2>
+      <div class="hr" style="margin:10px 0"></div>
+      <div class="lbl">PRECIO FINAL</div>
+      <div class="bidnum">${money(r.price)}</div>
+      <div class="chip ${rel>30?'risk':'gold'}" style="margin-top:8px">${lector.e} ${lector.t} (${pct(rel)})</div>
+      ${r.margen?`<div class="chip risk pop" style="margin-top:8px;font-size:13px">😱 SE LO HA LLEVADO POR SOLO ${money(r.margen)}</div>`:''}
+    </div>
+    ${extras.length?`<div class="panel"><div class="stack" style="gap:8px">${extras.map(e=>`<div class="small">${e}</div>`).join('')}</div></div>`:''}
+    <div class="panel" style="text-align:center">
+      <div class="lbl gold">MARCADOR DEL PIQUE</div>
+      <div class="row sb" style="margin-top:4px">
+        <span class="num" style="font-size:22px;color:var(--p1-hi)">${S.feud[0]}</span>
+        <span class="tiny">${esc(P(0).name)} · GOLPES DIRECTOS · ${esc(P(1).name)}</span>
+        <span class="num" style="font-size:22px;color:var(--p2-hi)">${S.feud[1]}</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="lbl gold">LO QUE SE SABE</div>
+      <p class="small" style="margin:8px 0 0">Nadie sabrá el valor real de ${esc(L.name)} hasta el recuento final. La estimación de la casa era ${money(est.lo)}–${money(est.hi)}${L.risk?`, y el lote arrastra ${L.risk.split('').map(x=>RISKN[x].t.toLowerCase()).join(' y ')}`:''}.</p>
+    </div>
+  </div>`,
+  dock:`${tanteoBtn}<button class="btn pri" data-act="afterLot">CONTINUAR</button>
+    <div class="grid2">
+      <button class="btn gh" data-act="tauntResult" data-p="${w}">😈 REGODEARSE</button>
+      <button class="btn gh" data-act="tauntResult" data-p="${l}">😤 PROMETER VENGANZA</button>
+    </div>`});
+}
+ACT.tanteo = () => {
+  const r = S.result;
+  if(!r || r.stolen || r.winner===null) return;
+  const l = 1 - r.winner, lp = P(l), wp = P(r.winner);
+  if(!lp.tanteo) return;
+  const price = round50(r.price*1.25);
+  if(price > maxBid(lp)){ toast('❌ No tienes fondos para ejercer el tanteo'); return; }
+  const idx = wp.inv.findIndex(i=>i.round===S.round);
+  if(idx<0){ toast('Ya no es posible'); return; }
+  const it = wp.inv.splice(idx,1)[0];
+  wp.cash += r.price; wp.st.ganadas--; wp.st.gastado -= r.price;
+  it.paid = price;
+  lp.inv.push(it); lp.cash -= price; lp.st.gastado += price; lp.st.ganadas++;
+  lp.st.maxPago = Math.max(lp.st.maxPago, price);
+  lp.tanteo = false;
+  lp.st.robos++; feud(l, 1, 'robo');
+  SFX.hammer(); AU.vibrate([60,40,60]);
+  S.result = Object.assign({}, r, {winner:l, price, stolen:true, from:wp.name});
+  toast(`📜 <b>${esc(lp.name)}</b> arrebata el lote por ${money(price)}`, 3000);
+  later(()=>screenResult(), 400);
+};
+
+/* ─── 19. ENTRE RONDAS ─────────────────────────────────────── */
+ACT.afterLot = () => {
+  S.players.forEach(p=>{ p.hist.push(patrimonio(p)); p.spyInfo = null; });
+  S.postStep = 0;
+  postFlow();
+};
+function postFlow(){
+  const step = S.postStep++;
+  const r = S.round;
+  if(step===0 && (r===9 || r===18)) return taxScreen();
+  if(step<=1 && checkComeback()) return;
+  if(step<=2 && (r===8 || r===12 || r===16 || r===22)) { S.postStep = 3; return negoIntro(); }
+  return hubScreen();
+}
+function taxScreen(){
+  const cut = [];
+  S.players.forEach(p=>{
+    const t = Math.max(0, Math.round((p.cash-4000)*0.06));
+    p.cash -= t; cut.push(t);
+  });
+  SFX.down();
+  render({body:`<div class="stack" style="padding-top:40px;text-align:center">
+    <div style="font-size:56px">🏦</div>
+    <h2 class="gold">HACIENDA TITÁN</h2>
+    <p class="small">Se aplica un <b>6% sobre el efectivo por encima de €4.000</b> a cada coleccionista.<br>Quien acumula sin comprar, paga.</p>
+    <div class="tiny">Cada uno verá el importe exacto en su cartera. Sigue siendo secreto.</div>
+  </div>`, dock:`<button class="btn pri" data-act="postNext">CONTINUAR</button>`});
+}
+ACT.postNext = () => postFlow();
+/* ── remontada ── */
+function checkComeback(){
+  if(S.round < 7 || S.round > 23) return false;
+  if(S.lastComeback && S.round - S.lastComeback < 5) return false;
+  const a = patrimonio(P(0)), b = patrimonio(P(1));
+  const behind = a < b*0.68 ? 0 : b < a*0.68 ? 1 : -1;
+  if(behind < 0) return false;
+  S.lastComeback = S.round;
+  S.comebackFor = behind;
+  P(behind).st.remontadas++;
+  SFX.event();
+  render({body:`<div class="stack" style="padding-top:40px;text-align:center">
+    <div style="font-size:56px" class="pop">🔥</div>
+    <h2 class="gold">OPORTUNIDAD DE REMONTADA</h2>
+    <p class="small">La casa reconoce que uno de los dos va muy por detrás y le ofrece una salida.<br>No es un regalo: todas las opciones tienen precio.</p>
+    <div class="chip ${behind?'c2':'c1'}" style="align-self:center;margin:0 auto">PARA ${esc(P(behind).name)}</div>
+  </div>`, dock:`<button class="btn pri" data-act="comebackGo">🔒 PASAR EL MÓVIL</button>`});
+  return true;
+}
+ACT.comebackGo = () => {
+  const pid = S.comebackFor;
+  curP = pid;
+  handoff(pid, 'La casa tiene una oferta para ti. Solo para ti.', ()=>{
+    const p = P(pid);
+    render({body:`<div class="stack">
+      <h2 class="gold">🔥 ELIGE TU RIESGO</h2>
+      <div class="panel gilt"><div class="lbl gold">TU SITUACIÓN</div>
+        <div class="num gold" style="font-size:24px">${money(p.cash)}</div>
+        <div class="tiny">${p.inv.length} objetos · reputación ${p.rep.toFixed(1)}${p.debt?` · deuda ${money(p.debt)}`:''}</div></div>
+      <button class="btn" style="justify-content:flex-start" data-act="cb" data-v="cash">
+        <span class="btn-col" style="align-items:flex-start">💰 CRÉDITO AGRESIVO<span class="sub">+€3.500 AHORA · DEUDA DE €4.400 AL FINAL</span></span></button>
+      <button class="btn" style="justify-content:flex-start" data-act="cb" data-v="cards">
+        <span class="btn-col" style="align-items:flex-start">🃏 TRES CARTAS<span class="sub">SIN COSTE, PERO −1 DE REPUTACIÓN</span></span></button>
+      <button class="btn" style="justify-content:flex-start" data-act="cb" data-v="soplo">
+        <span class="btn-col" style="align-items:flex-start">🔮 SOPLO INFALIBLE<span class="sub">VALOR REAL EXACTO DE LOS 2 PRÓXIMOS LOTES · CUESTA €600</span></span></button>
+      <div class="tiny">Elige con cabeza: el rival sabe que has recibido una oferta, pero no cuál.</div>
+    </div>`, dock:''});
+  });
+};
+ACT.cb = t => {
+  if(S.comebackFor === null || S.comebackFor === undefined) return;
+  S.comebackFor = null;
+  const p = P(curP), v = t.dataset.v;
+  if(v==='cash'){ p.cash += 3500; p.debt += 4400; p.loans++; SFX.coin(); toast('💰 +€3.500 · deuda +€4.400'); }
+  if(v==='cards'){ drawCard(p); drawCard(p); drawCard(p); p.rep = clamp(p.rep-1,0,10); SFX.card(); toast('🃏 Tres cartas nuevas'); }
+  if(v==='soplo'){ p.cash = Math.max(0,p.cash-600); p.oracle = 2; SFX.card(); toast('🔮 Verás el valor real de los 2 próximos lotes'); }
+  later(()=>postFlow(), 900);
+};
+/* ── negociación ── */
+function negoIntro(){
+  render({body:`<div class="stack" style="padding-top:30px;text-align:center">
+    <div style="font-size:56px">🤝</div>
+    <h2 class="gold">FASE DE NEGOCIACIÓN</h2>
+    <p class="small">Hablad. De verdad. Ofreced, mentid, prometed.<br>El móvil solo sirve para cerrar el trato.</p>
+    <div class="panel" style="text-align:left"><div class="lbl gold">SE PUEDE</div>
+      <ul class="small" style="margin:8px 0 0;padding-left:18px;line-height:1.6">
+        <li>Vender un objeto tuyo al rival al precio que acordéis.</li>
+        <li>Proponer un intercambio de objetos.</li>
+        <li>Prometer cosas que no pensáis cumplir.</li>
+      </ul></div>
+  </div>`, dock:`<div class="grid2">
+      <button class="btn p1" data-act="negoStart" data-p="0">VENDE ${esc(P(0).name)}</button>
+      <button class="btn p2" data-act="negoStart" data-p="1">VENDE ${esc(P(1).name)}</button>
+    </div>
+    <button class="btn" style="border-color:var(--brass)" data-act="gunOpen">🔫 PISTOLERO <span class="sub">UN PRECIO · ÉL ELIGE LADO</span></button>
+    <button class="btn gh" data-act="postNext">TERMINAR NEGOCIACIÓN</button>`});
+}
+ACT.negoStart = t => {
+  const pid = +t.dataset.p, p = P(pid);
+  curP = pid;
+  if(!p.inv.length){ toast('No tienes objetos que ofrecer'); return; }
+  render({body:`<div class="stack"><h2 class="gold">${esc(p.name)}: ¿QUÉ OFRECES?</h2>
+    <div class="stack" style="gap:8px">${p.inv.map((it,i)=>`<button class="btn" style="justify-content:flex-start;min-height:60px" data-act="negoPick" data-i="${i}">
+      <span class="btn-col" style="align-items:flex-start"><span>${it.e} ${esc(it.name)}</span><span class="sub">${CATS[it.cat].n} · PAGASTE ${money(it.paid)}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="negoBack">VOLVER</button></div>`, dock:''});
+};
+ACT.negoBack = () => negoIntro();
+ACT.negoPick = t => {
+  const p = P(curP), i = +t.dataset.i, it = p.inv[i];
+  S.nego = {from:curP, idx:i, price: round50(it.paid)};
+  negoPrice();
+};
+function negoPrice(){
+  const n = S.nego, p = P(n.from), it = p.inv[n.idx];
+  const R = RIVAL(n.from);
+  const swapBtn = p.cards.some(c=>c.k==='intercambio') && R.inv.length
+    ? `<button class="btn" data-act="negoSwap">🔄 PROPONER INTERCAMBIO (usa tu carta)</button>` : '';
+  render({body:`<div class="stack">
+    <h2 class="gold">PRECIO DE VENTA</h2>
+    <div class="panel gilt" style="text-align:center">
+      <div style="font-size:40px">${it.e}</div><b>${esc(it.name)}</b>
+      <div class="bidnum" id="bidNum" style="margin-top:8px">${money(n.price)}</div>
+      <div class="tiny" id="bidHint">Habladlo en voz alta y ajustad la cifra.</div>
+      <input type="range" id="negoRange" min="0" max="12000" step="50" value="${n.price}">
+      <div class="grid3">
+        <button class="btn sm" data-act="negoAdj" data-d="-500" data-quiet="1">−500</button>
+        <button class="btn sm" data-act="negoAdj" data-d="-100" data-quiet="1">−100</button>
+        <button class="btn sm" data-act="negoAdj" data-d="0" data-quiet="1">=</button>
+        <button class="btn sm" data-act="negoAdj" data-d="100" data-quiet="1">+100</button>
+        <button class="btn sm" data-act="negoAdj" data-d="500" data-quiet="1">+500</button>
+        <button class="btn sm" data-act="negoAdj" data-d="1000" data-quiet="1">+1000</button>
+      </div>
+    </div>
+    ${swapBtn}
+  </div>`, dock:`<button class="btn pri" data-act="negoSend">🔒 PASAR EL MÓVIL AL RIVAL</button>
+    <button class="btn gh" data-act="negoBack">CANCELAR</button>`});
+}
+function syncNego(){
+  const n = $('#bidNum'); if(n) n.textContent = money(S.nego.price);
+  const r = $('#negoRange'); if(r) r.value = S.nego.price;
+}
+ACT.negoAdj = t => { S.nego.price = clamp(round50(S.nego.price + (+t.dataset.d)), 0, 12000); syncNego(); SFX.tick(); };
+document.addEventListener('input', e=>{ if(e.target.id==='negoRange' && S && S.nego){ S.nego.price = round50(+e.target.value); syncNego(); } });
+ACT.negoSend = () => {
+  const n = S.nego, buyer = 1 - n.from;
+  handoff(buyer, 'Te han hecho una oferta. Decide en privado.', ()=>{
+    const p = P(n.from), it = p.inv[n.idx], b = P(buyer);
+    render({body:`<div class="stack">
+      <h2 class="gold">🤝 TE OFRECEN</h2>
+      <div class="plate"><div class="obj">${it.e}</div><h2 style="font-size:19px">${esc(it.name)}</h2>
+        <div class="chip gold" style="margin-top:8px">${CATS[it.cat].e} ${CATS[it.cat].n}</div>
+        <div class="hr" style="margin:10px 0"></div>
+        <div class="lbl">PRECIO PEDIDO</div><div class="bidnum">${money(n.price)}</div></div>
+      <div class="panel gilt"><div class="lbl gold">TU EFECTIVO</div>
+        <div class="num gold" style="font-size:26px">${money(b.cash)}</div>
+        <div class="tiny">${n.price>b.cash?'No te llega.':'Te quedarían '+money(b.cash-n.price)+'.'}</div></div>
+    </div>`, dock:`<div class="grid2">
+      <button class="btn dgr" data-act="negoNo">RECHAZAR</button>
+      <button class="btn pri" data-act="negoYes" ${n.price>b.cash?'disabled':''}>ACEPTAR</button></div>`});
+  });
+};
+ACT.negoNo = () => { if(!S.nego) return; S.nego = null; SFX.lose(); toast('❌ Oferta rechazada'); later(()=>negoIntro(), 700); };
+ACT.negoYes = () => {
+  const n = S.nego; if(!n) return;
+  S.nego = null;
+  const seller = P(n.from), buyer = RIVAL(n.from);
+  const it = seller.inv[n.idx];
+  if(!it || n.price > buyer.cash){ toast('La oferta ya no es válida'); return later(()=>negoIntro(), 500); }
+  seller.inv.splice(n.idx,1);
+  seller.cash += n.price; buyer.cash -= n.price;
+  it.paid = n.price; buyer.inv.push(it);
+  SFX.buy(); toast(`🤝 Trato cerrado por ${money(n.price)}`);
+  later(()=>negoIntro(), 900);
+};
+ACT.negoSwap = () => {
+  const n = S.nego, p = P(n.from), R = RIVAL(n.from);
+  render({body:`<div class="stack"><h2 class="gold">🔄 ¿QUÉ PIDES A CAMBIO?</h2>
+    <div class="stack" style="gap:8px">${R.inv.map((it,i)=>`<button class="btn" style="justify-content:flex-start;min-height:60px" data-act="swapPick" data-i="${i}">
+      <span class="btn-col" style="align-items:flex-start"><span>${it.e} ${esc(it.name)}</span><span class="sub">${CATS[it.cat].n}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="negoBack">VOLVER</button></div>`, dock:''});
+};
+ACT.swapPick = t => {
+  const n = S.nego; if(!n) return;
+  const i = +t.dataset.i;
+  n.swap = i;
+  const from = P(n.from), R = RIVAL(n.from);
+  handoff(1-n.from, 'Te proponen un intercambio.', ()=>{
+    const a = from.inv[n.idx], b = R.inv[i];
+    render({body:`<div class="stack"><h2 class="gold">🔄 INTERCAMBIO PROPUESTO</h2>
+      <div class="panel" style="text-align:center"><div class="lbl">TE DAN</div>
+        <div style="font-size:44px">${a.e}</div><b>${esc(a.name)}</b><div class="tiny">${CATS[a.cat].n}</div></div>
+      <div style="text-align:center;font-size:26px">⇅</div>
+      <div class="panel" style="text-align:center"><div class="lbl">ENTREGAS</div>
+        <div style="font-size:44px">${b.e}</div><b>${esc(b.name)}</b><div class="tiny">${CATS[b.cat].n}</div></div>
+    </div>`, dock:`<div class="grid2">
+      <button class="btn dgr" data-act="negoNo">RECHAZAR</button>
+      <button class="btn pri" data-act="swapYes">ACEPTAR</button></div>`});
+  });
+};
+ACT.swapYes = () => {
+  const n = S.nego; if(!n) return;
+  S.nego = null;
+  const from = P(n.from), R = RIVAL(n.from);
+  if(!from.inv[n.idx] || !R.inv[n.swap]){ toast('El intercambio ya no es válido'); return later(()=>negoIntro(), 500); }
+  const a = from.inv.splice(n.idx,1)[0], b = R.inv.splice(n.swap,1)[0];
+  from.inv.push(b); R.inv.push(a);
+  const ci = from.cards.findIndex(c=>c.k==='intercambio'); if(ci>=0) from.cards.splice(ci,1);
+  SFX.buy(); toast('🔄 Intercambio realizado');
+  later(()=>negoIntro(), 900);
+};
+</script>
+<script>
+/* ─── 20. HUB ENTRE LOTES + CARTERA ────────────────────────── */
+function hubScreen(){
+  clearTimers();
+  S.phase = 'PAUSA';
+  const nxt = S.round+1;
+  render({body:`<div class="stack">
+    <div style="text-align:center">
+      <div class="lbl gold">FIN DEL LOTE ${S.round}</div>
+      <h2>${nxt>25?'ÚLTIMO MARTILLAZO DADO':'QUEDAN '+(26-nxt)+' LOTES'}</h2>
+    </div>
+    <div class="grid2">
+      ${[0,1].map(i=>{const p=P(i);return `<div class="panel" style="border-color:var(--${i?'p2':'p1'})">
+        <div class="lbl ${i?'c2':'c1'}">${esc(p.name)}</div>
+        <div class="row sb" style="margin-top:6px"><span class="small">Objetos</span><span class="num">${p.inv.length}</span></div>
+        <div class="row sb"><span class="small">Reputación</span><span class="num">${p.rep.toFixed(1)}</span></div>
+        <div class="row sb"><span class="small">Lotes ganados</span><span class="num">${p.st.ganadas}</span></div>
+        <div class="row sb"><span class="small">Efectivo</span><span class="num tiny">${cashBand(p).e} ${cashBand(p).t}</span></div>
+      </div>`}).join('')}
+    </div>
+    <div class="tiny" style="text-align:center">Los objetos son públicos. El dinero, no.</div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="lbl gold">MARCADOR DEL PIQUE</div>
+      <div class="row sb" style="margin-top:2px">
+        <span class="bidnum sm" style="color:var(--p1-hi)">${S.feud[0]}</span>
+        <span class="ital gold">vs</span>
+        <span class="bidnum sm" style="color:var(--p2-hi)">${S.feud[1]}</span>
+      </div>
+      ${S.players.some(x=>x.st.racha>=2)?`<div class="chip risk" style="margin-top:8px">🔥 ${esc(S.players.find(x=>x.st.racha>=2).name)} LLEVA ${S.players.find(x=>x.st.racha>=2).st.racha} SEGUIDOS</div>`:''}
+    </div>
+    <div class="grid2">
+      <button class="btn p1 sm" data-act="wallet" data-p="0">💼 CARTERA</button>
+      <button class="btn p2 sm" data-act="wallet" data-p="1">💼 CARTERA</button>
+    </div>
+    <button class="btn gh" data-act="feudHub">😤 VER EL MARCADOR DEL PIQUE</button>
+  </div>`,
+  dock:`<button class="btn pri" data-act="nextRound">${nxt>25?'🏆 RECUENTO FINAL':'▶ SIGUIENTE LOTE ('+nxt+'/25)'}</button>
+    <button class="btn gh" data-act="pause">⏸ PAUSA / AJUSTES</button>`});
+}
+ACT.nextRound = () => startRound();
+ACT.wallet = t => {
+  const pid = +t.dataset.p; curP = pid;
+  handoff(pid, 'Tu cartera completa: dinero, objetos, cartas y misión.', ()=>renderWallet(pid));
+};
+function itemRange(it){
+  const v = trueValue(it) * (1 + it.bias*0.6);
+  const w = 0.10 + it.vol*0.3;
+  return {lo:round50(v*(1-w)), hi:round50(v*(1+w)), mid:v};
+}
+function renderWallet(pid){
+  const p = P(pid), col = pid?'p2':'p1';
+  const est = p.inv.reduce((a,i)=>a+itemRange(i).mid,0);
+  const inv = p.inv.length ? p.inv.map(it=>{
+    const r = itemRange(it), d = (r.mid/it.paid-1)*100;
+    return `<div class="inv"><div class="e">${it.e}</div>
+      <div style="flex:1"><div class="n">${esc(it.name)}${it.seguro?' 🛡️':''}</div>
+        <div class="tiny">Pagaste ${money(it.paid)} · ahora ${money(r.lo)}–${money(r.hi)}</div></div>
+      <div class="num ${d>0?'up':'down'}" style="font-size:13px">${pct(d)}</div></div>`;
+  }).join('') : '<div class="tiny">Todavía no has ganado ningún lote.</div>';
+  const sets = collections(p);
+  render({body:`<div class="stack">
+    <div class="row sb"><div class="lbl" style="color:var(--${col})">${esc(p.name)} · CARTERA</div>
+      <div class="chip">⭐ ${p.rep.toFixed(1)}</div></div>
+    <div class="panel gilt">
+      <div class="grid2">
+        <div><div class="lbl gold">💰 EFECTIVO</div><div class="num gold" style="font-size:24px">${money(p.cash)}</div></div>
+        <div><div class="lbl">📈 PATRIMONIO EST.</div><div class="num" style="font-size:24px">${money(p.cash+est-p.debt)}</div></div>
+      </div>
+      ${p.debt?`<div class="chip risk" style="margin-top:8px">🏦 DEUDA ${money(p.debt)}</div>`:''}
+      <canvas id="spark" height="70" style="width:100%;margin-top:10px;display:block"></canvas>
+      <div class="tiny">Evolución de tu patrimonio estimado, ronda a ronda.</div>
+    </div>
+    <div class="panel"><div class="lbl gold">📦 INVENTARIO (${p.inv.length})</div>
+      <div class="stack" style="gap:6px;margin-top:8px">${inv}</div></div>
+    <div class="panel"><div class="lbl gold">🧩 COLECCIONES EN CURSO</div>
+      <div class="stack" style="gap:6px;margin-top:8px">${sets.detail.length?sets.detail.map(d=>`<div class="row sb"><span class="small">${d.n}</span><span class="num ${d.pts?'up':''}">${d.pts?'+'+d.pts:d.prog}</span></div>`).join(''):'<div class="tiny">Ninguna todavía. Junta objetos de la misma familia.</div>'}</div></div>
+    <div class="panel"><div class="lbl gold">🎯 MISIÓN SECRETA</div>
+      <div class="small" style="margin-top:6px">${p.obj.t} <b class="gold">(+${p.obj.p})</b></div></div>
+    <div class="panel"><div class="lbl gold">🃏 CARTAS (${p.cards.length})</div>
+      <div class="grid2" style="margin-top:8px">${p.cards.length?p.cards.map(c=>cardHTML(c,false)).join(''):'<div class="tiny">Sin cartas.</div>'}</div></div>
+    <div class="panel"><div class="lbl gold">📊 HISTORIAL</div>
+      <div class="grid2" style="margin-top:6px">
+        <div class="small">Lotes ganados <b class="num">${p.st.ganadas}</b></div>
+        <div class="small">Gastado <b class="num">${money(p.st.gastado)}</b></div>
+        <div class="small">Mayor puja <b class="num">${money(p.st.maxPuja||0)}</b></div>
+        <div class="small">Faroles <b class="num">${p.st.faroles}</b></div>
+      </div></div>
+    ${p.loans<2?`<button class="btn dgr" data-act="loan">🏦 PEDIR €2.000 (DEVUELVES €2.600)</button>`:'<div class="tiny">Ya no te dan más crédito.</div>'}
+  </div>`, dock:`<button class="btn pri" data-act="walletClose">CERRAR CARTERA</button>`});
+  drawSpark(p);
+}
+ACT.loan = () => {
+  const p = P(curP);
+  if(p.loans>=2) return;
+  p.cash += 2000; p.debt += 2600; p.loans++; p.rep = clamp(p.rep-0.5,0,10);
+  SFX.coin(); toast('🏦 +€2.000 · deuda +€2.600');
+  renderWallet(curP);
+};
+ACT.walletClose = () => hubScreen();
+function drawSpark(p){
+  const c = $('#spark'); if(!c) return;
+  const w = c.clientWidth || 300, h = 70;
+  c.width = w*2; c.height = h*2;
+  const x = c.getContext('2d'); x.scale(2,2);
+  const d = p.hist.slice(-14);
+  if(d.length<2) return;
+  const mn = Math.min(...d)*0.95, mx = Math.max(...d)*1.05, rg = Math.max(1,mx-mn);
+  const px = i => i/(d.length-1)*(w-6)+3, py = v => h-4-((v-mn)/rg)*(h-12);
+  x.beginPath(); x.moveTo(px(0), h);
+  d.forEach((v,i)=>x.lineTo(px(i), py(v)));
+  x.lineTo(px(d.length-1), h); x.closePath();
+  const g = x.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'rgba(201,162,39,.35)'); g.addColorStop(1,'rgba(201,162,39,0)');
+  x.fillStyle = g; x.fill();
+  x.beginPath(); d.forEach((v,i)=> i?x.lineTo(px(i),py(v)):x.moveTo(px(i),py(v)));
+  x.strokeStyle = '#F2DA92'; x.lineWidth = 2; x.stroke();
+  x.beginPath(); x.arc(px(d.length-1), py(d[d.length-1]), 3.5, 0, 7); x.fillStyle='#F2DA92'; x.fill();
+}
+
+/* ─── 21. COLECCIONES ──────────────────────────────────────── */
+function collections(p, finalMode){
+  const detail = [], byCat = {}, bySet = {};
+  p.inv.forEach(it=>{
+    byCat[it.cat] = (byCat[it.cat]||0)+1;
+    if(it.set) bySet[it.set] = (bySet[it.set]||0)+1;
+    if(finalMode && it.fake) { it.penal = true; }
+  });
+  let total = 0, best = 0;
+  Object.keys(byCat).forEach(c=>{
+    const n = byCat[c];
+    let pts = 0;
+    if(n>=5) pts = 900; else if(n>=4) pts = 560; else if(n>=3) pts = 300;
+    if(pts){ total += pts; best = Math.max(best,pts);
+      detail.push({n:`${CATS[c].e} ${n} × ${CATS[c].n}`, pts}); }
+    else if(n===2) detail.push({n:`${CATS[c].e} ${CATS[c].n}`, pts:0, prog:`${n}/3`});
+  });
+  Object.keys(bySet).forEach(k=>{
+    const s = SETS[k], n = bySet[k];
+    let pts = 0;
+    if(n>=s.full) pts = s.fullBonus; else if(n>=s.need) pts = s.bonus;
+    if(pts){
+      const fakes = p.inv.filter(i=>i.set===k && i.fake).length;
+      if(fakes){ pts = Math.max(0, pts - 200*fakes); detail.push({n:`${s.e} ${s.n} (pieza falsa)`, pts}); }
+      else detail.push({n:`${s.e} ${s.n} ${n>=s.full?'COMPLETA':''}`, pts});
+      total += pts; best = Math.max(best,pts);
+    } else detail.push({n:`${s.e} ${s.n}`, pts:0, prog:`${n}/${s.need}`});
+  });
+  if(p.doble && best){ total += best; detail.push({n:'⚡ DOBLE (mejor colección ×2)', pts:best}); }
+  return {total, detail, best};
+}
+</script>
+<script>
+/* ─── 22. RECUENTO FINAL ───────────────────────────────────── */
+function resolveAll(){
+  S.players.forEach(p=>{
+    p.inv.forEach(it=>{
+      let mult = 1; const notes = [];
+      const seg = it.seguro;
+      if(it.risk.includes('A')){
+        if(seg){ notes.push({i:'🛡️', t:'PERITADO Y AUTÉNTICO'}); }
+        else if(Math.random() < 0.24){ it.fake = true; mult *= 0.13; notes.push({i:'❌', t:'FALSIFICACIÓN'}); }
+        else notes.push({i:'✅', t:'AUTENTICIDAD CONFIRMADA'});
+      }
+      if(it.risk.includes('V') && !it.fake){
+        const v = seg ? rnd(1.0,1.7) : rnd(.55,1.85);
+        mult *= v;
+        notes.push(v>1.15?{i:'🚀',t:'SE DISPARA'}:v<0.85?{i:'📉',t:'SE DESPLOMA'}:{i:'〰️',t:'AGUANTA EL TIPO'});
+      }
+      if(it.risk.includes('M') && !it.fake){ const v = rnd(.80,1.22); mult *= v; notes.push(v>1?{i:'📈',t:'MERCADO A FAVOR'}:{i:'📉',t:'MERCADO EN CONTRA'}); }
+      if(it.risk.includes('D') && !it.fake){ const v = rnd(.82,1.06); mult *= v; notes.push({i:'💧',t:'DEMANDA FLOJA'}); }
+      if(!it.risk){ mult *= rnd(.93,1.15); }
+      if(it.legend && !it.fake){ mult *= 1.12; notes.push({i:'👑',t:'PIEZA LEGENDARIA'}); }
+      it.finalVal = Math.max(50, Math.round(trueValue(it) * mult));
+      it.notes = notes.length?notes:[{i:'⚖️',t:'SIN SORPRESAS'}];
+      it.delta = (it.finalVal/Math.max(1,it.paid)-1)*100;
+    });
+  });
+}
+function scorePlayer(p){
+  const invVal = p.inv.reduce((a,i)=>a+i.finalVal,0);
+  const pat = Math.round(p.cash + invVal - p.debt);
+  const col = collections(p, true);
+  const objOk = (()=>{ try{ return !!p.obj.chk(p, RIVAL(p.id)); }catch(e){ return false; } })();
+  const repPts = Math.round(p.rep*10);
+  const legPts = p.inv.filter(i=>i.legend).length*60;
+  const penal = p.st.curse*25 + p.inv.filter(i=>i.fake).length*40;
+  const pts = Math.round(pat/30) + col.total + repPts + (objOk?p.obj.p:0) + legPts + p.st.prestigio - penal;
+  const deltas = p.inv.map(i=>({n:i.name, e:i.e, d:i.delta}));
+  const best = deltas.length ? deltas.reduce((a,b)=>b.d>a.d?b:a) : null;
+  const worst = deltas.length ? deltas.reduce((a,b)=>b.d<a.d?b:a) : null;
+  const dearest = p.inv.length ? p.inv.reduce((a,b)=>b.paid>a.paid?b:a) : null;
+  return {pat, invVal, col, objOk, repPts, legPts, penal, pts, best, worst, dearest};
+}
+function finale(){
+  clearTimers();
+  S.phase = 'FINAL';
+  resolveAll();
+  S.score = [scorePlayer(P(0)), scorePlayer(P(1))];
+  topbar.classList.add('hide');
+  const seq = ['3','2','1','CERRADO'];
+  let k = 0;
+  const paint = () => {
+    stage.innerHTML = ''; dock.innerHTML = '';
+    const b = document.createElement('div');
+    b.className = 'blackout';
+    const last = k === seq.length-1;
+    b.innerHTML = last
+      ? `<div class="count" style="font-size:44px">SUBASTA<br>CERRADA</div><div class="lbl gold">EMPIEZA EL RECUENTO</div>`
+      : `<div class="count">${seq[k]}</div><div class="lbl gold">EL MARTILLO CAE POR ÚLTIMA VEZ</div>`;
+    $('#shell').appendChild(b);
+    if(last) SFX.end(); else AU.tone(220 + k*90, .4, 'sine', .16);
+    AU.vibrate(40);
+    k++;
+    setTimeout(()=>{ b.remove(); if(k < seq.length) paint(); else revealItems(0); }, last?1500:900);
+  };
+  paint();
+}
+function revealItems(pid){
+  const p = P(pid), col = pid?'p2':'p1';
+  if(!p.inv.length){
+    render({top:null, body:`<div class="stack" style="padding-top:50px;text-align:center">
+      <div style="font-size:56px">🕳️</div>
+      <h2 style="color:var(--${col}-hi)">${esc(p.name)}</h2>
+      <p class="small">No ha comprado absolutamente nada. Un titán muy prudente… o muy cobarde.</p>
+    </div>`, dock:`<button class="btn pri" data-act="revNext" data-p="${pid}">CONTINUAR</button>`});
+    return;
+  }
+  let i = 0;
+  const paint = () => {
+    const rows = p.inv.map((it,k)=>{
+      if(k>i) return `<div class="inv" style="opacity:.25"><div class="e">🎁</div><div style="flex:1"><div class="n">· · ·</div></div></div>`;
+      return `<div class="inv ${k===i?'pop':''}" style="border-color:${it.delta>0?'var(--up)':'var(--down)'}">
+        <div class="e">${it.e}</div>
+        <div style="flex:1"><div class="n">${esc(it.name)}</div>
+          <div class="tiny">${it.notes.map(x=>x.i+' '+x.t).join(' · ')}</div>
+          <div class="tiny">Pagó ${money(it.paid)} → vale ${money(it.finalVal)}</div></div>
+        <div class="num ${it.delta>0?'up':'down'}" style="font-size:15px">${pct(it.delta)}</div></div>`;
+    }).join('');
+    render({top:null, body:`<div class="stack">
+      <div style="text-align:center"><div class="lbl gold">TASACIÓN FINAL</div>
+        <h2 style="color:var(--${col}-hi)">${esc(p.name)}</h2></div>
+      <div class="stack" style="gap:6px">${rows}</div>
+    </div>`, dock: i>=p.inv.length-1 ? `<button class="btn pri" data-act="revNext" data-p="${pid}">CONTINUAR</button>` : ''});
+    const it = p.inv[i];
+    if(it) { it.delta>0 ? SFX.up() : SFX.down(); }
+    i++;
+    if(i<p.inv.length) later(paint, 1150);
+  };
+  paint();
+}
+ACT.revNext = t => { const pid = +t.dataset.p; if(pid===0) revealItems(1); else showPatrimonio(); };
+function showPatrimonio(){
+  clearTimers();
+  const s = S.score;
+  render({top:null, body:`<div class="stack" style="padding-top:20px;text-align:center">
+    <div style="font-size:44px">💰</div>
+    <div class="lbl gold">PATRIMONIO FINAL</div>
+    <div class="panel gilt" style="border-color:var(--p1)">
+      <div class="lbl c1">${esc(P(0).name)}</div>
+      <div class="bidnum pop" style="color:var(--p1-hi)">${money(s[0].pat)}</div>
+      <div class="tiny">efectivo ${money(P(0).cash)} · objetos ${money(s[0].invVal)}${P(0).debt?` · deuda −${money(P(0).debt)}`:''}</div>
+    </div>
+    <div class="panel gilt" style="border-color:var(--p2)">
+      <div class="lbl c2">${esc(P(1).name)}</div>
+      <div class="bidnum pop" style="color:var(--p2-hi)">${money(s[1].pat)}</div>
+      <div class="tiny">efectivo ${money(P(1).cash)} · objetos ${money(s[1].invVal)}${P(1).debt?` · deuda −${money(P(1).debt)}`:''}</div>
+    </div>
+    <div class="tiny">Pero el patrimonio no lo es todo. Faltan las colecciones, la reputación y las misiones secretas.</div>
+  </div>`, dock:`<button class="btn pri" data-act="showPts">⭐ VER LOS PUNTOS</button>`});
+  SFX.coin();
+}
+ACT.showPts = () => {
+  const s = S.score;
+  const block = i => {
+    const p = P(i), x = s[i];
+    return `<div class="panel gilt" style="border-color:var(--${i?'p2':'p1'})">
+      <div class="row sb"><div class="lbl ${i?'c2':'c1'}">${esc(p.name)}</div>
+        <div class="num" style="font-size:28px;color:var(--${i?'p2':'p1'}-hi)">${x.pts}</div></div>
+      <div class="hr" style="margin:8px 0"></div>
+      <div class="row sb small"><span>Patrimonio ÷ 30</span><span class="num">${Math.round(x.pat/30)}</span></div>
+      <div class="row sb small"><span>Colecciones</span><span class="num ${x.col.total?'up':''}">+${x.col.total}</span></div>
+      <div class="row sb small"><span>Reputación (${p.rep.toFixed(1)})</span><span class="num">+${x.repPts}</span></div>
+      <div class="row sb small"><span>Piezas legendarias</span><span class="num">+${x.legPts}</span></div>
+      ${p.st.prestigio?`<div class="row sb small"><span>👑 Prestigio (hora de los titanes)</span><span class="num up">+${p.st.prestigio}</span></div>`:''}
+      <div class="row sb small"><span>Misión secreta</span><span class="num ${x.objOk?'up':'down'}">${x.objOk?'+'+p.obj.p:'0'}</span></div>
+      ${x.penal?`<div class="row sb small"><span>Penalizaciones</span><span class="num down">−${x.penal}</span></div>`:''}
+      <div class="tiny" style="margin-top:6px">🎯 ${p.obj.t}</div>
+      ${x.col.detail.filter(d=>d.pts).length?`<div class="tiny" style="margin-top:4px">${x.col.detail.filter(d=>d.pts).map(d=>d.n+' +'+d.pts).join(' · ')}</div>`:''}
+    </div>`;
+  };
+  render({top:null, body:`<div class="stack" style="padding-top:10px">
+    <div style="text-align:center"><div style="font-size:40px">⭐</div><div class="lbl gold">PUNTOS DE TITÁN</div></div>
+    ${block(0)}${block(1)}
+  </div>`, dock:`<button class="btn pri" data-act="showWinner">🏆 REVELAR AL GANADOR</button>`});
+  SFX.up();
+};
+ACT.showWinner = () => {
+  const s = S.score;
+  let w;
+  if(s[0].pts !== s[1].pts) w = s[0].pts > s[1].pts ? 0 : 1;
+  else if(s[0].pat !== s[1].pat) w = s[0].pat > s[1].pat ? 0 : 1;
+  else w = -1;
+  S.winner = w;
+  const p = w>=0 ? P(w) : null, x = w>=0 ? s[w] : null;
+  const col = w?'p2':'p1';
+  const serie = w>=0 ? addSerie(P(w).name) : getSerie();
+  const sNames = Object.keys(serie).sort((a,b)=>serie[b]-serie[a]);
+  const serieHTML = sNames.length ? `<div class="panel gilt">
+      <div class="lbl gold">LA SERIE ENTRE VOSOTROS</div>
+      <div class="row sb" style="margin-top:6px">
+        ${sNames.map(n=>`<div style="text-align:center;flex:1"><div class="num gold" style="font-size:26px">${serie[n]}</div><div class="tiny">${esc(n)}</div></div>`).join('<div class="ital gold">–</div>')}
+      </div>
+      <div class="tiny" style="margin-top:6px">${sNames.length>1 && serie[sNames[0]]===serie[sNames[1]] ? 'Empate en la serie. Esto no puede quedar así.' : 'La revancha se juega ahora mismo.'}</div>
+    </div>` : '';
+  const body = w<0 ? `<div class="stack" style="padding-top:40px;text-align:center">
+      <div style="font-size:60px">🤝</div><h1 class="gold">EMPATE TÉCNICO</h1>
+      <p class="small">Dos titanes exactamente iguales. La casa se niega a decidir.</p></div>`
+   : `<div class="stack" style="padding-top:8px;text-align:center">
+      <div style="font-size:56px" class="pop">🏆</div>
+      <div class="lbl gold">VICTORIA</div>
+      <h1 style="color:var(--${col}-hi);font-size:38px">${esc(p.name)}</h1>
+      <div class="panel gilt">
+        <div class="grid2" style="text-align:left">
+          <div><div class="lbl">PATRIMONIO</div><div class="num gold" style="font-size:22px">${money(x.pat)}</div></div>
+          <div><div class="lbl">PUNTOS</div><div class="num gold" style="font-size:22px">${x.pts}</div></div>
+          <div><div class="lbl">COLECCIONES</div><div class="num up" style="font-size:18px">+${x.col.total}</div></div>
+          <div><div class="lbl">REPUTACIÓN</div><div class="num up" style="font-size:18px">+${x.repPts}</div></div>
+        </div>
+        <div class="hr" style="margin:10px 0"></div>
+        <div class="row sb"><span class="small">Operaciones</span><span class="num">${p.st.ganadas}</span></div>
+        <div class="row sb"><span class="small">Mejor compra</span><span class="num up">${x.best?x.best.e+' '+pct(x.best.d):'—'}</span></div>
+        <div class="row sb"><span class="small">Peor compra</span><span class="num down">${x.worst?x.worst.e+' '+pct(x.worst.d):'—'}</span></div>
+      </div>
+      ${serieHTML}
+      <div class="panel" style="border-color:var(--${w?'p1':'p2'})">
+        <div class="lbl ${w?'c1':'c2'}">${esc(P(1-w).name)}</div>
+        <div class="small">Se queda a <b class="gold">${s[w].pts - s[1-w].pts} puntos</b> con un patrimonio de <b>${money(s[1-w].pat)}</b>.</div>
+        <div class="tiny" style="margin-top:4px">La revancha se juega ahora mismo.</div>
+      </div>
+    </div>`;
+  render({top:null, body, dock:`<button class="btn pri" data-act="showStats">📊 ESTADÍSTICAS COMPLETAS</button>`});
+  if(w>=0){ SFX.win(); confetti(); AU.vibrate([80,50,80,50,220]); } else SFX.end();
+  const best = s[0].pat>s[1].pat?0:1;
+  recordGame({winner: w>=0?P(w).name:'EMPATE', bestPat:s[best].pat,
+    maxPuja:Math.max(P(0).st.maxPuja,P(1).st.maxPuja), bestCol:Math.max(s[0].col.total,s[1].col.total)});
+};
+ACT.showStats = () => {
+  const s = S.score;
+  const line = (l, f) => `<div class="row sb" style="padding:6px 0;border-bottom:1px solid var(--line)">
+      <span class="num c1" style="width:33%;font-size:13px">${f(0)}</span>
+      <span class="tiny" style="text-align:center;flex:1">${l}</span>
+      <span class="num c2" style="width:33%;text-align:right;font-size:13px">${f(1)}</span></div>`;
+  render({top:null, body:`<div class="stack">
+    <h2 class="gold" style="text-align:center">📊 EL BALANCE</h2>
+    <div class="row sb"><span class="lbl c1">${esc(P(0).name)}</span><span class="lbl c2">${esc(P(1).name)}</span></div>
+    <div class="panel">
+      ${line('PATRIMONIO', i=>money(s[i].pat))}
+      ${line('PUNTOS', i=>s[i].pts)}
+      ${line('LOTES GANADOS', i=>P(i).st.ganadas)}
+      ${line('DINERO GASTADO', i=>money(P(i).st.gastado))}
+      ${line('DINERO RESTANTE', i=>money(P(i).cash))}
+      ${line('MAYOR PUJA', i=>money(P(i).st.maxPuja||0))}
+      ${line('OBJETO MÁS CARO', i=>s[i].dearest?s[i].dearest.e+' '+money(s[i].dearest.paid):'—')}
+      ${line('MEJOR INVERSIÓN', i=>s[i].best?pct(s[i].best.d):'—')}
+      ${line('PEOR INVERSIÓN', i=>s[i].worst?pct(s[i].worst.d):'—')}
+      ${line('MEJOR COLECCIÓN', i=>'+'+s[i].col.best)}
+      ${line('REPUTACIÓN', i=>P(i).rep.toFixed(1))}
+      ${line('DEUDA', i=>money(P(i).debt))}
+      ${line('FAROLES', i=>P(i).st.faroles)}
+      ${line('PROVOCACIONES', i=>P(i).st.taunts)}
+      ${line('CARTAS JUGADAS', i=>P(i).st.cartas)}
+      ${line('REMONTADAS', i=>P(i).st.remontadas)}
+      ${line('GOLPES DIRECTOS', i=>S.feud[i])}
+      ${line('ROBOS DE LOTE', i=>P(i).st.robos)}
+      ${line('DUELOS DE PULGAR', i=>P(i).st.duelos)}
+      ${line('APUESTAS GANADAS', i=>P(i).st.apuestas)}
+      ${line('RACHAS CORTADAS', i=>P(i).st.cortes)}
+      ${line('PRIMA DE PICADOR', i=>money(P(i).st.primas))}
+      ${line('MEJOR RACHA', i=>P(i).st.maxRacha)}
+      ${line('MISIÓN SECRETA', i=>s[i].objOk?'✅':'❌')}
+    </div>
+    <div class="panel"><div class="lbl gold">MISIONES REVELADAS</div>
+      <div class="small" style="margin-top:6px"><b class="c1">${esc(P(0).name)}</b>: ${P(0).obj.t}</div>
+      <div class="small"><b class="c2">${esc(P(1).name)}</b>: ${P(1).obj.t}</div></div>
+    <div class="panel"><div class="lbl gold">EVENTOS DE LA PARTIDA</div>
+      <div class="tiny" style="margin-top:6px">${S.eventLog.length?S.eventLog.join(' · '):'Un mercado inusualmente tranquilo.'}</div></div>
+  </div>`, dock:`<button class="btn pri" data-act="revancha">🔁 REVANCHA${(()=>{const se=getSerie(),k=Object.keys(se);
+      return k.length>1?` · VAS ${se[P(0).name]||0}–${se[P(1).name]||0}`:'';})()}</button>
+    <button class="btn gh" data-act="goMenu">SALIR AL MENÚ</button>`});
+};
+ACT.revancha = () => {
+  const n1 = P(0).name, n2 = P(1).name;
+  newGame(n1,n2);
+  S.players[0].name = n1; S.players[1].name = n2;
+  S.briefStage = 0;
+  SFX.buy();
+  briefing(0);
+};
+
+/* ─── 23. CONFETI ──────────────────────────────────────────── */
+function confetti(){
+  const c = $('#fx'), sh = $('#shell');
+  const w = sh.clientWidth, h = sh.clientHeight;
+  c.width = w*2; c.height = h*2;
+  const x = c.getContext('2d'); x.scale(2,2);
+  const cols = ['#F2DA92','#C9A227','#D9534B','#5C86D6','#F4EADA'];
+  const ps = [];
+  for(let i=0;i<130;i++) ps.push({x:Math.random()*w, y:-Math.random()*h*.6, vy:rnd(1.4,4.2), vx:rnd(-1,1),
+    s:rnd(4,9), r:Math.random()*6, vr:rnd(-.2,.2), c:pick(cols)});
+  let f = 0;
+  const loop = () => {
+    x.clearRect(0,0,w,h);
+    ps.forEach(p=>{
+      p.y += p.vy; p.x += p.vx; p.r += p.vr;
+      if(p.y > h+20){ p.y = -20; p.x = Math.random()*w; }
+      x.save(); x.translate(p.x,p.y); x.rotate(p.r);
+      x.fillStyle = p.c; x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.62); x.restore();
+    });
+    f++;
+    if(f<420) requestAnimationFrame(loop); else x.clearRect(0,0,w,h);
+  };
+  loop();
+}
+
+/* ─── 24. ARRANQUE ─────────────────────────────────────────── */
+screenMenu();
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   25. MÓDULO DE PIQUE — apuestas, duelos de pulgar, provocaciones
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── LA HORA DE LOS TITANES ───────────────────────────────── */
+function screenTitanHour(){
+  SFX.win();
+  render({top:null, body:`<div class="stack" style="padding-top:36px;text-align:center">
+    <div style="font-size:64px" class="pop">👑</div>
+    <h1 class="gold">LA HORA DE<br>LOS TITANES</h1>
+    <p class="small">Quedan cinco lotes. A partir de aquí todo pesa el doble.</p>
+    <div class="panel gilt" style="text-align:left">
+      <div class="stack" style="gap:10px">
+        <div><b class="gold">+150 puntos de prestigio</b><div class="tiny">para quien se lleve cada uno de los cinco lotes que quedan.</div></div>
+        <div><b class="gold">Rentas dobladas</b><div class="tiny">vais a tener dinero para pelear hasta el último martillazo.</div></div>
+        <div><b class="gold">Apuestas de hasta €2.000</b><div class="tiny">si os queda algo que demostrar.</div></div>
+      </div>
+    </div>
+    <div class="tiny">750 puntos en juego. Aquí se decide la partida.</div>
+  </div>`, dock:`<button class="btn pri" data-act="titanGo">QUE EMPIECE</button>`});
+}
+ACT.titanGo = () => screenNews();
+
+/* ─── APUESTA PARALELA ─────────────────────────────────────── */
+ACT.betOpen = () => {
+  render({body:`<div class="stack">
+    <div style="text-align:center"><div style="font-size:44px">🎲</div>
+      <h2 class="gold">APUESTA PARALELA</h2>
+      <p class="small">Apostáis entre vosotros sobre el precio final de este lote. No cambia quién se lo lleva: cambia quién se ríe.</p></div>
+    <div class="lbl gold" style="text-align:center">¿QUIÉN LANZA EL RETO?</div>
+    <button class="btn p1" data-act="betBy" data-p="0">${esc(P(0).name)}</button>
+    <button class="btn p2" data-act="betBy" data-p="1">${esc(P(1).name)}</button>
+  </div>`, dock:`<button class="btn gh" data-act="backNews">MEJOR NO</button>`});
+};
+ACT.betBy = t => {
+  const by = +t.dataset.p, est = estimate(S.lot);
+  S.bet = {by, side:1, line:round50(est.mid*0.75), stake:500, accepted:false};
+  betEdit();
+};
+function betEdit(){
+  const b = S.bet; if(!b) return screenNews();
+  const max = S.round>=21 ? 2000 : 1000;
+  render({body:`<div class="stack">
+    <div class="row sb"><div class="lbl ${b.by?'c2':'c1'}">RETO DE ${esc(P(b.by).name)}</div>
+      <div class="chip gold">${S.lot.e} LOTE ${S.round}</div></div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="lbl gold">EL PRECIO FINAL SERÁ</div>
+      <div class="grid2" style="margin:8px 0">
+        <button class="btn ${b.side>0?'pri':'gh'}" data-act="betSide" data-v="1">📈 MÁS DE</button>
+        <button class="btn ${b.side<0?'pri':'gh'}" data-act="betSide" data-v="-1">📉 MENOS DE</button>
+      </div>
+      <div class="bidnum" id="betLine">${money(b.line)}</div>
+      <input type="range" id="betRange" min="200" max="14000" step="100" value="${b.line}">
+      <div class="grid3">
+        <button class="btn sm" data-act="betAdj" data-d="-1000" data-quiet="1">−1000</button>
+        <button class="btn sm" data-act="betAdj" data-d="-250" data-quiet="1">−250</button>
+        <button class="btn sm" data-act="betAdj" data-d="-100" data-quiet="1">−100</button>
+        <button class="btn sm" data-act="betAdj" data-d="100" data-quiet="1">+100</button>
+        <button class="btn sm" data-act="betAdj" data-d="250" data-quiet="1">+250</button>
+        <button class="btn sm" data-act="betAdj" data-d="1000" data-quiet="1">+1000</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="lbl gold">TE JUEGAS</div>
+      <div class="grid3" style="margin-top:8px">
+        ${[250,500,1000,2000].filter(v=>v<=max).map(v=>`<button class="btn ${b.stake===v?'pri':'gh'} sm" data-act="betStake" data-v="${v}">${money(v)}</button>`).join('')}
+      </div>
+    </div>
+    <div class="tiny" style="text-align:center">Si el lote queda desierto, la apuesta se anula.</div>
+  </div>`, dock:`<button class="btn pri" data-act="betSend">LANZAR EL RETO</button>
+    <button class="btn gh" data-act="betCancel">CANCELAR</button>`});
+}
+ACT.betSide = t => { if(!S.bet) return; S.bet.side = +t.dataset.v; SFX.tick(); betEdit(); };
+ACT.betStake = t => { if(!S.bet) return; S.bet.stake = +t.dataset.v; SFX.coin(); betEdit(); };
+ACT.betAdj = t => {
+  if(!S.bet) return;
+  S.bet.line = clamp(round50(S.bet.line + (+t.dataset.d)), 200, 14000);
+  const e = $('#betLine'); if(e) e.textContent = money(S.bet.line);
+  const r = $('#betRange'); if(r) r.value = S.bet.line;
+  SFX.tick();
+};
+document.addEventListener('input', e=>{
+  if(e.target.id==='betRange' && S && S.bet){
+    S.bet.line = round50(+e.target.value);
+    const l = $('#betLine'); if(l) l.textContent = money(S.bet.line);
+  }
+});
+ACT.betCancel = () => { S.bet = null; screenNews(); };
+ACT.betSend = () => {
+  const b = S.bet; if(!b) return screenNews();
+  const r = 1 - b.by;
+  SFX.event();
+  render({body:`<div class="stack" style="padding-top:20px;text-align:center">
+    <div style="font-size:48px">🎲</div>
+    <div class="lbl ${b.by?'c2':'c1'}">${esc(P(b.by).name)} TE RETA</div>
+    <div class="panel gilt">
+      <div class="small">${esc(S.lot.name)} se rematará por</div>
+      <h2 class="gold" style="font-size:26px">${b.side>0?'MÁS':'MENOS'} DE ${money(b.line)}</h2>
+      <div class="hr" style="margin:10px 0"></div>
+      <div class="lbl">SE JUEGA</div>
+      <div class="num gold" style="font-size:28px">${money(b.stake)}</div>
+    </div>
+    <div class="lbl" style="color:var(--${r?'p2':'p1'})">${esc(P(r).name)}, ¿aceptas?</div>
+    <div class="tiny">Si aceptas, pagas o cobras al caer el martillo.</div>
+  </div>`,
+  dock:`<div class="grid2">
+      <button class="btn dgr" data-act="betNo">ME RAJO</button>
+      <button class="btn pri" data-act="betYes">ACEPTO</button></div>`});
+};
+ACT.betNo = () => {
+  const b = S.bet; if(!b) return;
+  S.bet = null;
+  SFX.lose();
+  toast(`🐔 ${esc(P(1-b.by).name)} no acepta el reto`, 2600);
+  later(()=>screenNews(), 800);
+};
+ACT.betYes = () => {
+  const b = S.bet; if(!b || b.accepted) return;
+  const r = 1 - b.by;
+  if(b.stake > P(r).cash || b.stake > P(b.by).cash){
+    toast('❌ Uno de los dos no cubre esa apuesta'); return;
+  }
+  b.accepted = true;
+  SFX.buy();
+  toast('🎲 Apuesta cerrada. Que gane el mejor.', 2400);
+  later(()=>screenNews(), 800);
+};
+function resolveBet(price){
+  const b = S.bet;
+  if(!b || !b.accepted) return null;
+  const win = b.side > 0 ? (price > b.line) : (price < b.line);
+  const w = win ? b.by : 1 - b.by, l = 1 - w;
+  const stake = Math.min(b.stake, Math.floor(P(l).cash));
+  P(w).cash += stake; P(l).cash -= stake;
+  P(w).st.apuestas++;
+  feud(w, 1, 'apuesta');
+  S.bet = null;
+  return {w, l, stake, line:b.line, side:b.side};
+}
+
+/* ─── PROVOCACIONES ────────────────────────────────────────── */
+const TAUNTLINES = [
+  'Eso lo vas a pagar caro.',
+  'Te lo dejo. No vale nada.',
+  'Sé algo de este lote que tú no sabes.',
+  'Tienes menos dinero del que aparentas.',
+  'Puja otra vez, anda. Atrévete.',
+  'Ese lote ya es mío. Acéptalo.',
+  'Llevo toda la partida leyéndote.',
+  'Vas a llorar en el recuento final.'
+];
+function tauntPicker(pid, ret){
+  S.tauntRet = ret;
+  render({top:null, body:`<div class="stack" style="padding-top:14px">
+    <div style="text-align:center"><div style="font-size:40px">😈</div>
+      <div class="lbl" style="color:var(--${pid?'p2':'p1'})">${esc(P(pid).name)}, suéltalo</div></div>
+    <div class="stack" style="gap:8px">
+      ${TAUNTLINES.map((l,i)=>`<button class="btn ${pid?'p2':'p1'} sm" style="justify-content:flex-start;text-transform:none;font-size:14px;letter-spacing:0" data-act="tauntSay" data-p="${pid}" data-i="${i}">“${l}”</button>`).join('')}
+    </div>
+  </div>`, dock:`<button class="btn gh" data-act="tauntBack">CALLARME</button>`});
+}
+ACT.tauntSay = t => {
+  const pid = +t.dataset.p, line = TAUNTLINES[+t.dataset.i], R = RIVAL(pid);
+  P(pid).st.taunts++;
+  if(S.A && S.phase==='SUBASTA') P(pid).taunted = true;
+  R.rencor = Math.min(5, R.rencor + 1);
+  SFX.outbid(); AU.vibrate([25,40,25]);
+  render({top:null, body:`<div class="stack" style="padding-top:70px;text-align:center">
+    <div class="lbl" style="color:var(--${pid?'p2':'p1'})">${esc(P(pid).name)} DICE</div>
+    <h1 class="pop" style="font-size:34px;color:var(--${pid?'p2':'p1'}-hi);line-height:1.15">“${line}”</h1>
+    <div class="chip risk" style="margin:0 auto">😤 ${esc(R.name)} +1 DE RENCOR (${R.rencor}/5)</div>
+    <div class="tiny">Con 3 de rencor se desbloquea el golpe de venganza.<br>Provocar y luego perder el lote cuesta reputación.</div>
+  </div>`,
+  dock:`<button class="btn ${pid?'p1':'p2'}" data-act="tauntSay2" data-p="${1-pid}">😤 RESPONDER</button>
+        <button class="btn gh" data-act="tauntBack">SEGUIR CON LA SUBASTA</button>`});
+};
+ACT.tauntSay2 = t => tauntPicker(+t.dataset.p, S.tauntRet);
+ACT.tauntBack = () => {
+  const r = S.tauntRet;
+  if(r === 'result') return screenResult();
+  if(r === 'hub') return hubScreen();
+  return renderOpen();
+};
+
+/* ─── MARCADOR DEL PIQUE ───────────────────────────────────── */
+function feudScreen(back){
+  const serie = getSerie();
+  const sNames = Object.keys(serie);
+  const row = (l, f) => `<div class="row sb" style="padding:6px 0;border-bottom:1px solid var(--line)">
+      <span class="num c1" style="width:26%;font-size:15px">${f(0)}</span>
+      <span class="tiny" style="text-align:center;flex:1">${l}</span>
+      <span class="num c2" style="width:26%;text-align:right;font-size:15px">${f(1)}</span></div>`;
+  render({body:`<div class="stack">
+    <div style="text-align:center"><div style="font-size:40px">😤</div><h2 class="gold">EL MARCADOR DEL PIQUE</h2>
+      <div class="tiny">No es dinero. Es orgullo.</div></div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="row sb"><span class="lbl c1">${esc(P(0).name)}</span><span class="lbl">GOLPES DIRECTOS</span><span class="lbl c2">${esc(P(1).name)}</span></div>
+      <div class="row sb" style="margin-top:4px">
+        <span class="bidnum" style="color:var(--p1-hi)">${S.feud[0]}</span>
+        <span class="ital gold">vs</span>
+        <span class="bidnum" style="color:var(--p2-hi)">${S.feud[1]}</span>
+      </div>
+    </div>
+    <div class="panel">
+      ${row('LOTES ARREBATADOS EN SU CARA', i=>P(i).st.ganadas)}
+      ${row('ROBOS (TANTEO / CONTRAATAQUE)', i=>P(i).st.robos)}
+      ${row('RACHA ACTUAL', i=>P(i).st.racha)}
+      ${row('DUELOS DE PULGAR', i=>P(i).st.duelos)}
+      ${row('APUESTAS GANADAS', i=>P(i).st.apuestas)}
+      ${row('RACHAS CORTADAS', i=>P(i).st.cortes)}
+      ${row('PROVOCACIONES', i=>P(i).st.taunts)}
+      ${row('RENCOR ACUMULADO', i=>P(i).rencor)}
+    </div>
+    ${sNames.length?`<div class="panel"><div class="lbl gold">LA SERIE ENTRE VOSOTROS</div>
+      <div class="stack" style="gap:4px;margin-top:8px">
+      ${sNames.sort((a,b)=>serie[b]-serie[a]).map(n=>`<div class="row sb"><span>${esc(n)}</span><span class="num gold">${serie[n]} 🏆</span></div>`).join('')}
+      </div></div>`:''}
+  </div>`, dock:`<button class="btn pri" data-act="${back==='hub'?'feudHubBack':'backNews'}">VOLVER</button>`});
+}
+ACT.feudScreen = () => feudScreen('news');
+ACT.feudHub = () => feudScreen('hub');
+ACT.feudHubBack = () => hubScreen();
+</script>
+<script>
+/* ─── 26. PISTOLERO: nombra un precio, el rival elige lado ──── */
+ACT.gunOpen = () => {
+  const ok = pid => P(pid).inv.length && RIVAL(pid).inv.length;
+  render({body:`<div class="stack">
+    <div style="text-align:center"><div style="font-size:44px">🔫</div>
+      <h2 class="gold">PISTOLERO</h2>
+      <p class="small">Eliges un objeto tuyo, uno suyo y pones <b>un solo precio</b>.<br>
+      Él decide qué pasa: o te compra el tuyo a ese precio, o te vende el suyo al mismo precio.</p>
+      <p class="tiny">Si pones un precio bajo, te quitará tu objeto barato. Si lo pones alto, te clavará el suyo. Piensa bien.</p></div>
+    <div class="lbl gold" style="text-align:center">¿QUIÉN DESENFUNDA?</div>
+    <button class="btn p1" data-act="gunBy" data-p="0" ${ok(0)?'':'disabled'}>${esc(P(0).name)}</button>
+    <button class="btn p2" data-act="gunBy" data-p="1" ${ok(1)?'':'disabled'}>${esc(P(1).name)}</button>
+    <div class="tiny" style="text-align:center">Hacen falta objetos en las dos colecciones.</div>
+  </div>`, dock:`<button class="btn gh" data-act="negoBack">VOLVER</button>`});
+};
+ACT.gunBy = t => {
+  const by = +t.dataset.p;
+  if(!P(by).inv.length || !RIVAL(by).inv.length) return;
+  S.gun = {by, mine:null, theirs:null, price:1500};
+  const p = P(by);
+  render({body:`<div class="stack"><h2 class="gold">🔫 ${esc(p.name)}: ¿QUÉ PONES SOBRE LA MESA?</h2>
+    <div class="tiny">Este objeto tuyo es el que él podrá comprarte.</div>
+    <div class="stack" style="gap:8px">${p.inv.map((it,i)=>`<button class="btn" style="justify-content:flex-start;min-height:60px" data-act="gunMine" data-i="${i}">
+      <span class="btn-col" style="align-items:flex-start"><span>${it.e} ${esc(it.name)}</span><span class="sub">${CATS[it.cat].n}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="gunOpen">VOLVER</button></div>`, dock:''});
+};
+ACT.gunMine = t => {
+  const g = S.gun; if(!g || g.mine!==null) return;
+  g.mine = +t.dataset.i;
+  const R = RIVAL(g.by);
+  render({body:`<div class="stack"><h2 class="gold">🔫 ¿QUÉ LE APUNTAS?</h2>
+    <div class="tiny">Este objeto suyo es el que te podrá vender al mismo precio.</div>
+    <div class="stack" style="gap:8px">${R.inv.map((it,i)=>`<button class="btn" style="justify-content:flex-start;min-height:60px" data-act="gunTheirs" data-i="${i}">
+      <span class="btn-col" style="align-items:flex-start"><span>${it.e} ${esc(it.name)}</span><span class="sub">${CATS[it.cat].n}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="gunOpen">VOLVER</button></div>`, dock:''});
+};
+ACT.gunTheirs = t => {
+  const g = S.gun; if(!g || g.theirs!==null) return;
+  g.theirs = +t.dataset.i;
+  g.price = round50((P(g.by).inv[g.mine].paid + RIVAL(g.by).inv[g.theirs].paid) / 2);
+  gunPrice();
+};
+function gunPrice(){
+  const g = S.gun;
+  if(!g || g.mine===null || g.theirs===null) return negoIntro();
+  const a = P(g.by).inv[g.mine], b = RIVAL(g.by).inv[g.theirs];
+  if(!a || !b) return negoIntro();
+  render({body:`<div class="stack">
+    <h2 class="gold" style="text-align:center">🔫 UN SOLO PRECIO</h2>
+    <div class="grid2">
+      <div class="panel" style="text-align:center;border-color:var(--${g.by?'p2':'p1'})">
+        <div class="lbl">TU OBJETO</div><div style="font-size:34px">${a.e}</div>
+        <div class="tiny">${esc(a.name)}</div></div>
+      <div class="panel" style="text-align:center;border-color:var(--${g.by?'p1':'p2'})">
+        <div class="lbl">EL SUYO</div><div style="font-size:34px">${b.e}</div>
+        <div class="tiny">${esc(b.name)}</div></div>
+    </div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="bidnum" id="gunNum">${money(g.price)}</div>
+      <input type="range" id="gunRange" min="100" max="12000" step="50" value="${g.price}">
+      <div class="grid3">
+        <button class="btn sm" data-act="gunAdj" data-d="-1000" data-quiet="1">−1000</button>
+        <button class="btn sm" data-act="gunAdj" data-d="-250" data-quiet="1">−250</button>
+        <button class="btn sm" data-act="gunAdj" data-d="-100" data-quiet="1">−100</button>
+        <button class="btn sm" data-act="gunAdj" data-d="100" data-quiet="1">+100</button>
+        <button class="btn sm" data-act="gunAdj" data-d="250" data-quiet="1">+250</button>
+        <button class="btn sm" data-act="gunAdj" data-d="1000" data-quiet="1">+1000</button>
+      </div>
+    </div>
+    <div class="tiny" style="text-align:center">Tendrás que poder pagar tu propio precio si te toca comprar.</div>
+  </div>`, dock:`<button class="btn pri" data-act="gunSend">🔒 PASAR EL MÓVIL</button>
+    <button class="btn gh" data-act="negoBack">CANCELAR</button>`});
+}
+ACT.gunAdj = t => {
+  const g = S.gun; if(!g) return;
+  g.price = clamp(round50(g.price + (+t.dataset.d)), 100, 12000);
+  const n = $('#gunNum'); if(n) n.textContent = money(g.price);
+  const r = $('#gunRange'); if(r) r.value = g.price;
+  SFX.tick();
+};
+document.addEventListener('input', e=>{
+  if(e.target.id==='gunRange' && S && S.gun){
+    S.gun.price = round50(+e.target.value);
+    const n = $('#gunNum'); if(n) n.textContent = money(S.gun.price);
+  }
+});
+ACT.gunSend = () => {
+  const g = S.gun; if(!g || g.mine===null || g.theirs===null) return;
+  if(g.price > P(g.by).cash){ toast('❌ No podrías pagar tu propio precio'); return; }
+  handoff(1-g.by, 'Te apuntan con un precio. Elige tú el lado del cañón.', ()=>{
+    const a = P(g.by).inv[g.mine], b = P(1-g.by).inv[g.theirs], me = P(1-g.by);
+    render({body:`<div class="stack">
+      <div style="text-align:center"><div style="font-size:44px">🔫</div>
+        <div class="lbl gold">${esc(P(g.by).name)} PONE PRECIO</div>
+        <div class="bidnum">${money(g.price)}</div></div>
+      <div class="panel gilt"><div class="lbl gold">TU EFECTIVO</div>
+        <div class="num gold" style="font-size:24px">${money(me.cash)}</div></div>
+      <div class="panel"><div class="lbl">OPCIÓN A · LE COMPRAS</div>
+        <div class="row" style="gap:10px;margin-top:6px"><div style="font-size:32px">${a.e}</div>
+        <div style="flex:1"><b style="font-size:14px">${esc(a.name)}</b>
+        <div class="tiny">Pagas ${money(g.price)} y es tuyo${g.price>me.cash?' · NO TE LLEGA':''}</div></div></div></div>
+      <div class="panel"><div class="lbl">OPCIÓN B · LE VENDES</div>
+        <div class="row" style="gap:10px;margin-top:6px"><div style="font-size:32px">${b.e}</div>
+        <div style="flex:1"><b style="font-size:14px">${esc(b.name)}</b>
+        <div class="tiny">Cobras ${money(g.price)} y se lo queda él</div></div></div></div>
+    </div>`, dock:`<div class="grid2">
+      <button class="btn pri" data-act="gunBuy" ${g.price>me.cash?'disabled':''}>COMPRO</button>
+      <button class="btn p2" data-act="gunSell">VENDO</button></div>`});
+  });
+};
+ACT.gunBuy = () => {
+  const g = S.gun; if(!g) return;
+  S.gun = null;
+  const seller = P(g.by), buyer = RIVAL(g.by), it = seller.inv[g.mine];
+  if(!it || g.price > buyer.cash){ toast('Ya no es posible'); return later(()=>negoIntro(), 500); }
+  seller.inv.splice(g.mine,1);
+  seller.cash += g.price; buyer.cash -= g.price;
+  it.paid = g.price; buyer.inv.push(it);
+  SFX.buy(); toast(`🔫 ${esc(buyer.name)} se queda ${esc(it.name)} por ${money(g.price)}`, 3000);
+  later(()=>negoIntro(), 1000);
+};
+ACT.gunSell = () => {
+  const g = S.gun; if(!g) return;
+  S.gun = null;
+  const buyer = P(g.by), seller = RIVAL(g.by), it = seller.inv[g.theirs];
+  if(!it || g.price > buyer.cash){ toast('Ya no es posible'); return later(()=>negoIntro(), 500); }
+  seller.inv.splice(g.theirs,1);
+  seller.cash += g.price; buyer.cash -= g.price;
+  it.paid = g.price; buyer.inv.push(it);
+  SFX.buy(); toast(`🔫 ${esc(buyer.name)} se lleva ${esc(it.name)} por ${money(g.price)}`, 3000);
+  later(()=>negoIntro(), 1000);
+};
+</script>
