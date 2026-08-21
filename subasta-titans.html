@@ -403,7 +403,6 @@ const FORMATS = {
 const ROUNDPLAN = ['abierta','abierta','sobre1','abierta','guerra','sobre2','abierta','holandesa','sobre1','holandesa',
   'media','abierta','sobre2','inglesa','sobre1','abierta','holandesa','sobre2','media','guerra',
   'abierta','sobre1','inglesa','sobre2','abierta'];
-const TAUNTS = ['Eso lo vas a pagar caro.','Te lo dejo, no vale nada.','Sé algo que tú no sabes.','Tienes menos dinero del que aparentas.','Puja, si te atreves.','Ese lote ya es mío.'];
 </script>
 <script>
 /* ─── 2. UTILIDADES ────────────────────────────────────────── */
@@ -473,7 +472,8 @@ function newPlayer(id,name){
     hist:[10000],
     st:{ ganadas:0, sobresGanados:0, gastado:0, maxPuja:0, maxPago:0, racha:0, maxRacha:0,
          ganga:false, faroles:0, taunts:0, cartas:0, retiradas:0, mejor:null, peor:null,
-         curse:0, remontadas:0, pagadoTotal:0 }
+         curse:0, remontadas:0, pagadoTotal:0,
+         robos:0, apuestas:0, duelos:0, cortes:0, prestigio:0, primas:0, pulgar:0 }
   };
 }
 function newMarket(){
@@ -486,12 +486,35 @@ function newGame(n1,n2){
   S = {
     round:0, phase:'', players:[newPlayer(0,n1||'JUGADOR 1'), newPlayer(1,n2||'JUGADOR 2')],
     market:newMarket(), lot:null, fmt:'abierta', pool:shuffle(ITEMS), legends:shuffle(LEGENDS),
-    news:[], eventLog:[], tm:[], startPlayer:0, over:false, nudges:[], seenFmt:{}, lastComeback:0
+    news:[], eventLog:[], tm:[], startPlayer:0, over:false, nudges:[], seenFmt:{}, lastComeback:0,
+    feud:[0,0], bet:null, bounty:null, betResult:null, titanHour:false
   };
   S.players[0].obj = objs[0]; S.players[1].obj = objs[1];
   S.players.forEach(p=>{ drawCard(p); drawCard(p); });
 }
 const P = i => S.players[i];
+function feud(pid, n, why){
+  S.feud[pid] += (n||1);
+  S.feudLog = (S.feudLog||[]).concat([{p:pid, why}]).slice(-6);
+}
+function serieKey(){
+  const n = [P(0).name, P(1).name].map(x=>x.toUpperCase());
+  return 'serie:' + n.slice().sort().join('|');
+}
+function getSerie(){
+  const m = meta(), k = serieKey();
+  return (m.series && m.series[k]) || {};
+}
+function addSerie(name){
+  const m = meta(), k = serieKey();
+  m.series = m.series || {};
+  m.series[k] = m.series[k] || {};
+  m.series[k][name] = (m.series[k][name]||0) + 1;
+  m.lastKey = k;
+  m.lastNames = [P(0).name, P(1).name];
+  saveMeta(m);
+  return m.series[k];
+}
 const RIVAL = i => S.players[1-i];
 function drawCard(p,forced){
   if(p.cards.length>=5) return null;
@@ -579,7 +602,7 @@ function topHTML(){
     <div class="row sb" style="margin-bottom:6px">
       <div class="lbl gold">RONDA ${S.round}<span style="color:var(--mute2)"> / 25</span></div>
       <div class="lbl">🏛️ SUBASTA TITANS</div>
-      <div class="lbl">${esc(S.phase||'')}</div>
+      <div class="lbl">${S.feud ? `😤 <span style="color:var(--p1-hi)">${S.feud[0]}</span>–<span style="color:var(--p2-hi)">${S.feud[1]}</span>` : esc(S.phase||'')}</div>
     </div>
     <div class="mkt">${mk}</div>
   </div>`;
@@ -628,6 +651,19 @@ function screenMenu(){
   S = S || {tm:[]};
   clearTimers();
   const m = meta();
+  const ls = (m.series && m.lastKey && m.series[m.lastKey]) || null;
+  const lsNames = m.lastNames || [];
+  const pending = ls && lsNames.length===2 ? `
+    <div class="panel gilt" style="text-align:center">
+      <div class="lbl gold">CUENTA PENDIENTE</div>
+      <div class="row sb" style="margin-top:6px">
+        <div style="flex:1"><div class="num" style="font-size:26px;color:var(--p1-hi)">${ls[lsNames[0]]||0}</div><div class="tiny">${esc(lsNames[0])}</div></div>
+        <div class="ital gold">–</div>
+        <div style="flex:1"><div class="num" style="font-size:26px;color:var(--p2-hi)">${ls[lsNames[1]]||0}</div><div class="tiny">${esc(lsNames[1])}</div></div>
+      </div>
+      <div class="tiny" style="margin-top:6px">${(ls[lsNames[0]]||0)===(ls[lsNames[1]]||0)?'Empatados. Esto hay que desempatarlo.':'Alguien tiene una revancha que jugar.'}</div>
+    </div>` : '';
+  if(m.lastNames && !setupNames[0] && !setupNames[1]) setupNames = m.lastNames.slice();
   const stats = m.partidas ? `
     <div class="grid3" style="text-align:center">
       <div><div class="lbl">PARTIDAS</div><div class="num gold" style="font-size:20px">${m.partidas}</div></div>
@@ -643,6 +679,7 @@ function screenMenu(){
         <div style="font-size:44px;margin:6px 0">🏛️</div>
         <p class="small" style="max-width:300px;margin:0 auto">Dos coleccionistas. Un teléfono. Veinticinco lotes.<br>Solo uno saldrá de aquí siendo un titán.</p>
       </div>
+      ${pending}
       <div class="panel gilt">${stats}</div>
       <div class="panel" style="text-align:left">
         <div class="lbl gold">CÓMO SE JUEGA</div>
@@ -816,15 +853,21 @@ function startRound(){
   if(Math.random()<.55){ const n2 = pick(NEWS); if(n2!==n1){ applyNews(n2); S.news.push(n2); } }
   S.event = null;
   if(S.round>=3 && S.round%3===0){ S.event = pick(EVENTS); applyEvent(S.event); }
+  S.bet = null; S.betResult = null;
+  S.bounty = null;
+  const hot = S.players.find(x=>x.st.racha >= 2);
+  if(hot) S.bounty = {target:hot.id, racha:hot.st.racha, cash:400};
+  const titan = S.round >= 21;
   S.income = [0,0];
   if(S.round > 1){
     S.players.forEach(p=>{
-      const inc = 250 + p.inv.length*60 + Math.round(p.rep*25);
+      const inc = Math.round((250 + p.inv.length*60 + Math.round(p.rep*25)) * (titan?2:1));
       p.cash += inc; S.income[p.id] = inc;
     });
   }
   assignTips();
   S.seenFmt = S.seenFmt || {};
+  if(S.round === 21 && !S.titanHour){ S.titanHour = true; return screenTitanHour(); }
   screenNews();
 }
 /* ── periódico + presentación del lote (público) ── */
@@ -839,8 +882,19 @@ function screenNews(){
       <div class="small">${S.event.d}</div>
       <div class="num ${S.event.p>0?'up':'down'}" style="margin-top:6px">${S.event.c?CATS[S.event.c].e+' '+CATS[S.event.c].n:'TODO EL MERCADO'} ${pct(S.event.p*100)}</div>
     </div>` : '';
+  const bountyHTML = S.bounty ? `<div class="panel" style="border-color:var(--danger)">
+      <div class="lbl" style="color:var(--danger)">🎯 SE BUSCA · ${esc(P(S.bounty.target).name)} LLEVA ${S.bounty.racha} SEGUIDOS</div>
+      <div class="small" style="margin-top:6px">Quien le arrebate este lote cobra <b class="gold">${money(S.bounty.cash)}</b> y roba una carta.
+      Si nadie le planta cara, la racha sigue.</div></div>` : '';
+  const titanHTML = S.round>=21 ? `<div class="panel gilt">
+      <div class="lbl gold">👑 LA HORA DE LOS TITANES</div>
+      <div class="small" style="margin-top:4px">Rentas dobladas y <b class="gold">+150 puntos de prestigio</b> para quien se lleve este lote.</div></div>` : '';
+  const betHTML = S.bet && S.bet.accepted ? `<div class="panel" style="border-color:var(--brass)">
+      <div class="lbl gold">🎲 APUESTA EN JUEGO</div>
+      <div class="small" style="margin-top:4px">${esc(P(S.bet.by).name)} apuesta <b class="gold">${money(S.bet.stake)}</b> a que el precio final será
+      <b>${S.bet.side>0?'MÁS':'MENOS'} de ${money(S.bet.line)}</b>.</div></div>` : '';
   render({body:`<div class="stack">
-    ${evHTML}
+    ${evHTML}${titanHTML}${bountyHTML}${betHTML}
     <div class="panel">
       <div class="row sb"><div class="lbl gold">📰 TITAN NEWS</div><div class="tiny">EDICIÓN ${S.round}</div></div>
       <div class="stack" style="gap:10px;margin-top:10px">
@@ -891,7 +945,8 @@ function screenNews(){
     </div>
   </div>`,
   dock:`<button class="btn pri" data-act="toPrivate">🔒 EMPEZAR RONDA · MÓVIL A ${esc(P(S.startPlayer).name)}</button>
-        <div class="grid2"><button class="btn gh" data-act="pause">⏸ PAUSA</button><button class="btn gh" data-act="peekMkt">📈 MERCADO</button></div>`});
+        ${S.bet?'':`<button class="btn" style="border-color:var(--brass)" data-act="betOpen">🎲 APUESTA PARALELA <span class="sub">RETA AL RIVAL ANTES DE PUJAR</span></button>`}
+        <div class="grid3"><button class="btn gh" data-act="pause">⏸ PAUSA</button><button class="btn gh" data-act="peekMkt">📈 MERCADO</button><button class="btn gh" data-act="feudScreen">😤 PIQUE</button></div>`});
   if(S.event){ S.event.p>0?SFX.up():SFX.down(); } else if(S.round>1){ SFX.tap(); }
 }
 ACT.peekMkt = () => {
@@ -1301,15 +1356,8 @@ ACT.openCustom = () => {
 };
 ACT.customGo = () => { const mn = minNext(); if(bidVal < mn){ toast('Puja demasiado baja'); return; } placeBid(bidVal); };
 ACT.customBack = () => renderOpen();
-ACT.taunt = () => {
-  const A = S.A, p = P(A.turn), R = RIVAL(A.turn);
-  if(A.tauntTurn === A.hist.length + '-' + A.turn) return;
-  A.tauntTurn = A.hist.length + '-' + A.turn;
-  p.st.taunts++; p.taunted = true; R.rencor = Math.min(5, R.rencor+1);
-  SFX.outbid();
-  toast(`😈 <b>${esc(p.name)}</b>: “${pick(TAUNTS)}”<br><span class="tiny">${esc(R.name)} gana 1 de rencor</span>`, 2800);
-  later(()=>renderOpen(), 900);
-};
+ACT.taunt = () => { if(!S.A) return; clearTimers(); tauntPicker(S.A.turn, 'auction'); };
+ACT.tauntResult = t => { tauntPicker(+t.dataset.p, 'result'); };
 ACT.venge = () => {
   const A = S.A, p = P(A.turn), R = RIVAL(A.turn);
   if(p.vengeUsed || p.rencor < 3) return;
@@ -1389,7 +1437,7 @@ ACT.snipe = t => {
   if(fee + minNext() > maxBid(lp)){ toast('❌ No te llega para contraatacar y pujar'); return; }
   clearTimers();
   lp.snipeUsed = true; lp.cash -= fee; lp.st.gastado += fee;
-  A.turn = loser; A.passes = 0; A.reopens++;
+  A.turn = loser; A.passes = 0; A.reopens++; A.sniped = loser;
   SFX.hammer();
   toast(`😤 ${esc(lp.name)} reabre la subasta`, 2200);
   renderOpen();
@@ -1424,6 +1472,17 @@ function acquire(p, price, extra){
   if(p.taunted) p.rep = clamp(p.rep + 1, 0, 10);
   const R = RIVAL(p.id);
   if(R.taunted) R.rep = clamp(R.rep - 1, 0, 10);
+  if(S.round >= 21) p.st.prestigio += 150;
+  S.corteHecho = false;
+  if(S.bounty && S.bounty.target !== p.id){
+    p.cash += S.bounty.cash; drawCard(p); p.st.cortes++;
+    feud(p.id, 1, 'corte'); S.corteHecho = true;
+  }
+  const rivalPeleo = S.fmt==='holandesa' ? true
+    : sealed() ? (R.bid > 0)
+    : (S.A && S.A.hist.some(h=>h.p !== p.id));
+  if(rivalPeleo) feud(p.id, 1, 'lote');
+  S.betResult = resolveBet(price);
   return it;
 }
 function finalPrice(pid, base){
@@ -1439,9 +1498,17 @@ function resolveOpen(w, h){
   const p = P(w);
   if(price > p.cash) price = Math.floor(p.cash);
   const it = acquire(p, price, {});
+  const loser = 1 - w;
+  let prima = 0;
+  if(S.A.hist.some(x=>x.p === loser)){
+    prima = Math.min(400, round50(price*0.06));
+    P(loser).cash += prima; P(loser).st.primas += prima;
+  }
+  if(S.A.sniped === w){ p.st.robos++; feud(w, 1, 'robo'); }
   const bluffLost = S.A.hist.filter(x=>x.ghost && x.p!==w).pop();
   S.result = {winner:w, price, base, ghost:h.ghost, shown:h.shown, item:it, venge:p.venge,
-              fee:feeFactor(p), bluffLost: bluffLost || null, bluffer: bluffLost ? P(1-w).name : null};
+              fee:feeFactor(p), bluffLost: bluffLost || null, bluffer: bluffLost ? P(1-w).name : null,
+              prima, primaFor: prima ? P(loser).name : null, sniped: S.A.sniped === w};
   SFX.buy();
   screenResult();
 }
@@ -1465,7 +1532,10 @@ function revealSealed(){
       P(l).cash -= alsoPaid; P(l).st.gastado += alsoPaid;
       P(l).rep = clamp(P(l).rep - 0.3, 0, 10);
     }
-    S.result = {winner:w, price, base, bids:[b0,b1], alsoPaid, loser:l, item:it, venge:P(w).venge, fee:feeFactor(P(w))};
+    const margen = hi - lo;
+    S.result = {winner:w, price, base, bids:[b0,b1], alsoPaid, loser:l, item:it,
+                venge:P(w).venge, fee:feeFactor(P(w)),
+                margen: (lo>0 && margen <= Math.max(300, hi*0.06)) ? margen : 0};
     SFX.buy();
     screenResult();
   });
@@ -1500,46 +1570,76 @@ function revealAnim(b0,b1,done){
   show();
 }
 function duelo(){
-  clearTimers(); SFX.hammer();
-  render({body:`<div class="stack" style="padding-top:40px;text-align:center">
+  clearTimers();
+  const tie = P(0).bid;
+  S.duel = {tie, ready:false, done:false};
+  SFX.hammer();
+  render({body:`<div class="stack" style="padding-top:26px;text-align:center">
     <div style="font-size:60px" class="pop">⚔️</div>
     <h1 class="gold">EMPATE</h1>
-    <p class="small">Los dos habéis ofrecido exactamente <b class="gold">${money(P(0).bid)}</b>.<br>La casa ordena un <b>DUELO</b>: una única oferta más, a sobre cerrado. Gana el más alto y paga lo que ofrezca.</p>
-    <div class="tiny">Si volvéis a empatar, el lote queda desierto.</div>
-  </div>`, dock:`<button class="btn pri" data-act="dueloGo">EMPEZAR DUELO</button>`});
+    <p class="small">Los dos habéis ofrecido exactamente <b class="gold">${money(tie)}</b>.<br>
+    La casa no admite empates: <b>DUELO DE PULGARES</b>.</p>
+    <div class="panel gilt" style="text-align:left">
+      <div class="stack" style="gap:8px">
+        <div class="small">1 · Poned el móvil entre los dos, uno enfrente del otro, y cada uno el pulgar en su mitad.</div>
+        <div class="small">2 · Cuando la pantalla se vuelva <b class="gold">DORADA</b> y diga <b>¡YA!</b>, el primero que pulse se lleva el lote por ${money(tie)}.</div>
+        <div class="small">3 · Quien pulse antes de tiempo, pierde. Sin excusas.</div>
+      </div>
+    </div>
+  </div>`, dock:`<button class="btn pri" data-act="duelStart">EMPEZAR EL DUELO</button>`});
 }
-ACT.dueloGo = () => { S.dueloStage = 0; S.fmt = 'sobre1'; secondVisit = false; bidVal = 0; goDuelo(S.startPlayer); };
-function goDuelo(pid){
-  curP = pid;
-  handoff(pid, 'Duelo a muerte. Una oferta más, en secreto.', ()=>{
-    const p = P(pid), mx = maxBid(p);
-    bidVal = clamp(bidVal,0,mx);
-    render({body:`<div class="stack">
-      <h2 class="gold">⚔️ DUELO · ${esc(p.name)}</h2>
-      <div class="panel gilt"><div class="lbl gold">TU EFECTIVO</div>
-        <div class="num gold" style="font-size:28px">${money(p.cash)}</div></div>
-      ${bidUI(p)}
-    </div>`, dock:`<button class="btn pri" data-act="dueloBid">SELLAR OFERTA</button>`});
-    bidSubmit = 'dueloBid'; startBidClock();
-  });
-}
-ACT.dueloBid = () => {
-  const p = P(curP);
-  p.bid = clamp(round50(bidVal),0,maxBid(p)); bidVal = 0;
-  clearTimers(); SFX.card();
-  if(!secondVisit){ secondVisit = true; goDuelo(1-S.startPlayer); }
-  else {
-    const b0 = P(0).bid, b1 = P(1).bid;
-    if(b0===b1) return desierto();
-    const w = b0>b1?0:1;
-    revealAnim(b0,b1,()=>{
-      const price = Math.min(finalPrice(w, Math.max(b0,b1)), Math.floor(P(w).cash));
-      const it = acquire(P(w), price, {});
-      S.result = {winner:w, price, base:Math.max(b0,b1), bids:[b0,b1], item:it, duelo:true, fee:feeFactor(P(w))};
-      SFX.buy(); screenResult();
-    });
-  }
+ACT.duelStart = () => {
+  const d = S.duel;
+  d.ready = false; d.done = false;
+  const half = pid => `<button class="btn ${pid?'p2':'p1'}" style="min-height:150px;border-radius:16px${pid?'':';transform:rotate(180deg)'}" data-act="duelTap" data-p="${pid}" data-quiet="1">
+      <span class="btn-col"><span style="font-size:26px" class="duelLabel">ESPERA…</span>
+      <span class="sub">${esc(P(pid).name)}</span></span></button>`;
+  render({top:null, body:`<div class="stack" id="duelBox" style="padding-top:10px">
+    ${half(0)}
+    <div style="text-align:center">
+      <div class="lbl gold">DUELO POR ${money(d.tie)}</div>
+      <h1 id="duelMsg" style="font-size:40px">PREPARADOS…</h1>
+      <div class="tiny">No pulses antes de que diga ¡YA!</div>
+    </div>
+    ${half(1)}
+  </div>`, dock:''});
+  SFX.tick();
+  const t = setTimeout(()=>{
+    const dd = S.duel;
+    if(!dd || dd.done) return;
+    dd.ready = true;
+    const m = $('#duelMsg');
+    if(m){ m.textContent = '¡YA!'; m.className = 'gold pop'; m.style.fontSize = '56px'; }
+    document.querySelectorAll('.duelLabel').forEach(e=>{ e.textContent = '¡PULSA!'; });
+    const box = $('#duelBox');
+    if(box) box.style.background = 'radial-gradient(60% 40% at 50% 50%, rgba(242,218,146,.22), transparent 70%)';
+    SFX.hot(); AU.vibrate(70);
+  }, ri(2200, 5200));
+  S.tm.push(t);
 };
+ACT.duelTap = t => {
+  const d = S.duel;
+  if(!d || d.done) return;
+  const pid = +t.dataset.p;
+  d.done = true;
+  clearTimers();
+  const early = !d.ready;
+  const w = early ? 1 - pid : pid;
+  const price = Math.min(finalPrice(w, d.tie), Math.floor(P(w).cash));
+  const it = acquire(P(w), price, {});
+  P(w).st.duelos++; P(w).st.pulgar++;
+  feud(w, 1, 'duelo');
+  S.result = {winner:w, price, base:d.tie, item:it, duelo:true, early, loserName:P(1-w).name,
+              venge:P(w).venge, fee:feeFactor(P(w))};
+  SFX.buy(); AU.vibrate([60,40,120]);
+  render({top:null, body:`<div class="stack" style="padding-top:60px;text-align:center">
+    <div style="font-size:60px" class="pop">${early?'🐔':'⚡'}</div>
+    <h1 style="color:var(--${w?'p2':'p1'}-hi)">${esc(P(w).name)}</h1>
+    <h2 class="gold">${early?'GANA POR SALIDA EN FALSO':'GANA EL DUELO'}</h2>
+    <p class="small">${early?`${esc(P(1-w).name)} ha pulsado antes de tiempo. El lote cambia de manos por impaciente.`:'Reflejos de titán. El lote es suyo.'}</p>
+  </div>`, dock:`<button class="btn pri" data-act="duelDone">VER EL REMATE</button>`});
+};
+ACT.duelDone = () => screenResult();
 /* ── holandesa ── */
 function startDutch(){
   const est = estimate(S.lot);
@@ -1614,7 +1714,14 @@ function screenResult(){
   if(r.venge) extras.push(`😤 <b>PRIMA DE VENGANZA</b>: +15% sobre su puja.`);
   if(r.fee && r.fee!==1) extras.push(r.fee<1?`⭐ La casa le hace un <b>−5%</b> por reputación.`:`⚠️ La casa le cobra un <b>+5%</b> de recargo por reputación.`);
   if(r.alsoPaid) extras.push(`⚔️ <b>${esc(P(r.loser).name)}</b> también paga su oferta: <b class="down">−${money(r.alsoPaid)}</b>.`);
-  if(r.duelo) extras.push(`⚔️ Resuelto en <b>duelo</b>.`);
+  if(r.duelo) extras.push(r.early
+    ? `⚔️ <b>Duelo de pulgares</b>: ${esc(r.loserName)} pulsó antes de tiempo.`
+    : `⚔️ <b>Duelo de pulgares</b> ganado por reflejos.`);
+  if(r.sniped) extras.push(`😤 <b>ROBO</b>: reabrió la subasta y se lo llevó igual.`);
+  if(r.prima) extras.push(`🩸 <b>PRIMA DEL PICADOR</b>: ${esc(r.primaFor)} cobra <b class="up">${money(r.prima)}</b> por haber apretado el precio.`);
+  if(S.corteHecho) extras.push(`🎯 <b>RACHA CORTADA</b>: +${money(S.bounty.cash)} y una carta por frenar a ${esc(P(S.bounty.target).name)}.`);
+  if(S.round>=21) extras.push(`👑 <b>+150 puntos de prestigio</b> por ganar en la hora de los titanes.`);
+  if(S.betResult) extras.push(`🎲 <b>APUESTA</b>: ${esc(P(S.betResult.w).name)} acierta (${S.betResult.side>0?'más':'menos'} de ${money(S.betResult.line)}) y se lleva <b class="up">${money(S.betResult.stake)}</b> de ${esc(P(S.betResult.l).name)}.`);
   if(S.fmt==='sobre2' && r.bids) extras.push(`📩 Segundo precio: paga la oferta del rival, no la suya.`);
   const lp = P(l);
   const tanteoBtn = (lp.tanteo && !lp.blocked) ? `<button class="btn dgr" data-act="tanteo">📜 EJERCER TANTEO · ${money(round50(r.price*1.25))}</button>` : '';
@@ -1630,14 +1737,27 @@ function screenResult(){
       <div class="lbl">PRECIO FINAL</div>
       <div class="bidnum">${money(r.price)}</div>
       <div class="chip ${rel>30?'risk':'gold'}" style="margin-top:8px">${lector.e} ${lector.t} (${pct(rel)})</div>
+      ${r.margen?`<div class="chip risk pop" style="margin-top:8px;font-size:13px">😱 SE LO HA LLEVADO POR SOLO ${money(r.margen)}</div>`:''}
     </div>
     ${extras.length?`<div class="panel"><div class="stack" style="gap:8px">${extras.map(e=>`<div class="small">${e}</div>`).join('')}</div></div>`:''}
+    <div class="panel" style="text-align:center">
+      <div class="lbl gold">MARCADOR DEL PIQUE</div>
+      <div class="row sb" style="margin-top:4px">
+        <span class="num" style="font-size:22px;color:var(--p1-hi)">${S.feud[0]}</span>
+        <span class="tiny">${esc(P(0).name)} · GOLPES DIRECTOS · ${esc(P(1).name)}</span>
+        <span class="num" style="font-size:22px;color:var(--p2-hi)">${S.feud[1]}</span>
+      </div>
+    </div>
     <div class="panel">
       <div class="lbl gold">LO QUE SE SABE</div>
       <p class="small" style="margin:8px 0 0">Nadie sabrá el valor real de ${esc(L.name)} hasta el recuento final. La estimación de la casa era ${money(est.lo)}–${money(est.hi)}${L.risk?`, y el lote arrastra ${L.risk.split('').map(x=>RISKN[x].t.toLowerCase()).join(' y ')}`:''}.</p>
     </div>
   </div>`,
-  dock:`${tanteoBtn}<button class="btn pri" data-act="afterLot">CONTINUAR</button>`});
+  dock:`${tanteoBtn}<button class="btn pri" data-act="afterLot">CONTINUAR</button>
+    <div class="grid2">
+      <button class="btn gh" data-act="tauntResult" data-p="${w}">😈 REGODEARSE</button>
+      <button class="btn gh" data-act="tauntResult" data-p="${l}">😤 PROMETER VENGANZA</button>
+    </div>`});
 }
 ACT.tanteo = () => {
   const r = S.result;
@@ -1654,6 +1774,7 @@ ACT.tanteo = () => {
   lp.inv.push(it); lp.cash -= price; lp.st.gastado += price; lp.st.ganadas++;
   lp.st.maxPago = Math.max(lp.st.maxPago, price);
   lp.tanteo = false;
+  lp.st.robos++; feud(l, 1, 'robo');
   SFX.hammer(); AU.vibrate([60,40,60]);
   S.result = Object.assign({}, r, {winner:l, price, stolen:true, from:wp.name});
   toast(`📜 <b>${esc(lp.name)}</b> arrebata el lote por ${money(price)}`, 3000);
@@ -1671,7 +1792,7 @@ function postFlow(){
   const r = S.round;
   if(step===0 && (r===9 || r===18)) return taxScreen();
   if(step<=1 && checkComeback()) return;
-  if(step<=2 && (r===8 || r===16 || r===22)) { S.postStep = 3; return negoIntro(); }
+  if(step<=2 && (r===8 || r===12 || r===16 || r===22)) { S.postStep = 3; return negoIntro(); }
   return hubScreen();
 }
 function taxScreen(){
@@ -1750,9 +1871,11 @@ function negoIntro(){
         <li>Prometer cosas que no pensáis cumplir.</li>
       </ul></div>
   </div>`, dock:`<div class="grid2">
-      <button class="btn p1" data-act="negoStart" data-p="0">OFRECE ${esc(P(0).name)}</button>
-      <button class="btn p2" data-act="negoStart" data-p="1">OFRECE ${esc(P(1).name)}</button>
-    </div><button class="btn gh" data-act="postNext">SALTAR NEGOCIACIÓN</button>`});
+      <button class="btn p1" data-act="negoStart" data-p="0">VENDE ${esc(P(0).name)}</button>
+      <button class="btn p2" data-act="negoStart" data-p="1">VENDE ${esc(P(1).name)}</button>
+    </div>
+    <button class="btn" style="border-color:var(--brass)" data-act="gunOpen">🔫 PISTOLERO <span class="sub">UN PRECIO · ÉL ELIGE LADO</span></button>
+    <button class="btn gh" data-act="postNext">TERMINAR NEGOCIACIÓN</button>`});
 }
 ACT.negoStart = t => {
   const pid = +t.dataset.p, p = P(pid);
@@ -1889,10 +2012,20 @@ function hubScreen(){
       </div>`}).join('')}
     </div>
     <div class="tiny" style="text-align:center">Los objetos son públicos. El dinero, no.</div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="lbl gold">MARCADOR DEL PIQUE</div>
+      <div class="row sb" style="margin-top:2px">
+        <span class="bidnum sm" style="color:var(--p1-hi)">${S.feud[0]}</span>
+        <span class="ital gold">vs</span>
+        <span class="bidnum sm" style="color:var(--p2-hi)">${S.feud[1]}</span>
+      </div>
+      ${S.players.some(x=>x.st.racha>=2)?`<div class="chip risk" style="margin-top:8px">🔥 ${esc(S.players.find(x=>x.st.racha>=2).name)} LLEVA ${S.players.find(x=>x.st.racha>=2).st.racha} SEGUIDOS</div>`:''}
+    </div>
     <div class="grid2">
       <button class="btn p1 sm" data-act="wallet" data-p="0">💼 CARTERA</button>
       <button class="btn p2 sm" data-act="wallet" data-p="1">💼 CARTERA</button>
     </div>
+    <button class="btn gh" data-act="feudHub">😤 VER EL MARCADOR DEL PIQUE</button>
   </div>`,
   dock:`<button class="btn pri" data-act="nextRound">${nxt>25?'🏆 RECUENTO FINAL':'▶ SIGUIENTE LOTE ('+nxt+'/25)'}</button>
     <button class="btn gh" data-act="pause">⏸ PAUSA / AJUSTES</button>`});
@@ -2044,7 +2177,7 @@ function scorePlayer(p){
   const repPts = Math.round(p.rep*10);
   const legPts = p.inv.filter(i=>i.legend).length*60;
   const penal = p.st.curse*25 + p.inv.filter(i=>i.fake).length*40;
-  const pts = Math.round(pat/30) + col.total + repPts + (objOk?p.obj.p:0) + legPts - penal;
+  const pts = Math.round(pat/30) + col.total + repPts + (objOk?p.obj.p:0) + legPts + p.st.prestigio - penal;
   const deltas = p.inv.map(i=>({n:i.name, e:i.e, d:i.delta}));
   const best = deltas.length ? deltas.reduce((a,b)=>b.d>a.d?b:a) : null;
   const worst = deltas.length ? deltas.reduce((a,b)=>b.d<a.d?b:a) : null;
@@ -2141,6 +2274,7 @@ ACT.showPts = () => {
       <div class="row sb small"><span>Colecciones</span><span class="num ${x.col.total?'up':''}">+${x.col.total}</span></div>
       <div class="row sb small"><span>Reputación (${p.rep.toFixed(1)})</span><span class="num">+${x.repPts}</span></div>
       <div class="row sb small"><span>Piezas legendarias</span><span class="num">+${x.legPts}</span></div>
+      ${p.st.prestigio?`<div class="row sb small"><span>👑 Prestigio (hora de los titanes)</span><span class="num up">+${p.st.prestigio}</span></div>`:''}
       <div class="row sb small"><span>Misión secreta</span><span class="num ${x.objOk?'up':'down'}">${x.objOk?'+'+p.obj.p:'0'}</span></div>
       ${x.penal?`<div class="row sb small"><span>Penalizaciones</span><span class="num down">−${x.penal}</span></div>`:''}
       <div class="tiny" style="margin-top:6px">🎯 ${p.obj.t}</div>
@@ -2162,7 +2296,15 @@ ACT.showWinner = () => {
   S.winner = w;
   const p = w>=0 ? P(w) : null, x = w>=0 ? s[w] : null;
   const col = w?'p2':'p1';
-  const stat = (l,v) => `<div class="row sb small" style="padding:4px 0;border-bottom:1px solid var(--line)"><span>${l}</span><span class="num gold">${v}</span></div>`;
+  const serie = w>=0 ? addSerie(P(w).name) : getSerie();
+  const sNames = Object.keys(serie).sort((a,b)=>serie[b]-serie[a]);
+  const serieHTML = sNames.length ? `<div class="panel gilt">
+      <div class="lbl gold">LA SERIE ENTRE VOSOTROS</div>
+      <div class="row sb" style="margin-top:6px">
+        ${sNames.map(n=>`<div style="text-align:center;flex:1"><div class="num gold" style="font-size:26px">${serie[n]}</div><div class="tiny">${esc(n)}</div></div>`).join('<div class="ital gold">–</div>')}
+      </div>
+      <div class="tiny" style="margin-top:6px">${sNames.length>1 && serie[sNames[0]]===serie[sNames[1]] ? 'Empate en la serie. Esto no puede quedar así.' : 'La revancha se juega ahora mismo.'}</div>
+    </div>` : '';
   const body = w<0 ? `<div class="stack" style="padding-top:40px;text-align:center">
       <div style="font-size:60px">🤝</div><h1 class="gold">EMPATE TÉCNICO</h1>
       <p class="small">Dos titanes exactamente iguales. La casa se niega a decidir.</p></div>`
@@ -2182,6 +2324,7 @@ ACT.showWinner = () => {
         <div class="row sb"><span class="small">Mejor compra</span><span class="num up">${x.best?x.best.e+' '+pct(x.best.d):'—'}</span></div>
         <div class="row sb"><span class="small">Peor compra</span><span class="num down">${x.worst?x.worst.e+' '+pct(x.worst.d):'—'}</span></div>
       </div>
+      ${serieHTML}
       <div class="panel" style="border-color:var(--${w?'p1':'p2'})">
         <div class="lbl ${w?'c1':'c2'}">${esc(P(1-w).name)}</div>
         <div class="small">Se queda a <b class="gold">${s[w].pts - s[1-w].pts} puntos</b> con un patrimonio de <b>${money(s[1-w].pat)}</b>.</div>
@@ -2220,6 +2363,13 @@ ACT.showStats = () => {
       ${line('PROVOCACIONES', i=>P(i).st.taunts)}
       ${line('CARTAS JUGADAS', i=>P(i).st.cartas)}
       ${line('REMONTADAS', i=>P(i).st.remontadas)}
+      ${line('GOLPES DIRECTOS', i=>S.feud[i])}
+      ${line('ROBOS DE LOTE', i=>P(i).st.robos)}
+      ${line('DUELOS DE PULGAR', i=>P(i).st.duelos)}
+      ${line('APUESTAS GANADAS', i=>P(i).st.apuestas)}
+      ${line('RACHAS CORTADAS', i=>P(i).st.cortes)}
+      ${line('PRIMA DE PICADOR', i=>money(P(i).st.primas))}
+      ${line('MEJOR RACHA', i=>P(i).st.maxRacha)}
       ${line('MISIÓN SECRETA', i=>s[i].objOk?'✅':'❌')}
     </div>
     <div class="panel"><div class="lbl gold">MISIONES REVELADAS</div>
@@ -2227,7 +2377,8 @@ ACT.showStats = () => {
       <div class="small"><b class="c2">${esc(P(1).name)}</b>: ${P(1).obj.t}</div></div>
     <div class="panel"><div class="lbl gold">EVENTOS DE LA PARTIDA</div>
       <div class="tiny" style="margin-top:6px">${S.eventLog.length?S.eventLog.join(' · '):'Un mercado inusualmente tranquilo.'}</div></div>
-  </div>`, dock:`<button class="btn pri" data-act="revancha">🔁 REVANCHA</button>
+  </div>`, dock:`<button class="btn pri" data-act="revancha">🔁 REVANCHA${(()=>{const se=getSerie(),k=Object.keys(se);
+      return k.length>1?` · VAS ${se[P(0).name]||0}–${se[P(1).name]||0}`:'';})()}</button>
     <button class="btn gh" data-act="goMenu">SALIR AL MENÚ</button>`});
 };
 ACT.revancha = () => {
@@ -2266,4 +2417,362 @@ function confetti(){
 
 /* ─── 24. ARRANQUE ─────────────────────────────────────────── */
 screenMenu();
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   25. MÓDULO DE PIQUE — apuestas, duelos de pulgar, provocaciones
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── LA HORA DE LOS TITANES ───────────────────────────────── */
+function screenTitanHour(){
+  SFX.win();
+  render({top:null, body:`<div class="stack" style="padding-top:36px;text-align:center">
+    <div style="font-size:64px" class="pop">👑</div>
+    <h1 class="gold">LA HORA DE<br>LOS TITANES</h1>
+    <p class="small">Quedan cinco lotes. A partir de aquí todo pesa el doble.</p>
+    <div class="panel gilt" style="text-align:left">
+      <div class="stack" style="gap:10px">
+        <div><b class="gold">+150 puntos de prestigio</b><div class="tiny">para quien se lleve cada uno de los cinco lotes que quedan.</div></div>
+        <div><b class="gold">Rentas dobladas</b><div class="tiny">vais a tener dinero para pelear hasta el último martillazo.</div></div>
+        <div><b class="gold">Apuestas de hasta €2.000</b><div class="tiny">si os queda algo que demostrar.</div></div>
+      </div>
+    </div>
+    <div class="tiny">750 puntos en juego. Aquí se decide la partida.</div>
+  </div>`, dock:`<button class="btn pri" data-act="titanGo">QUE EMPIECE</button>`});
+}
+ACT.titanGo = () => screenNews();
+
+/* ─── APUESTA PARALELA ─────────────────────────────────────── */
+ACT.betOpen = () => {
+  render({body:`<div class="stack">
+    <div style="text-align:center"><div style="font-size:44px">🎲</div>
+      <h2 class="gold">APUESTA PARALELA</h2>
+      <p class="small">Apostáis entre vosotros sobre el precio final de este lote. No cambia quién se lo lleva: cambia quién se ríe.</p></div>
+    <div class="lbl gold" style="text-align:center">¿QUIÉN LANZA EL RETO?</div>
+    <button class="btn p1" data-act="betBy" data-p="0">${esc(P(0).name)}</button>
+    <button class="btn p2" data-act="betBy" data-p="1">${esc(P(1).name)}</button>
+  </div>`, dock:`<button class="btn gh" data-act="backNews">MEJOR NO</button>`});
+};
+ACT.betBy = t => {
+  const by = +t.dataset.p, est = estimate(S.lot);
+  S.bet = {by, side:1, line:round50(est.mid*0.75), stake:500, accepted:false};
+  betEdit();
+};
+function betEdit(){
+  const b = S.bet; if(!b) return screenNews();
+  const max = S.round>=21 ? 2000 : 1000;
+  render({body:`<div class="stack">
+    <div class="row sb"><div class="lbl ${b.by?'c2':'c1'}">RETO DE ${esc(P(b.by).name)}</div>
+      <div class="chip gold">${S.lot.e} LOTE ${S.round}</div></div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="lbl gold">EL PRECIO FINAL SERÁ</div>
+      <div class="grid2" style="margin:8px 0">
+        <button class="btn ${b.side>0?'pri':'gh'}" data-act="betSide" data-v="1">📈 MÁS DE</button>
+        <button class="btn ${b.side<0?'pri':'gh'}" data-act="betSide" data-v="-1">📉 MENOS DE</button>
+      </div>
+      <div class="bidnum" id="betLine">${money(b.line)}</div>
+      <input type="range" id="betRange" min="200" max="14000" step="100" value="${b.line}">
+      <div class="grid3">
+        <button class="btn sm" data-act="betAdj" data-d="-1000" data-quiet="1">−1000</button>
+        <button class="btn sm" data-act="betAdj" data-d="-250" data-quiet="1">−250</button>
+        <button class="btn sm" data-act="betAdj" data-d="-100" data-quiet="1">−100</button>
+        <button class="btn sm" data-act="betAdj" data-d="100" data-quiet="1">+100</button>
+        <button class="btn sm" data-act="betAdj" data-d="250" data-quiet="1">+250</button>
+        <button class="btn sm" data-act="betAdj" data-d="1000" data-quiet="1">+1000</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="lbl gold">TE JUEGAS</div>
+      <div class="grid3" style="margin-top:8px">
+        ${[250,500,1000,2000].filter(v=>v<=max).map(v=>`<button class="btn ${b.stake===v?'pri':'gh'} sm" data-act="betStake" data-v="${v}">${money(v)}</button>`).join('')}
+      </div>
+    </div>
+    <div class="tiny" style="text-align:center">Si el lote queda desierto, la apuesta se anula.</div>
+  </div>`, dock:`<button class="btn pri" data-act="betSend">LANZAR EL RETO</button>
+    <button class="btn gh" data-act="betCancel">CANCELAR</button>`});
+}
+ACT.betSide = t => { if(!S.bet) return; S.bet.side = +t.dataset.v; SFX.tick(); betEdit(); };
+ACT.betStake = t => { if(!S.bet) return; S.bet.stake = +t.dataset.v; SFX.coin(); betEdit(); };
+ACT.betAdj = t => {
+  if(!S.bet) return;
+  S.bet.line = clamp(round50(S.bet.line + (+t.dataset.d)), 200, 14000);
+  const e = $('#betLine'); if(e) e.textContent = money(S.bet.line);
+  const r = $('#betRange'); if(r) r.value = S.bet.line;
+  SFX.tick();
+};
+document.addEventListener('input', e=>{
+  if(e.target.id==='betRange' && S && S.bet){
+    S.bet.line = round50(+e.target.value);
+    const l = $('#betLine'); if(l) l.textContent = money(S.bet.line);
+  }
+});
+ACT.betCancel = () => { S.bet = null; screenNews(); };
+ACT.betSend = () => {
+  const b = S.bet; if(!b) return screenNews();
+  const r = 1 - b.by;
+  SFX.event();
+  render({body:`<div class="stack" style="padding-top:20px;text-align:center">
+    <div style="font-size:48px">🎲</div>
+    <div class="lbl ${b.by?'c2':'c1'}">${esc(P(b.by).name)} TE RETA</div>
+    <div class="panel gilt">
+      <div class="small">${esc(S.lot.name)} se rematará por</div>
+      <h2 class="gold" style="font-size:26px">${b.side>0?'MÁS':'MENOS'} DE ${money(b.line)}</h2>
+      <div class="hr" style="margin:10px 0"></div>
+      <div class="lbl">SE JUEGA</div>
+      <div class="num gold" style="font-size:28px">${money(b.stake)}</div>
+    </div>
+    <div class="lbl" style="color:var(--${r?'p2':'p1'})">${esc(P(r).name)}, ¿aceptas?</div>
+    <div class="tiny">Si aceptas, pagas o cobras al caer el martillo.</div>
+  </div>`,
+  dock:`<div class="grid2">
+      <button class="btn dgr" data-act="betNo">ME RAJO</button>
+      <button class="btn pri" data-act="betYes">ACEPTO</button></div>`});
+};
+ACT.betNo = () => {
+  const b = S.bet; if(!b) return;
+  S.bet = null;
+  SFX.lose();
+  toast(`🐔 ${esc(P(1-b.by).name)} no acepta el reto`, 2600);
+  later(()=>screenNews(), 800);
+};
+ACT.betYes = () => {
+  const b = S.bet; if(!b || b.accepted) return;
+  const r = 1 - b.by;
+  if(b.stake > P(r).cash || b.stake > P(b.by).cash){
+    toast('❌ Uno de los dos no cubre esa apuesta'); return;
+  }
+  b.accepted = true;
+  SFX.buy();
+  toast('🎲 Apuesta cerrada. Que gane el mejor.', 2400);
+  later(()=>screenNews(), 800);
+};
+function resolveBet(price){
+  const b = S.bet;
+  if(!b || !b.accepted) return null;
+  const win = b.side > 0 ? (price > b.line) : (price < b.line);
+  const w = win ? b.by : 1 - b.by, l = 1 - w;
+  const stake = Math.min(b.stake, Math.floor(P(l).cash));
+  P(w).cash += stake; P(l).cash -= stake;
+  P(w).st.apuestas++;
+  feud(w, 1, 'apuesta');
+  S.bet = null;
+  return {w, l, stake, line:b.line, side:b.side};
+}
+
+/* ─── PROVOCACIONES ────────────────────────────────────────── */
+const TAUNTLINES = [
+  'Eso lo vas a pagar caro.',
+  'Te lo dejo. No vale nada.',
+  'Sé algo de este lote que tú no sabes.',
+  'Tienes menos dinero del que aparentas.',
+  'Puja otra vez, anda. Atrévete.',
+  'Ese lote ya es mío. Acéptalo.',
+  'Llevo toda la partida leyéndote.',
+  'Vas a llorar en el recuento final.'
+];
+function tauntPicker(pid, ret){
+  S.tauntRet = ret;
+  render({top:null, body:`<div class="stack" style="padding-top:14px">
+    <div style="text-align:center"><div style="font-size:40px">😈</div>
+      <div class="lbl" style="color:var(--${pid?'p2':'p1'})">${esc(P(pid).name)}, suéltalo</div></div>
+    <div class="stack" style="gap:8px">
+      ${TAUNTLINES.map((l,i)=>`<button class="btn ${pid?'p2':'p1'} sm" style="justify-content:flex-start;text-transform:none;font-size:14px;letter-spacing:0" data-act="tauntSay" data-p="${pid}" data-i="${i}">“${l}”</button>`).join('')}
+    </div>
+  </div>`, dock:`<button class="btn gh" data-act="tauntBack">CALLARME</button>`});
+}
+ACT.tauntSay = t => {
+  const pid = +t.dataset.p, line = TAUNTLINES[+t.dataset.i], R = RIVAL(pid);
+  P(pid).st.taunts++;
+  if(S.A && S.phase==='SUBASTA') P(pid).taunted = true;
+  R.rencor = Math.min(5, R.rencor + 1);
+  SFX.outbid(); AU.vibrate([25,40,25]);
+  render({top:null, body:`<div class="stack" style="padding-top:70px;text-align:center">
+    <div class="lbl" style="color:var(--${pid?'p2':'p1'})">${esc(P(pid).name)} DICE</div>
+    <h1 class="pop" style="font-size:34px;color:var(--${pid?'p2':'p1'}-hi);line-height:1.15">“${line}”</h1>
+    <div class="chip risk" style="margin:0 auto">😤 ${esc(R.name)} +1 DE RENCOR (${R.rencor}/5)</div>
+    <div class="tiny">Con 3 de rencor se desbloquea el golpe de venganza.<br>Provocar y luego perder el lote cuesta reputación.</div>
+  </div>`,
+  dock:`<button class="btn ${pid?'p1':'p2'}" data-act="tauntSay2" data-p="${1-pid}">😤 RESPONDER</button>
+        <button class="btn gh" data-act="tauntBack">SEGUIR CON LA SUBASTA</button>`});
+};
+ACT.tauntSay2 = t => tauntPicker(+t.dataset.p, S.tauntRet);
+ACT.tauntBack = () => {
+  const r = S.tauntRet;
+  if(r === 'result') return screenResult();
+  if(r === 'hub') return hubScreen();
+  return renderOpen();
+};
+
+/* ─── MARCADOR DEL PIQUE ───────────────────────────────────── */
+function feudScreen(back){
+  const serie = getSerie();
+  const sNames = Object.keys(serie);
+  const row = (l, f) => `<div class="row sb" style="padding:6px 0;border-bottom:1px solid var(--line)">
+      <span class="num c1" style="width:26%;font-size:15px">${f(0)}</span>
+      <span class="tiny" style="text-align:center;flex:1">${l}</span>
+      <span class="num c2" style="width:26%;text-align:right;font-size:15px">${f(1)}</span></div>`;
+  render({body:`<div class="stack">
+    <div style="text-align:center"><div style="font-size:40px">😤</div><h2 class="gold">EL MARCADOR DEL PIQUE</h2>
+      <div class="tiny">No es dinero. Es orgullo.</div></div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="row sb"><span class="lbl c1">${esc(P(0).name)}</span><span class="lbl">GOLPES DIRECTOS</span><span class="lbl c2">${esc(P(1).name)}</span></div>
+      <div class="row sb" style="margin-top:4px">
+        <span class="bidnum" style="color:var(--p1-hi)">${S.feud[0]}</span>
+        <span class="ital gold">vs</span>
+        <span class="bidnum" style="color:var(--p2-hi)">${S.feud[1]}</span>
+      </div>
+    </div>
+    <div class="panel">
+      ${row('LOTES ARREBATADOS EN SU CARA', i=>P(i).st.ganadas)}
+      ${row('ROBOS (TANTEO / CONTRAATAQUE)', i=>P(i).st.robos)}
+      ${row('RACHA ACTUAL', i=>P(i).st.racha)}
+      ${row('DUELOS DE PULGAR', i=>P(i).st.duelos)}
+      ${row('APUESTAS GANADAS', i=>P(i).st.apuestas)}
+      ${row('RACHAS CORTADAS', i=>P(i).st.cortes)}
+      ${row('PROVOCACIONES', i=>P(i).st.taunts)}
+      ${row('RENCOR ACUMULADO', i=>P(i).rencor)}
+    </div>
+    ${sNames.length?`<div class="panel"><div class="lbl gold">LA SERIE ENTRE VOSOTROS</div>
+      <div class="stack" style="gap:4px;margin-top:8px">
+      ${sNames.sort((a,b)=>serie[b]-serie[a]).map(n=>`<div class="row sb"><span>${esc(n)}</span><span class="num gold">${serie[n]} 🏆</span></div>`).join('')}
+      </div></div>`:''}
+  </div>`, dock:`<button class="btn pri" data-act="${back==='hub'?'feudHubBack':'backNews'}">VOLVER</button>`});
+}
+ACT.feudScreen = () => feudScreen('news');
+ACT.feudHub = () => feudScreen('hub');
+ACT.feudHubBack = () => hubScreen();
+</script>
+<script>
+/* ─── 26. PISTOLERO: nombra un precio, el rival elige lado ──── */
+ACT.gunOpen = () => {
+  const ok = pid => P(pid).inv.length && RIVAL(pid).inv.length;
+  render({body:`<div class="stack">
+    <div style="text-align:center"><div style="font-size:44px">🔫</div>
+      <h2 class="gold">PISTOLERO</h2>
+      <p class="small">Eliges un objeto tuyo, uno suyo y pones <b>un solo precio</b>.<br>
+      Él decide qué pasa: o te compra el tuyo a ese precio, o te vende el suyo al mismo precio.</p>
+      <p class="tiny">Si pones un precio bajo, te quitará tu objeto barato. Si lo pones alto, te clavará el suyo. Piensa bien.</p></div>
+    <div class="lbl gold" style="text-align:center">¿QUIÉN DESENFUNDA?</div>
+    <button class="btn p1" data-act="gunBy" data-p="0" ${ok(0)?'':'disabled'}>${esc(P(0).name)}</button>
+    <button class="btn p2" data-act="gunBy" data-p="1" ${ok(1)?'':'disabled'}>${esc(P(1).name)}</button>
+    <div class="tiny" style="text-align:center">Hacen falta objetos en las dos colecciones.</div>
+  </div>`, dock:`<button class="btn gh" data-act="negoBack">VOLVER</button>`});
+};
+ACT.gunBy = t => {
+  const by = +t.dataset.p;
+  if(!P(by).inv.length || !RIVAL(by).inv.length) return;
+  S.gun = {by, mine:null, theirs:null, price:1500};
+  const p = P(by);
+  render({body:`<div class="stack"><h2 class="gold">🔫 ${esc(p.name)}: ¿QUÉ PONES SOBRE LA MESA?</h2>
+    <div class="tiny">Este objeto tuyo es el que él podrá comprarte.</div>
+    <div class="stack" style="gap:8px">${p.inv.map((it,i)=>`<button class="btn" style="justify-content:flex-start;min-height:60px" data-act="gunMine" data-i="${i}">
+      <span class="btn-col" style="align-items:flex-start"><span>${it.e} ${esc(it.name)}</span><span class="sub">${CATS[it.cat].n}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="gunOpen">VOLVER</button></div>`, dock:''});
+};
+ACT.gunMine = t => {
+  const g = S.gun; if(!g || g.mine!==null) return;
+  g.mine = +t.dataset.i;
+  const R = RIVAL(g.by);
+  render({body:`<div class="stack"><h2 class="gold">🔫 ¿QUÉ LE APUNTAS?</h2>
+    <div class="tiny">Este objeto suyo es el que te podrá vender al mismo precio.</div>
+    <div class="stack" style="gap:8px">${R.inv.map((it,i)=>`<button class="btn" style="justify-content:flex-start;min-height:60px" data-act="gunTheirs" data-i="${i}">
+      <span class="btn-col" style="align-items:flex-start"><span>${it.e} ${esc(it.name)}</span><span class="sub">${CATS[it.cat].n}</span></span></button>`).join('')}</div>
+    <button class="btn gh" data-act="gunOpen">VOLVER</button></div>`, dock:''});
+};
+ACT.gunTheirs = t => {
+  const g = S.gun; if(!g || g.theirs!==null) return;
+  g.theirs = +t.dataset.i;
+  g.price = round50((P(g.by).inv[g.mine].paid + RIVAL(g.by).inv[g.theirs].paid) / 2);
+  gunPrice();
+};
+function gunPrice(){
+  const g = S.gun;
+  if(!g || g.mine===null || g.theirs===null) return negoIntro();
+  const a = P(g.by).inv[g.mine], b = RIVAL(g.by).inv[g.theirs];
+  if(!a || !b) return negoIntro();
+  render({body:`<div class="stack">
+    <h2 class="gold" style="text-align:center">🔫 UN SOLO PRECIO</h2>
+    <div class="grid2">
+      <div class="panel" style="text-align:center;border-color:var(--${g.by?'p2':'p1'})">
+        <div class="lbl">TU OBJETO</div><div style="font-size:34px">${a.e}</div>
+        <div class="tiny">${esc(a.name)}</div></div>
+      <div class="panel" style="text-align:center;border-color:var(--${g.by?'p1':'p2'})">
+        <div class="lbl">EL SUYO</div><div style="font-size:34px">${b.e}</div>
+        <div class="tiny">${esc(b.name)}</div></div>
+    </div>
+    <div class="panel gilt" style="text-align:center">
+      <div class="bidnum" id="gunNum">${money(g.price)}</div>
+      <input type="range" id="gunRange" min="100" max="12000" step="50" value="${g.price}">
+      <div class="grid3">
+        <button class="btn sm" data-act="gunAdj" data-d="-1000" data-quiet="1">−1000</button>
+        <button class="btn sm" data-act="gunAdj" data-d="-250" data-quiet="1">−250</button>
+        <button class="btn sm" data-act="gunAdj" data-d="-100" data-quiet="1">−100</button>
+        <button class="btn sm" data-act="gunAdj" data-d="100" data-quiet="1">+100</button>
+        <button class="btn sm" data-act="gunAdj" data-d="250" data-quiet="1">+250</button>
+        <button class="btn sm" data-act="gunAdj" data-d="1000" data-quiet="1">+1000</button>
+      </div>
+    </div>
+    <div class="tiny" style="text-align:center">Tendrás que poder pagar tu propio precio si te toca comprar.</div>
+  </div>`, dock:`<button class="btn pri" data-act="gunSend">🔒 PASAR EL MÓVIL</button>
+    <button class="btn gh" data-act="negoBack">CANCELAR</button>`});
+}
+ACT.gunAdj = t => {
+  const g = S.gun; if(!g) return;
+  g.price = clamp(round50(g.price + (+t.dataset.d)), 100, 12000);
+  const n = $('#gunNum'); if(n) n.textContent = money(g.price);
+  const r = $('#gunRange'); if(r) r.value = g.price;
+  SFX.tick();
+};
+document.addEventListener('input', e=>{
+  if(e.target.id==='gunRange' && S && S.gun){
+    S.gun.price = round50(+e.target.value);
+    const n = $('#gunNum'); if(n) n.textContent = money(S.gun.price);
+  }
+});
+ACT.gunSend = () => {
+  const g = S.gun; if(!g || g.mine===null || g.theirs===null) return;
+  if(g.price > P(g.by).cash){ toast('❌ No podrías pagar tu propio precio'); return; }
+  handoff(1-g.by, 'Te apuntan con un precio. Elige tú el lado del cañón.', ()=>{
+    const a = P(g.by).inv[g.mine], b = P(1-g.by).inv[g.theirs], me = P(1-g.by);
+    render({body:`<div class="stack">
+      <div style="text-align:center"><div style="font-size:44px">🔫</div>
+        <div class="lbl gold">${esc(P(g.by).name)} PONE PRECIO</div>
+        <div class="bidnum">${money(g.price)}</div></div>
+      <div class="panel gilt"><div class="lbl gold">TU EFECTIVO</div>
+        <div class="num gold" style="font-size:24px">${money(me.cash)}</div></div>
+      <div class="panel"><div class="lbl">OPCIÓN A · LE COMPRAS</div>
+        <div class="row" style="gap:10px;margin-top:6px"><div style="font-size:32px">${a.e}</div>
+        <div style="flex:1"><b style="font-size:14px">${esc(a.name)}</b>
+        <div class="tiny">Pagas ${money(g.price)} y es tuyo${g.price>me.cash?' · NO TE LLEGA':''}</div></div></div></div>
+      <div class="panel"><div class="lbl">OPCIÓN B · LE VENDES</div>
+        <div class="row" style="gap:10px;margin-top:6px"><div style="font-size:32px">${b.e}</div>
+        <div style="flex:1"><b style="font-size:14px">${esc(b.name)}</b>
+        <div class="tiny">Cobras ${money(g.price)} y se lo queda él</div></div></div></div>
+    </div>`, dock:`<div class="grid2">
+      <button class="btn pri" data-act="gunBuy" ${g.price>me.cash?'disabled':''}>COMPRO</button>
+      <button class="btn p2" data-act="gunSell">VENDO</button></div>`});
+  });
+};
+ACT.gunBuy = () => {
+  const g = S.gun; if(!g) return;
+  S.gun = null;
+  const seller = P(g.by), buyer = RIVAL(g.by), it = seller.inv[g.mine];
+  if(!it || g.price > buyer.cash){ toast('Ya no es posible'); return later(()=>negoIntro(), 500); }
+  seller.inv.splice(g.mine,1);
+  seller.cash += g.price; buyer.cash -= g.price;
+  it.paid = g.price; buyer.inv.push(it);
+  SFX.buy(); toast(`🔫 ${esc(buyer.name)} se queda ${esc(it.name)} por ${money(g.price)}`, 3000);
+  later(()=>negoIntro(), 1000);
+};
+ACT.gunSell = () => {
+  const g = S.gun; if(!g) return;
+  S.gun = null;
+  const buyer = P(g.by), seller = RIVAL(g.by), it = seller.inv[g.theirs];
+  if(!it || g.price > buyer.cash){ toast('Ya no es posible'); return later(()=>negoIntro(), 500); }
+  seller.inv.splice(g.theirs,1);
+  seller.cash += g.price; buyer.cash -= g.price;
+  it.paid = g.price; buyer.inv.push(it);
+  SFX.buy(); toast(`🔫 ${esc(buyer.name)} se lleva ${esc(it.name)} por ${money(g.price)}`, 3000);
+  later(()=>negoIntro(), 1000);
+};
 </script>
