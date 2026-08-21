@@ -1,5 +1,9 @@
 <title>Subasta Titans</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0B0609">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -209,6 +213,7 @@ input[type=range]{width:100%;accent-color:var(--brass);height:34px}
 @keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-5px)}}
 .shake{animation:shake .4s}
 .pop{animation:zoom .4s cubic-bezier(.2,1.6,.4,1)}
+:fullscreen #shell, :-webkit-full-screen #shell{height:100vh}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 @media (max-height:680px){
   .plate .obj{font-size:56px}h1{font-size:26px}.bidnum{font-size:34px}
@@ -420,6 +425,29 @@ const money = n => {
 const pct = n => (n>=0?'+':'') + Math.round(n) + '%';
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const round50 = n => Math.round(n/50)*50;
+
+/* ─── PANTALLA COMPLETA ────────────────────────────────────── */
+const FS = {
+  wl:null,
+  activo(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); },
+  async wake(){ try{ if('wakeLock' in navigator && !this.wl) this.wl = await navigator.wakeLock.request('screen'); }catch(e){} },
+  async toggle(){
+    const e = document.documentElement;
+    try{
+      if(this.activo()){
+        const salir = document.exitFullscreen || document.webkitExitFullscreen;
+        if(salir) await salir.call(document);
+        if(this.wl){ try{ this.wl.release(); }catch(x){} this.wl = null; }
+        return true;
+      }
+      const pedir = e.requestFullscreen || e.webkitRequestFullscreen;
+      if(!pedir) return false;
+      await pedir.call(e, {navigationUI:'hide'});
+      this.wake();
+      return true;
+    }catch(err){ return false; }
+  }
+};
 
 /* ─── 3. AUDIO + HÁPTICA ───────────────────────────────────── */
 const AU = {ctx:null, on:true, vib:true,
@@ -689,11 +717,16 @@ function screenMenu(){
     </div>`;
   dock.innerHTML = `
     <button class="btn pri" data-act="goSetup">EMPEZAR PARTIDA</button>
-    <div class="grid2">
+    <div class="grid3">
       <button class="btn gh" data-act="goHist">📊 RÉCORDS</button>
+      <button class="btn gh" data-act="fs">⛶ PANTALLA</button>
       <button class="btn gh" data-act="goOpts">⚙️ AJUSTES</button>
     </div>`;
 }
+ACT.fs = async () => {
+  const ok = await FS.toggle();
+  if(!ok) toast('Este navegador no permite pantalla completa aquí.<br><span class="tiny">Abre el juego en una pestaña normal o añádelo a la pantalla de inicio.</span>', 5200);
+};
 ACT.goSetup = () => screenSetup();
 ACT.goMenu = () => screenMenu();
 ACT.goOpts = () => screenOpts('menu');
@@ -724,7 +757,9 @@ function screenOpts(back){
     <h2 class="gold">⚙️ AJUSTES</h2>
     <div class="panel">
       <div class="row sb" style="margin-bottom:12px"><span>🔊 Sonido</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglSnd">${AU.on?'ON':'OFF'}</button></div>
-      <div class="row sb"><span>📳 Vibración</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglVib">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb" style="margin-bottom:12px"><span>📳 Vibración</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglVib">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb"><span>⛶ Pantalla completa</span><button class="btn sm" style="width:auto;min-width:92px" data-act="fs">${FS.activo()?'SALIR':'ACTIVAR'}</button></div>
+      <div class="tiny" style="margin-top:8px">En iPhone, si el navegador no lo permite, añade la página a la pantalla de inicio: se abre sin barras.</div>
     </div>
     <div class="panel"><div class="lbl gold">FORMATOS DE SUBASTA</div>
       <div class="stack" style="gap:10px;margin-top:10px">
@@ -971,7 +1006,8 @@ ACT.pause = () => {
     <div class="small">Ronda ${S.round} de 25 · Nadie está mirando información privada.</div>
     <div class="panel">
       <div class="row sb" style="margin-bottom:12px"><span>🔊 Sonido</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglSnd2">${AU.on?'ON':'OFF'}</button></div>
-      <div class="row sb"><span>📳 Vibración</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglVib2">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb" style="margin-bottom:12px"><span>📳 Vibración</span><button class="btn sm" style="width:auto;min-width:92px" data-act="tglVib2">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb"><span>⛶ Pantalla completa</span><button class="btn sm" style="width:auto;min-width:92px" data-act="fs">${FS.activo()?'SALIR':'ACTIVAR'}</button></div>
     </div>
   </div>`, dock:`<button class="btn pri" data-act="backNews">REANUDAR</button>
     <div class="grid2"><button class="btn gh" data-act="rules">📖 REGLAS</button>

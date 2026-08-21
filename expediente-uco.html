@@ -1,5 +1,9 @@
 <title>Expediente UCO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070C09">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
@@ -45,6 +49,13 @@ button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit
   font-family:var(--f-cond);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green-hi)
 }
 #clas .sim{color:var(--amber);border:1px solid var(--amber);border-radius:3px;padding:1px 6px;font-size:9.5px;letter-spacing:.12em}
+#clas .fs{
+  background:transparent;border:1px solid var(--line2);color:var(--green-hi);border-radius:3px;
+  padding:1px 7px;font-size:12px;line-height:1.5;cursor:pointer;margin-left:2px
+}
+#clas .fs:active{filter:brightness(1.4)}
+:fullscreen #term, :-webkit-full-screen #term{max-width:none;width:100%;height:100vh}
+@media (min-width:560px){ :fullscreen #term{max-width:520px;margin:0 auto} }
 /* ── cabecera de sesión ── */
 #head{padding:8px 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0E1B14,#0A140F)}
 #head.hide,#clas.hide{display:none}
@@ -606,7 +617,11 @@ function paint(o){
   view.scrollTop = 0;
 }
 function clasHTML(){
-  return `<span>UCO · UNIDAD CENTRAL OPERATIVA</span><span class="sim">SIMULACIÓN</span>`;
+  return `<span>UCO · UNIDAD CENTRAL OPERATIVA</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <span class="sim">SIMULACIÓN</span>
+      <button class="fs" data-a="fs" data-q="1" title="Pantalla completa" aria-label="Pantalla completa">${FS.activo()?'⤡':'⛶'}</button>
+    </span>`;
 }
 function headHTML(){
   if(!G) return '';
@@ -641,6 +656,41 @@ function msg(txt, ms){
   d.className = 'msg'; d.innerHTML = txt; $('#msg').appendChild(d);
   setTimeout(()=>{ d.style.opacity='0'; d.style.transition='opacity .35s'; setTimeout(()=>d.remove(),380); }, ms||2400);
 }
+/* ── pantalla completa ── */
+const FS = {
+  wl:null,
+  activo(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); },
+  posible(){ const e = document.documentElement; return !!(e.requestFullscreen || e.webkitRequestFullscreen); },
+  async wake(){
+    try{ if('wakeLock' in navigator && !this.wl) this.wl = await navigator.wakeLock.request('screen'); }catch(e){}
+  },
+  async toggle(){
+    const e = document.documentElement;
+    try{
+      if(this.activo()){
+        const salir = document.exitFullscreen || document.webkitExitFullscreen;
+        if(salir) await salir.call(document);
+        if(this.wl){ try{ this.wl.release(); }catch(x){} this.wl = null; }
+        return true;
+      }
+      const pedir = e.requestFullscreen || e.webkitRequestFullscreen;
+      if(!pedir) return false;
+      await pedir.call(e, {navigationUI:'hide'});
+      this.wake();
+      return true;
+    }catch(err){ return false; }
+  }
+};
+ACT.fs = async () => {
+  const ok = await FS.toggle();
+  if(!ok){
+    msg('Este navegador no permite pantalla completa aquí.<br><span class="dim">Abre el juego en una pestaña del navegador, o añádelo a la pantalla de inicio para que salga sin bordes.</span>', 5200);
+  }
+  if(!clas.classList.contains('hide')) clas.innerHTML = clasHTML();
+};
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>
+  document.addEventListener(ev, ()=>{ if(!clas.classList.contains('hide')) clas.innerHTML = clasHTML(); }));
+
 /* ── audio ── */
 const AU = {ctx:null, on:true, vib:true,
   init(){ if(!this.ctx){ try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
@@ -745,7 +795,8 @@ function scrMenu(){
       </div></div>`:''}
   </div>`,
   bar:`<button class="btn pri" data-a="setup">INICIAR INVESTIGACIÓN</button>
-    <div class="g2"><button class="btn gh" data-a="ayuda">CÓMO SE JUEGA</button>
+    <div class="g3"><button class="btn gh" data-a="ayuda">CÓMO SE JUEGA</button>
+    <button class="btn gh" data-a="fs">⛶ PANTALLA</button>
     <button class="btn gh" data-a="ajustes">AJUSTES</button></div>`});
 }
 ACT.menu = () => scrMenu();
@@ -778,8 +829,12 @@ ACT.ajustes = () => {
     <div class="box">
       <div class="row sb" style="margin-bottom:10px"><span>Sonido del terminal</span>
         <button class="btn sm" style="width:auto;min-width:80px" data-a="tgS">${AU.on?'ON':'OFF'}</button></div>
-      <div class="row sb"><span>Vibración</span>
+      <div class="row sb" style="margin-bottom:10px"><span>Vibración</span>
         <button class="btn sm" style="width:auto;min-width:80px" data-a="tgV">${AU.vib?'ON':'OFF'}</button></div>
+      <div class="row sb"><span>Pantalla completa</span>
+        <button class="btn sm" style="width:auto;min-width:110px" data-a="fs">${FS.activo()?'SALIR':'ACTIVAR'}</button></div>
+      <p class="xs" style="margin-top:8px">También tienes el botón ⛶ arriba a la derecha. En iPhone, si el navegador no
+      lo permite, añade la página a la pantalla de inicio: se abre sin barras.</p>
     </div>
     <div class="box"><div class="k g">DATOS GUARDADOS</div>
       <p class="xs" style="margin-top:6px">Solo se guardan tus estadísticas de casos en este dispositivo.</p>
