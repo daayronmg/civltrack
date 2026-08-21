@@ -31,7 +31,8 @@ button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit
 ::-webkit-scrollbar{width:0;height:0}
 
 #term{
-  position:relative;width:100%;max-width:520px;margin:0 auto;min-height:100dvh;
+  position:relative;width:100%;max-width:520px;margin:0 auto;
+  height:100vh;height:100dvh;max-height:100dvh;
   display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;
   background:
     radial-gradient(120% 55% at 50% 0%, #10201800 60%, #0A130E 100%),
@@ -44,7 +45,7 @@ button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit
 }
 /* ── barra de clasificación ── */
 #clas{
-  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  grid-row:1;display:flex;justify-content:space-between;align-items:center;gap:8px;
   padding:5px 10px;background:#0F2A1B;border-bottom:1px solid var(--line2);
   font-family:var(--f-cond);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green-hi)
 }
@@ -54,13 +55,16 @@ button,input,select,textarea{font-family:inherit;color:inherit;font-size:inherit
   padding:1px 7px;font-size:12px;line-height:1.5;cursor:pointer;margin-left:2px
 }
 #clas .fs:active{filter:brightness(1.4)}
-:fullscreen #term, :-webkit-full-screen #term{max-width:none;width:100%;height:100vh}
+:fullscreen #term, :-webkit-full-screen #term{max-width:none;width:100%;height:100vh;height:100dvh}
 @media (min-width:560px){ :fullscreen #term{max-width:520px;margin:0 auto} }
 /* ── cabecera de sesión ── */
-#head{padding:8px 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0E1B14,#0A140F)}
+#head{grid-row:2;padding:8px 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0E1B14,#0A140F)}
 #head.hide,#clas.hide{display:none}
-#view{overflow-y:auto;overflow-x:hidden;padding:12px;scrollbar-width:none}
-#bar{padding:8px 10px calc(10px + var(--safe-b));border-top:1px solid var(--line);background:#0A140F;display:flex;flex-direction:column;gap:8px}
+#view{grid-row:3;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#bar{
+  grid-row:4;padding:8px 10px calc(10px + var(--safe-b));border-top:1px solid var(--line);background:#0A140F;
+  display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;flex:0 0 auto
+}
 #bar:empty{display:none}
 
 /* ── tipografía ── */

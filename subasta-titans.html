@@ -34,7 +34,8 @@ button,input{font-family:inherit;color:inherit}
 
 /* ── carcasa ── */
 #shell{
-  position:relative;width:100%;max-width:480px;margin:0 auto;min-height:100dvh;
+  position:relative;width:100%;max-width:480px;margin:0 auto;
+  height:100vh;height:100dvh;max-height:100dvh;
   display:grid;grid-template-rows:auto minmax(0,1fr) auto;
   background:
     radial-gradient(120% 60% at 50% -10%, #2A1520 0%, rgba(42,21,32,0) 60%),
@@ -44,13 +45,16 @@ button,input{font-family:inherit;color:inherit}
   overflow:hidden;
 }
 #topbar{
-  display:flex;align-items:center;gap:8px;padding:10px 12px 8px;
+  grid-row:1;display:flex;align-items:center;gap:8px;padding:10px 12px 8px;
   border-bottom:1px solid var(--line);
   background:linear-gradient(180deg,rgba(201,162,39,.10),rgba(201,162,39,0));
 }
 #topbar.hide{display:none}
-#stage{overflow-y:auto;overflow-x:hidden;padding:14px 14px 4px;scrollbar-width:none}
-#dock{padding:10px 14px calc(12px + var(--safe-b));display:flex;flex-direction:column;gap:8px}
+#stage{grid-row:2;min-height:0;overflow-y:auto;overflow-x:hidden;padding:14px 14px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#dock{
+  grid-row:3;padding:10px 14px calc(12px + var(--safe-b));display:flex;flex-direction:column;gap:8px;
+  max-height:52vh;overflow-y:auto;flex:0 0 auto
+}
 #dock:empty{display:none}
 
 /* ── tipografía ── */
@@ -213,7 +217,7 @@ input[type=range]{width:100%;accent-color:var(--brass);height:34px}
 @keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-5px)}}
 .shake{animation:shake .4s}
 .pop{animation:zoom .4s cubic-bezier(.2,1.6,.4,1)}
-:fullscreen #shell, :-webkit-full-screen #shell{height:100vh}
+:fullscreen #shell, :-webkit-full-screen #shell{height:100vh;height:100dvh;max-height:100dvh}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 @media (max-height:680px){
   .plate .obj{font-size:56px}h1{font-size:26px}.bidnum{font-size:34px}
