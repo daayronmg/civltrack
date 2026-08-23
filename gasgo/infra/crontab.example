@@ -1,0 +1,7 @@
+# Ingesta de GASGO cada 30 minutos (alternativa al contenedor `ingest`).
+# La hora del volcado la marca el Ministerio; si no hay volcado nuevo, la ingesta
+# se marca como «skipped» y no toca la base de datos.
+*/30 * * * * cd /srv/gasgo && /usr/bin/node services/api/dist/cli/ingest.js >> /var/log/gasgo/ingest.log 2>&1
+
+# Verificación diaria del contrato con la fuente oficial (avisa si el Ministerio cambia algo).
+15 6 * * * cd /srv/gasgo && /usr/bin/node services/api/dist/cli/verify-source.js >> /var/log/gasgo/verify.log 2>&1
