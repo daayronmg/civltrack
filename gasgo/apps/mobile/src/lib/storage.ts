@@ -73,6 +73,6 @@ export const preferences = {
   setOnboarded: () => writeJson(KEYS.onboarded, true),
 
   async clearAll(): Promise<void> {
-    await AsyncStorage.removeMany(Object.values(KEYS));
+    await AsyncStorage.multiRemove(Object.values(KEYS));
   },
 };
