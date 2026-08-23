@@ -1,0 +1,16 @@
+{
+  "name": "gasgo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GASGO — Encuentra dónde repostar más barato. Monorepo: core compartido, backend de ingesta/API y app móvil.",
+  "workspaces": [
+    "packages/core",
+    "services/api"
+  ],
+  "scripts": {
+    "build": "npm run build -w @gasgo/core && npm run build -w @gasgo/api",
+    "test": "npm run test -w @gasgo/core && npm run test -w @gasgo/api",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": { "node": ">=20.11" }
+}
