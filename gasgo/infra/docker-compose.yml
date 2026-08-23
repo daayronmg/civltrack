@@ -1,0 +1,67 @@
+# Pila mínima de producción de GASGO.
+#   docker compose -f infra/docker-compose.yml up -d
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gasgo
+      POSTGRES_USER: gasgo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD}
+    volumes:
+      - gasgo-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gasgo -d gasgo']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # La base de datos no se expone fuera de la red de contenedores.
+    expose:
+      - '5432'
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://gasgo:${POSTGRES_PASSWORD}@db:5432/gasgo
+      PORT: '3000'
+      LOG_LEVEL: info
+      RATE_LIMIT_MAX: '120'
+      EXPO_ACCESS_TOKEN: ${EXPO_ACCESS_TOKEN:-}
+      GASGO_USER_AGENT: ${GASGO_USER_AGENT:-GASGO/1.0}
+    ports:
+      - '127.0.0.1:3000:3000'
+    command: ['node', 'services/api/dist/server.js']
+
+  # Ingesta periódica: descarga el volcado oficial, lo valida y evalúa las alertas.
+  ingest:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://gasgo:${POSTGRES_PASSWORD}@db:5432/gasgo
+      EXPO_ACCESS_TOKEN: ${EXPO_ACCESS_TOKEN:-}
+      GASGO_USER_AGENT: ${GASGO_USER_AGENT:-GASGO/1.0}
+      INGEST_INTERVAL_SECONDS: '1800'
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - |
+        node services/api/dist/cli/migrate.js
+        while true; do
+          node services/api/dist/cli/ingest.js || echo "ingesta fallida; se reintenta en el próximo ciclo"
+          sleep "$${INGEST_INTERVAL_SECONDS}"
+        done
+
+volumes:
+  gasgo-db:
