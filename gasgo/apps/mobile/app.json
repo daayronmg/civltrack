@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "GASGO",
+    "slug": "gasgo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "gasgo",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0F14"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.gasgo.mobile",
+      "buildNumber": "1",
+      "config": { "usesNonExemptEncryption": false },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "GASGO usa tu ubicación para mostrarte las gasolineras más baratas que tienes cerca. La ubicación se utiliza en el momento de la consulta y no se guarda un historial.",
+        "UIBackgroundModes": ["remote-notification"]
+      }
+    },
+    "android": {
+      "package": "app.gasgo.mobile",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B0F14"
+      },
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "POST_NOTIFICATIONS"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "$GOOGLE_MAPS_ANDROID_API_KEY"
+        }
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "GASGO usa tu ubicación para encontrar las gasolineras más baratas cerca de ti."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#00E08F"
+        }
+      ]
+    ],
+    "extra": {
+      "router": { "origin": false },
+      "eas": { "projectId": "" }
+    },
+    "experiments": { "typedRoutes": true }
+  }
+}

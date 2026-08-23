@@ -5,3 +5,7 @@ dist/
 *.log
 .expo/
 .DS_Store
+
+# Proyectos nativos generados por `expo prebuild` (se regeneran; no se versionan)
+apps/mobile/android/
+apps/mobile/ios/
