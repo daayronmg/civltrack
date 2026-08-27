@@ -37,15 +37,55 @@ lugar de como argumento. Además hay dos regalos sin explotar:
 el grafiti "TOO LATE TO DIE YOUNG" (titular gratis en el encuadre) y el
 peluche sentado en el retrete (easter egg de comentarios).
 
-## RIESGO DE PLATAFORMA — RESOLVER ANTES DE PUBLICAR
+## DECISIÓN SOBRE EL ESCENARIO: SE VA CON TODO
 
-1. Objeto en el suelo, delante-derecha, con apariencia de envoltorio de
-   preservativo. El más peligroso.
-2. Grafiti con lenguaje explícito legible ("FUCK LOVE" y otros).
-3. Peluche de personaje con licencia en contenido comercial.
+Decisión tomada por el responsable de la cuenta: **el escenario se mantiene
+íntegro.** Nada de reencuadres ni difuminados. El desorden, el grafiti y los
+objetos del suelo se quedan.
 
-Ninguno de los tres aporta a la venta. **Reencuadre o difuminado.**
-El riesgo no es el vídeo: es la elegibilidad de la ficha del producto.
+### Cómo se explota bien
+
+El caos no se reparte, se dirige. Dos reglas:
+
+1. **El caos es del hook, no del reveal.** Segundos 0–3: todo el desastre.
+   Segundo 3 en adelante: el producto se lee limpio. No hay que elegir entre
+   escena y ficha; van en orden.
+2. **El caos tiene que ser BUSCABLE.** Sin una instrucción de búsqueda en
+   pantalla, 40 elementos compiten y ninguno es el vestido. Con instrucción,
+   el desorden se convierte en un juego y el juego se rebobina.
+
+### El ángulo: la suciedad eleva la prenda
+
+El escenario deja de ser fondo y pasa a ser **contraste que sube el valor
+percibido del producto**. Cuanto más destrozado el sitio, más cara parece la
+prenda. Esto no se consigue en estudio.
+
+| Hook | Mecanismo | V | C |
+|---|---|---|---|
+| "Lo único limpio de esta habitación cuesta {PRECIO}." | Contraste que eleva | 9 | 9 |
+| "Todo en esta foto es un desastre menos una cosa." | Instrucción de búsqueda + reveal | 9 | 9 |
+| "Lo he llevado a la peor prueba posible." | Stress test → durabilidad | 8 | 9 |
+| "Si aguanta aquí, aguanta tu boda." | Objeción de calidad resuelta con el escenario | 8 | 9 |
+| "Nota del baño: 0. Nota del vestido: decidme vosotras." | Comment bait + rating | 9 | 7 |
+| "Cuenta cuántas cosas están mal aquí. Yo he encontrado 11." | Juego → rewatch | 10 | 6 |
+| "El sitio más cutre y el vestido más caro que tengo." | Choque directo | 9 | 8 |
+
+**El de las 11 cosas** es la bomba de retención: obliga a rebobinar, y el
+rewatch es la señal que más distribuye. Pero su C es 6: no vende solo. Se
+publica con el comentario fijado haciendo el cierre —
+*"la número 8 es el vestido, y es la única que está bien. {PRECIO}, cesta naranja."*
+
+### Regla de explotación de los hallazgos
+
+Los elementos llamativos del encuadre **no se señalan con el texto en pantalla.**
+Se dejan y los encuentra la audiencia.
+
+Razón de rendimiento, no de prudencia: si el vídeo señala el hallazgo, es un
+chiste del autor y se agota en un visionado. Si lo encuentra la audiencia, es
+un hilo de comentarios que empuja la distribución varios días. El hallazgo se
+regala, no se sirve. Aplica al grafiti, al peluche y a los objetos del suelo.
+
+**Tú pones el tablero. Ellos encuentran las piezas.**
 
 ## INTERVENCIÓN ÚNICA DE MÁXIMO IMPACTO
 
@@ -173,6 +213,6 @@ Igual hasta 7s. Después: `7–10` macro de tejido y costura · `10–13` sentad
 | Forro / opacidad / tallaje | El guion de 20s completo |
 | Valoraciones y ventas | Prueba social (solo si es real) |
 
-Decisión pendiente del responsable: reencuadrar los elementos de riesgo del
-suelo y la pared, o asumir el riesgo de elegibilidad de la ficha.
-Recomendación: **reencuadrar.** No aportan venta.
+Decisión ya tomada: el escenario va íntegro, sin reencuadres. Ver el apartado
+"DECISIÓN SOBRE EL ESCENARIO" para cómo se explota el caos sin perder la
+lectura del producto.
